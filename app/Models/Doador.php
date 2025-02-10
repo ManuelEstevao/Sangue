@@ -3,12 +3,12 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class Doador extends Model
 {
     protected $table = 'doador';
     protected $primaryKey = 'id_doador';
-    public $timestamps = false;
 
     protected $fillable = [
         'numero_bilhete',

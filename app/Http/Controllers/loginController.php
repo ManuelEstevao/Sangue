@@ -19,7 +19,7 @@ class loginController extends Controller
         // Validação dos campos enviados
         $credentials = $request->validate([
             'email' => 'required|email',
-            'senha' => 'required|string',
+            'senha' => 'required',
         ]);
 
         // Mapeia o campo "senha" para "password" para compatibilidade com Auth::attempt
