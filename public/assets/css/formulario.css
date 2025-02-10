@@ -1,0 +1,97 @@
+
+*{
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: "Poppins", sans-serif;
+}
+
+body{
+        
+    background: linear-gradient(90deg,rgb(196, 66, 66) 0%,#eee 100%);
+}
+main{
+    background-color: #fafafa;
+    border-radius: 10px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+    max-width: 450px;
+    margin: 50px auto;
+   
+    
+}
+header{
+    background-color: #eee;
+    padding: 15px;
+    border-radius: 10px 10px 0px 0px; 
+    font-weight: bold;
+    display: flex;
+    justify-content: space-between;
+}
+.form{
+    padding: 15px;
+}
+
+
+input,select{
+    border: 2px solid #f0f0f0;
+    display: block;
+    border-radius: 10px;
+    font-size: 15px;
+    width: 100%;
+    padding: 10px;
+}
+.btn button{
+    background-color: rgb(140, 38, 38);
+    border: 2px solid rgb(140, 38, 38) ;
+    color: #fff;
+    font-size: 14px;
+    width: 100%;
+    border-radius: 10px;
+    padding: 10px;
+    cursor: pointer;
+   
+}
+
+/* Error and Success */
+.form-control.success input {
+    border-color: #2ecc71;
+  }
+
+/* Use a classe .form-control para cada grupo de campo */
+.form-control {
+    margin-bottom: 8px;
+    padding-bottom: 15px;
+    position: relative;
+}
+
+/* Ícone para exibição de erro/sucesso */
+.form-control i {
+    position: absolute;
+    top: 15px;
+    right: 10px;
+    visibility: hidden;
+}
+
+/* Mensagens de erro */
+.form-control small {
+    position: absolute;
+    bottom: -2px;
+    left: 1;
+    visibility: hidden;
+}
+
+.form-control.success i.fa-check-circle {
+    color: #2ecc71;
+    visibility: visible;
+  }
+  
+  .form-control.error i.fa-exclamation-circle {
+    color: #e74c3c;
+    visibility: visible;
+  }
+  
+  .form-control.error small {
+    visibility: visible;
+    color: #e74c3c;
+  }
+  

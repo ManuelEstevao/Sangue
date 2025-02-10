@@ -1,0 +1,150 @@
+/* Importa a fonte Poppins */
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap');
+
+/* Variáveis de cores */
+:root {
+    --primary-color: #d90429;       /* Vermelho forte, que remete à doação de sangue */
+    --sidebar-bg: #f8f9fa;          /* Fundo claro para a sidebar */
+    --sidebar-border: #dee2e6;      /* Cor da borda da sidebar */
+    --navbar-bg: #ffffff;           /* Fundo branco para a navbar */
+    --text-color: #343a40;          /* Cor padrão para textos */
+}
+
+*,
+::after,
+::before {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: 'Poppins', sans-serif;
+    background: #f1f1f1;
+    color: var(--text-color);
+}
+
+/* Wrapper do layout */
+.wrapper {
+    display: flex;
+    min-height: 100vh;
+    width: 100%;
+}
+
+
+/* Sidebar */
+#sidebar {
+    width: 260px;
+    min-width: 260px;
+    background-color: var(--sidebar-bg);
+    border-right: 1px solid var(--sidebar-border);
+    transition: all 0.3s ease;
+    padding-top: 20px;
+}
+
+.sidebar-logo {
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.sidebar-logo h3 {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: var(--text-color);
+}
+
+.sidebar-nav {
+    padding-left: 0;
+}
+
+.sidebar-nav li {
+    margin: 5px 0;
+}
+
+.sidebar-nav li a {
+    display: block;
+    padding: 10px 20px;
+    font-size: 0.95rem;
+    color: var(--text-color);
+    transition: background 0.3s ease;
+    border-radius: 4px;
+}
+
+.sidebar-nav li a:hover,
+.sidebar-nav li a.active {
+    background-color: var(--primary-color);
+    color: #fff;
+}
+
+/* Main Content */
+.main {
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+    background: #f8f9fa;
+    transition: all 0.3s ease;
+}
+
+/* Navbar Superior */
+.navbar {
+    background-color: var(--navbar-bg);
+    border-bottom: 1px solid var(--sidebar-border);
+    padding: 1rem 1.5rem;
+}
+
+
+#sidebar {
+    width: 260px;
+    min-width: 260px;
+    background-color: var(--sidebar-bg);
+    border-right: 1px solid var(--sidebar-border);
+    transition: all 0.3s ease;
+    padding-top: 20px;
+}
+#sidebar.collapsed {
+    margin-left: -264px;
+}
+
+
+.sidebar-title {
+    display: block;
+    font-size: 0.70rem;
+    color: var(--text-color);
+    text-transform: uppercase;
+    padding: 10px 20px;
+    margin-top: 10px;
+    border-bottom: 1px solid var(--sidebar-border);
+}
+
+
+
+/* Conteúdo Principal */
+.content {
+    padding: 20px;
+    background: #fff;
+    min-height: calc(100vh - 60px); /* Ajuste conforme a altura da navbar */
+}
+
+/* Footer (se houver) */
+.footer {
+    padding: 15px;
+    text-align: center;
+    background-color: var(--navbar-bg);
+    border-top: 1px solid var(--sidebar-border);
+    font-size: 0.85rem;
+    color: var(--text-color);
+}
+
+/* Responsividade */
+@media (max-width: 768px) {
+    #sidebar {
+        width: 200px;
+        min-width: 200px;
+    }
+    .wrapper {
+        flex-direction: column;
+    }
+    .main {
+        width: 100%;
+    }
+}
