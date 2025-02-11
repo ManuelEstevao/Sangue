@@ -16,7 +16,7 @@
     }
     .card-col {
         flex: 1;
-        min-width: 300px;
+        min-width: 250px;
     }
     /* Estilização dos Cards */
     .custom-card {
@@ -27,7 +27,7 @@
         display: flex;
         flex-direction: column;
         justify-content: space-between;
-        height: 90%;
+        height: 100%;
     }
     .custom-card:hover {
         transform: scale(1.02);
@@ -71,7 +71,7 @@
                         <p class="card-text">
                             {{ $nextDonation ?? 'Nenhuma doação agendada' }}
                         </p>
-                        <a href="" class="btn btn-light mt-3">
+                        <a href="" class="btn btn-light mt-1">
                             Agendar <i class="fa-solid fa-calendar-plus ms-1"></i>
                         </a>
                     </div>
@@ -89,7 +89,7 @@
                         <p class="card-text">
                             Total: {{ $totalDonations ?? '0' }} doações
                         </p>
-                        <a href="" class="btn btn-light mt-3">
+                        <a href="" class="btn btn-light mt-1">
                             Ver Histórico <i class="fa-solid fa-history ms-1"></i>
                         </a>
                     </div>
@@ -105,7 +105,7 @@
                         </div>
                         <h5 class="card-title">Cartão Digital</h5>
                         <p class="card-text c">
-                            Acesse seu cartão digital com todas as informações de suas doações registradas.
+                            Acesse seu cartão digital.
                         </p>
                         <a href="" class="btn btn-light mt-1">
                             Visualizar Cartão <i class="fa-solid fa-id-badge ms-1"></i>

@@ -24,7 +24,7 @@
                     </a>
                 </div>
                 <ul class="sidebar-nav list-unstyled">
-                    <li class="sidebar-item">
+                    <li class="sidebar-item active">
                         <a href="{{ route('dash') }}" class="sidebar-link text-decoration-none">
                             <i class="fa-solid fa-chart-line pe-2"></i> Dashboard
                         </a>
@@ -46,6 +46,7 @@
                             <i class="fa-solid fa-clock-rotate-left pe-2"></i> Histórico de Doação
                         </a>
                     </li>
+                    <span class="sidebar-title">Dados</span>
                     <li class="sidebar-item">
                         <a href="#" class="sidebar-link text-decoration-none">
                             <i class="fa-solid fa-bell pe-2"></i> Notificações
@@ -54,11 +55,6 @@
                     <li class="sidebar-item">
                         <a href="#" class="sidebar-link text-decoration-none">
                             <i class="fa-solid fa-user pe-2"></i> Perfil
-                        </a>
-                    </li>
-                    <li class="sidebar-item mt-4">
-                        <a href="#" class="sidebar-link text-danger text-decoration-none">
-                            <i class="fa-solid fa-right-from-bracket pe-2"></i> Sair
                         </a>
                     </li>
                 </ul>
