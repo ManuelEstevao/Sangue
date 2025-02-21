@@ -886,7 +886,43 @@ section,
   }
 }
 
+.carousel {
+  position: relative;
+  width: 100%;
+  max-width: 600px; /* Ajuste conforme necessário */
+  overflow: hidden;
+}
 
+.carousel-images {
+  display: flex;
+  transition: transform 0.5s ease;
+}
+
+.carousel-image {
+  min-width: 100%;
+  height: 400px; /* Ajuste conforme necessário */
+  background-size: cover;
+  background-position: center;
+}
+
+button {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  background-color: rgba(255, 255, 255, 0.5);
+  border: none;
+  cursor: pointer;
+  padding: 10px;
+  z-index: 10;
+}
+
+.prev {
+  left: 10px;
+}
+
+.next {
+  right: 10px;
+}
 /*--------------------------------------------------------------
 # Mapa
 --------------------------------------------------------------*/

@@ -1,7 +1,7 @@
 const form = document.getElementById("form");
 const bi = document.getElementById("bi");
 const nome = document.getElementById("nome");
-//const genero = document.getElementById("genero");
+const genero = document.getElementById("genero");
 //const data = document.getElementById("data");
 const tisangue = document.getElementById("tisangue");
 const email = document.getElementById("email");
@@ -17,7 +17,7 @@ form.addEventListener("submit", (e) => {
 function checkInputs() {
   const biValue = bi.value.trim();
   const nomeValue = nome.value.trim();
- // const generoValue = genero.value.trim();
+  const generoValue = genero.value.trim();
   //const dataValue = data.value.trim();
   const tisangueValue = tisangue.value;
   const emailValue = email.value.trim();
@@ -41,16 +41,25 @@ function checkInputs() {
     setSuccessFor(nome);
   }
 
-  /* Validação do Gênero
+  //Validação do Gênero
   if (generoValue === "") {
     setErrorFor(genero, "O gênero é obrigatório.");
-  } else if (!["Masculino", "Feminino"].includes(generoValue)) {
-    setErrorFor(genero, "Selecione um gênero válido");
+    
   } else {
     setSuccessFor(genero);
   }
+  const updateDataField = document.getElementById("updateData");
+if (updateDataField) {
+  const updateDataValue = updateDataField.value.trim();
+  if (updateDataValue === "") {
+    setErrorFor(updateDataField, "Atualize a data de nascimento.");
+  } else {
+    setSuccessFor(updateDataField);
+  }
+}
 
-  Validação da Data de Nascimento
+
+/*Validação da Data de Nascimento
   if (dataValue === "") {
     setErrorFor(data, "A data de nascimento é obrigatória.");
   } else {

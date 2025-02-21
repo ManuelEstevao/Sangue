@@ -9,11 +9,13 @@ class Doador extends Model
 {
     protected $table = 'doador';
     protected $primaryKey = 'id_doador';
+    public $timestamps = false;
 
     protected $fillable = [
         'numero_bilhete',
         'nome',
         'data_nascimento',
+        'genero',  
         'tipo_sanguineo',
         'telefone',
         'foto',

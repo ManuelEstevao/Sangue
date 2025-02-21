@@ -22,12 +22,13 @@ class CadastroController extends Controller
         // Validação dos dados
         $validated = $request->validate([
             'bi'       => 'required|string|max:14|unique:doador,numero_bilhete',
-            'nome'     => 'required|string|max:255',
+            'nome'     => 'required|string',
             'data'     => 'required|date',
+            'genero'   => 'required|string|in:Masculino,Feminino',
             'tisangue' => 'required|string',
             'email'    => 'required|email|unique:users,email',
             'contacto' => 'required',
-            'senha'    => 'required|string|min:8|confirmed',
+            'senha'    => 'required',
         ]);
 
         try {
@@ -39,16 +40,19 @@ class CadastroController extends Controller
                 'password'     => Hash::make($validated['senha']),
                 'tipo_usuario' => 'doador',
             ]);
+          
 
             // 2. Criar o doador, mapeando os campos do formulário para os atributos do modelo
             Doador::create([
                 'numero_bilhete'  => $validated['bi'],
                 'nome'            => $validated['nome'],
                 'data_nascimento' => $validated['data'],
+                'genero'          => $validated['genero'], 
                 'tipo_sanguineo'  => $validated['tisangue'],
                 'telefone'        => $validated['contacto'],
-                'id_user'         => $user->id_user, // Conforme sua migração de users
+                'id_user'         => $user->id_user, 
             ]);
+            
 
             // Confirma a transação
             DB::commit();

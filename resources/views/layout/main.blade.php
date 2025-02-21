@@ -35,7 +35,7 @@
 
 <body class="index-page">
 
-  <header id="header" class="header d-flex align-items-center fixed-top">
+<header id="header" class="header d-flex align-items-center fixed-top">
     <div class="header-container container-fluid container-xl position-relative d-flex align-items-center justify-content-between">
 
       <a href="{{route('home')}}" class="logo d-flex align-items-center me-auto me-xl-0">
@@ -44,24 +44,23 @@
 
       <nav id="navmenu" class="navmenu">
         <ul>
-          <li><a href="{{route('home')}}#hero" class="active">Home</a></li>
+          <li><a href="#hero" class="active">Home</a></li>
         <!--  <li><a href="#about">Doador</a></li> -->
-          <li><a href="#features">Informações</a></li>
+          <li><a href="#informacoes">Informações</a></li>
+          
 
           @auth
-          <li><a href="{{route('home')}}#Campanha">Campanha</a></li>
-          <li><a href="{{route('dash')}}">Dashbord</a></li>
+          <li><a href="#Campanha">Campanha</a></li>
+          <li><a href="#faq">FAQ</a></li>
+          
         </ul>
          <i class="mobile-nav-toggle d-xl-none bi bi-list"></i>
          </nav>
 
-         <a class="btn-getstarted" href="#" 
-          onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
-          Terminar Sessão
-        </a>
+         <a class="btn-getstarted" href="{{route('dash')}}">Painel do doador</a>
           @endauth
           @guest
-          <li><a href="{{route('home')}}#Campanha">Campanha</a></li>
+          <li><a href="#Campanha">Campanha</a></li>
           <li><a href="#faq">FAQ</a></li>
           <li><a href="#footer">Contactos</a></li>
         </ul>
@@ -72,9 +71,7 @@
       @endguest
     </div>
   </header>
-  <form id="logout-form" action="{{ route('logout') }}" method="POST" style="display: none;">
-    @csrf
-</form>
+
   @yield('conteudo')
 
   <footer id="footer" class="footer bg-dark text-light">

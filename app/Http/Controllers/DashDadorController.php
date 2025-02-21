@@ -3,63 +3,43 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use App\Models\Agendamento;
+use Illuminate\Support\Facades\Auth;
+use App\Models\Doacao;
+use App\Models\Doador;
 
 class DashDadorController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
+
     public function index()
     {
-        return view('dador.dashbord');
-    }
-    
+        // Obtém o usuário autenticado
+        $user = Auth::user();
+        $doador = Doador::where('id_user', $user->id_user)->first();
 
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
-    {
-        //
-    }
+       // Obtém a próxima doação agendada
+       $proximaDoacao = Agendamento::where('id_doador', $doador->id_doador)
+       ->where('data_agendada', '>', now())
+       ->orderBy('data_agendada', 'asc')
+       ->first();
 
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(Request $request)
-    {
-        //
-    }
+   // Obtém o total de doações realizadas e a data da última doação
+   $totalDoacoes = Doacao::where('id_doador', $doador->id_doador)->count();
+   $ultimaDoacao = Doacao::where('id_doador', $doador->id_doador)
+       ->orderBy('data_doacao', 'desc')
+       ->first();
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(string $id)
-    {
-        //
-    }
+   // Obtém os últimos agendamentos
+   $agendamentos = Agendamento::where('id_doador', $doador->id_doador)
+       ->orderBy('data_agendamento', 'desc')
+       ->paginate(10);
 
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(string $id)
-    {
-        //
-    }
-
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, string $id)
-    {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(string $id)
-    {
-        //
+        // Retorna a view com os dados
+        return view('dador.dashbord', [
+            'proximaDoacao' => $proximaDoacao,
+            'totalDoacoes' => $totalDoacoes,
+            'ultimaDoacao' => $ultimaDoacao ? $ultimaDoacao->data_agendada : null,
+            'agendamentos' => $agendamentos,
+        ]);
     }
 }

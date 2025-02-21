@@ -6,6 +6,7 @@ use App\Http\Controllers\loginController;
 use App\Http\Controllers\cadastroController;
 use App\Http\Controllers\dadorController;
 use App\Http\Controllers\DashDadorController;
+use App\Http\Controllers\AgendamentoController;
 
 // Rotas Públicas
 Route::controller(navController::class)->group(function () {
@@ -31,5 +32,12 @@ Route::middleware('guest')->group(function () {
 Route::middleware('auth')->group(function () {
     Route::get('/doador', [dadorController::class, 'index'])->name('dador');
     Route::get('/dashboard', [DashDadorController::class, 'index'])->name('dash');
+    
+    // Rotas de Agendamento
+    Route::controller(AgendamentoController::class)->group(function () {
+        Route::get('/agendamento/create', 'create')->name('agendamento');
+        Route::post('/agendamento', 'store')->name('agendamento.store');
+    });
+
     Route::post('/logout', [loginController::class, 'logout'])->name('logout');
 });

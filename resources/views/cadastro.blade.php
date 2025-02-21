@@ -47,23 +47,13 @@
                 
             </div>
 
-            <!-- Gênero -->
-            <div class="" >
-                <input 
-                    type="text" 
-                    id="genero" 
-                    name="genero" 
-                    value="{{ old('genero') }}" 
-                    placeholder="Gênero" 
-                    readonly
-                >
               
                 <small class="error-message"></small>
                 
             </div>
 
             <!-- Data de Nascimento -->
-            <div class="" >
+            <div class="data" >
                 <input 
                     type="text" 
                     id="data" 
@@ -75,6 +65,17 @@
         
                 <small class="error-message"></small>
                 
+            </div>
+          <!-- Gênero -->
+            <div class="form-control">
+            <select id="genero" name="genero">
+                <option value="">Selecione o gênero</option>
+                <option value="Masculino">Masculino</option>
+                <option value="Feminino" >Feminino</option>
+            </select>
+            <i class="fas fa-exclamation-circle"></i>
+            <i class="fas fa-check-circle"></i>
+            <small class="error-message"></small>
             </div>
 
             <!-- Tipo Sanguíneo -->
@@ -90,6 +91,8 @@
                         </option>
                     @endforeach
                 </select>
+                <i class="fas fa-exclamation-circle"></i>
+                <i class="fas fa-check-circle"></i>
                 <small class="error-message"></small>
                 
             </div>
@@ -165,32 +168,74 @@
     <!-- Script para busca de dados por BI -->
     <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
     <script>
-        $(document).ready(function () {
-            // Busca dados por BI
-            $('#bi').on('blur', function () {
-                const bi = $(this).val().trim();
+$(document).ready(function () {
+    // Busca dados por BI
+    $('#bi').on('blur', function () {
+        const bi = $(this).val().trim();
 
-                $.ajax({
-                    url: `https://consulta.edgarsingui.ao/consultar/${bi}`,
-                    method: 'GET',
-                    dataType: 'json',
-                    success: function (response) {
-                        if (!response.error) {
-                            $('#nome').val(response.name || '');
-                            $('#genero').val(response.gender || 'Não encontrado');
-                            $('#data').val(response.data_de_nascimento || '');
-                        } else {
-                            alert("Dados não encontrados.");
+        $.ajax({
+            url: `https://consulta.edgarsingui.ao/consultar/${bi}`,
+            method: 'GET',
+            dataType: 'json',
+            success: function (response) {
+                if (!response.error) {
+                    $('#nome').val(response.name || '');
+                    
+                    // Obtém a data original da resposta (formato "yyyy-mm-dd")
+                    let rawDate = response.data_de_nascimento || '';
+                    
+                    if (rawDate) {
+                        // Cria um campo hidden para manter o valor original para submissão
+                        if (!$('#dataHidden').length) {
+                            $('#data').after('<input type="hidden" id="dataHidden" name="data" />');
                         }
-                    },
-                    error: function () {
-                        alert("Erro ao buscar os dados. Verifique o BI ou tente novamente.");
-                    }
-                });
-            });
+                        $('#dataHidden').val(rawDate);
+                        
+                        // Exibe a data formatada para o usuário (dd/mm/aaaa) no campo visível
+                        const parts = rawDate.split('-'); // [yyyy, mm, dd]
+                        let formattedDate = (parts.length === 3) 
+                            ? parts[2] + '/' + parts[1] + '/' + parts[0] 
+                            : rawDate;
+                        $('#data').val(formattedDate);
 
-           
+                        // Se a data original for "1900-01-01", cria o campo para atualização
+                        if (rawDate === "1900-01-01") {
+                            if ($('#updateData').length === 0) {
+                                var updateField = `
+                                    <div class="form-control" id="updateDateContainer">
+                                        <label for="updateData">Atualize sua data de nascimento</label>
+                                        <input type="date" id="updateData" name="data_atualizada">
+                                        <i class="fas fa-exclamation-circle"></i>
+                                        <i class="fas fa-check-circle"></i>
+                                        <small class="error-message"></small>
+                                    </div>
+                                `;
+                                $('.data').after(updateField);
+                            }
+                        } else {
+                            // Se não for "1900-01-01", remove o campo de atualização, se existir
+                            $('#updateDateContainer').remove();
+                        }
+                    } else {
+                        $('#data').val('');
+                    }
+                } else {
+                    alert("Dados não encontrados.");
+                }
+            },
+            error: function () {
+                alert("Erro ao buscar os dados. Verifique o BI ou tente novamente.");
+            }
         });
+    });
+    
+    // Se o campo updateData existir, atualiza o valor do campo hidden com o valor do updateData
+    $(document).on('change', '#updateData', function () {
+        const newDate = $(this).val(); // valor já no formato yyyy-mm-dd
+        $("#dataHidden").val(newDate);
+    });
+});
+
     </script>
     <script src="assets/js/form.js"></script>
     <script

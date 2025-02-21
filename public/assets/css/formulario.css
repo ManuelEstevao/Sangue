@@ -14,7 +14,7 @@ main{
     background-color: #fafafa;
     border-radius: 10px;
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
-    max-width: 450px;
+    max-width: 480px;
     margin: 50px auto;
    
     
@@ -30,6 +30,7 @@ header{
 .form{
     padding: 15px;
 }
+
 
 
 input,select{
@@ -51,6 +52,9 @@ input,select{
     cursor: pointer;
    
 }
+select{
+    cursor: pointer;
+}
 
 /* Error and Success */
 .form-control.success input {
@@ -58,8 +62,8 @@ input,select{
   }
 
 /* Use a classe .form-control para cada grupo de campo */
-.form-control {
-    margin-bottom: 8px;
+.data,.form-control {
+    margin-bottom: 4px;
     padding-bottom: 15px;
     position: relative;
 }

@@ -11,8 +11,9 @@ return new class extends Migration
         Schema::create('doador', function (Blueprint $table) {
             $table->id('id_doador'); 
             $table->string('numero_bilhete', 14)->unique();
-            $table->string('nome', 140);
+            $table->string('nome', 255);
             $table->date('data_nascimento');
+            $table->enum('genero', ['Masculino', 'Feminino']);
             $table->enum('tipo_sanguineo', ['Não sei', 'A+', 'A-', 'B+', 'B-', 'O+', 'O-', 'AB+', 'AB-']); 
             $table->string('telefone', 16);
             $table->string('foto')->nullable();

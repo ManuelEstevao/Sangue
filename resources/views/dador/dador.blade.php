@@ -90,7 +90,7 @@
 </section>
 
 <!-- Sessão instrução -->
-<section id="features" class="features section">
+<section id="informacoes" id="features" class="features section">
   <div class="container section-title" data-aos="fade-up">
     <h2>Passos Simples para Salvar Vidas</h2>
     
@@ -129,15 +129,16 @@
       <div class="tab-pane fade active show" id="features-tab-1">
         <div class="row">
           <div class="col-lg-6 order-2 order-lg-1 mt-3 mt-lg-0 d-flex flex-column justify-content-center">
-            <h3>ConectaDador</h3>
+          <h3>Seu Guia para Doar Sangue</h3>
             <p class="fst-italic">
-              Entenda como o nosso projeto conecta doadores voluntários a centros de coleta de sangue.
+            Tudo o que você precisa saber para doar sangue de forma segura e eficiente:
             </p>
             <ul>
-              <li><i class="bi bi-check2-all"></i> <span>Registre-se na plataforma com suas informações básicas.</span></li>
-              <li><i class="bi bi-check2-all"></i> <span>Encontre um centro de coleta próximo usando a geolocalização.</span></li>
-              <li><i class="bi bi-check2-all"></i> <span>Agende a sua doação de forma rápida e prática.</span></li>
-              <li><i class="bi bi-check2-all"></i> <span>Receba notificações e lembretes sobre o dia da sua doação.</span></li>
+              <li><i class="bi bi-clipboard2-pulse"></i> <span><strong>Pré-Doação:</strong> Durma bem, hidrate-se e evipe alimentos gordurosos 3 horas antes.</span></li>
+              <li><i class="bi bi-geo-alt"></i> <span><strong>Localização:</strong> Encontre o centro mais próximo com nosso mapa interativo.</span></li>
+              <li><i class="bi bi-calendar2-check"></i> <span><strong>Agendamento:</strong> Escolha o horário que melhor se encaixa na sua rotina.</span></li>
+              <li><i class="bi bi-file-medical"></i> <span><strong>Triagem Rápida:</strong> Passo a passo do processo no dia (documentos, questionário de saúde).</span></li>
+              <li><i class="bi bi-cup-hot"></i> <span><strong>Pós-Doação:</strong> Repouso breve, lanche reforçado e evitar esforços físicos por 12h.</span></li>
             </ul>
           </div>
           <div class="col-lg-6 order-1 order-lg-2 text-center">
@@ -149,20 +150,20 @@
       <div class="tab-pane fade" id="features-tab-2">
         <div class="row">
           <div class="col-lg-6 order-2 order-lg-1 mt-3 mt-lg-0 d-flex flex-column justify-content-center">
-            <h3>Neque exercitationem debitis</h3>
+          <h3>Por Que Doar Sangue?</h3>
             <p class="fst-italic">
-              Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore
-              magna aliqua.
+            Além de salvar vidas, sua doação traz benefícios para você e toda a comunidade:
             </p>
             <ul>
-              <li><i class="bi bi-check2-all"></i> <span>Ajuda hospitais e bancos de sangue a manter estoques suficientes.</span></li>
-              <li><i class="bi bi-check2-all"></i> <span>Contribui para salvar vidas em situações de emergência.</span></li>
-              <li><i class="bi bi-check2-all"></i> <span>Promove uma cultura de solidariedade e empatia.</span></li>
-              <li><i class="bi bi-check2-all"></i> <span>Facilidade de acesso com agendamentos online e centros próximos.</span></li>
+              <li><i class="bi bi-heart-pulse"></i> <span><strong>Check-up Gratuito:</strong> Testes de HIV, hepatite, sífilis e tipagem sanguínea.</span></li>
+              <li><i class="bi bi-people"></i> <span><strong>Impacto Coletivo:</strong> 1 doação beneficia até 4 pessoas.</span></li>
+              <li><i class="bi bi-shield-check"></i> <span><strong>Segurança Garantida:</strong> Todo material é descartável e esterilizado.</span></li>
+              <li><i class="bi bi-graph-up"></i> <span><strong>Saúde em Dia:</strong> Doar regularmente ajuda a reduzir risco de doenças cardíacas.</span></li>
+             
             </ul>
           </div>
           <div class="col-lg-6 order-1 order-lg-2 text-center">
-            <img src="assets/img/features-illustration-2.webp" alt="" class="img-fluid">
+            <img src="assets/img/11.png" alt="" class="img-fluid" style="width: 75%;">
           </div>
         </div>
       </div><!-- End tab content item -->
@@ -188,7 +189,6 @@
     </div>
   </div>
 </section>
-
 
 
 <!-- Campanha Section -->

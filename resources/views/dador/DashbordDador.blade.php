@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!DOCTYPE html> 
 <html lang="pt-PT">
 <head>
     <meta charset="UTF-8">
@@ -6,9 +6,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>@yield('title', 'ConectaDador')</title>
     <!-- Bootstrap CSS -->
-    <link href="{{url('assets/vendor/bootstrap/css/bootstrap.min.css')}}" rel="stylesheet">
-    <link href="{{url('assets/vendor/bootstrap-icons/bootstrap-icons.css')}}" rel="stylesheet">
-    <link rel="stylesheet" href="{{url('assets/vendor/fontawesome/css/all.min.css')}}">
+    <link href="{{ url('assets/vendor/bootstrap/css/bootstrap.min.css') }}" rel="stylesheet">
+    <link href="{{ url('assets/vendor/bootstrap-icons/bootstrap-icons.css') }}" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url('assets/vendor/fontawesome/css/all.min.css') }}">
     <!-- Custom CSS -->
     <link rel="stylesheet" href="{{ asset('assets/css/dashbordDador.css') }}">
     @yield('styles')
@@ -34,10 +34,9 @@
                             <i class="fa-solid fa-house pe-2"></i> Página Inicial
                         </a>
                     </li>
-
-                    <span class="sidebar-title">Gerenciamento</span>
+                    <span class="sidebar-title">Meu registro</span>
                     <li class="sidebar-item">
-                        <a href="#" class="sidebar-link text-decoration-none">
+                        <a href="{{ route('agendamento') }}" class="sidebar-link text-decoration-none">
                             <i class="fa-solid fa-calendar-check pe-2"></i> Agendamentos
                         </a>
                     </li>
@@ -49,13 +48,15 @@
                     <span class="sidebar-title">Dados</span>
                     <li class="sidebar-item">
                         <a href="#" class="sidebar-link text-decoration-none">
-                            <i class="fa-solid fa-bell pe-2"></i> Notificações
-                        </a>
-                    </li>
-                    <li class="sidebar-item">
-                        <a href="#" class="sidebar-link text-decoration-none">
                             <i class="fa-solid fa-user pe-2"></i> Perfil
                         </a>
+                    </li>
+                    <br><br><br><br><br>
+                    <li class="sidebar-item .btn-logout">
+                        <form method="POST" action="{{ route('logout') }}">
+                            @csrf
+                            <button type="submit" class="btn btn-outline-danger w-100">Terminar Sessão</button>
+                        </form>
                     </li>
                 </ul>
             </div>
@@ -64,23 +65,31 @@
         <!-- Main Content -->
         <div class="main flex-grow-1">
             <!-- Navbar Superior -->
-            <nav class="navbar navbar-expand-lg navbar-light bg-white border-bottom px-3">
+            <nav class="navbar navbar-expand-lg navbar-light bg-white border-bottom px-3 align-items-center gap-2">
                 <button class="btn" id="sidebar-toggle" type="button">
                     <i class="fa-solid fa-bars"></i>
                 </button>
-                <div class="ms-auto">
-                    <ul class="navbar-nav">
-                        <li class="nav-item dropdown">
-                            <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" data-bs-toggle="dropdown" aria-expanded="false">
-                                <img src="{{ asset('assets/img/profile.jpg') }}" class="rounded-circle" alt="Avatar" style="width:40px;">
+                <div class="ms-auto d-flex align-items-center">
+                    <ul class="navbar-nav me-3">
+                        <!-- Ícone de Notificações na Navbar -->
+                        <li class="nav-item">
+                            <a class="nav-link" href="#">
+                                <i class="fa-solid fa-bell"></i>
                             </a>
-                            <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
-                                <li><a class="dropdown-item" href="#">Perfil</a></li>
-                                <li><a class="dropdown-item" href="#">Configurações</a></li>
-                                <li><hr class="dropdown-divider"></li>
-                                <li><a class="dropdown-item" href="#">Sair</a></li>
-                            </ul>
                         </li>
+                        <li class="nav-item dropdown">
+                    <a class="nav-link" href="#" aria-expanded="false">
+                        <img src="{{ asset('assets/img/profile.png') }}" class="rounded-circle" alt="Avatar" style="width:40px;">
+                        @php
+                            $nomeCompleto = Auth::user()->doador->nome;
+                            $partes = explode(' ', $nomeCompleto);
+                            $primeiroNome = $partes[0];
+                            $ultimoNome = count($partes) > 1 ? $partes[count($partes)-1] : '';
+                            $nomeExibido = $primeiroNome . ($ultimoNome ? ' ' . $ultimoNome : '');
+                        @endphp
+                        <span class="ms-2">{{ $nomeExibido }}</span>
+                    </a>
+                </li>
                     </ul>
                 </div>
             </nav>
@@ -93,9 +102,9 @@
     </div>
 
     <!-- Bootstrap Bundle JS -->
-    <script src="{{url('assets/vendor/bootstrap/js/bootstrap.bundle.min.js')}}"></script>
+    <script src="{{ url('assets/vendor/bootstrap/js/bootstrap.bundle.min.js') }}"></script>
     <!-- Custom Script -->
-    <script src="assets/js/script.js"></script>
+    <script src="{{ asset('assets/js/script.js') }}"></script>
     @yield('scripts')
 </body>
 </html>

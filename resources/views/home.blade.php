@@ -32,13 +32,20 @@
         </div>
       </div>
 
-      <div class="col-lg-6">
-        <div class="hero-image" data-aos="zoom-out" data-aos-delay="300">
-          <div id="map" class="map-container"  class="img-fluid"></div>
+    <div class="col-lg-6">
+      <div class="hero-image" data-aos="zoom-out" data-aos-delay="300">
+        <div class="carousel">
+          <div class="carousel-images">
+            <div class="carousel-image img-fluid" style="background-image: url('/assets/img/hero1.png');"></div>
+            <div class="carousel-image img-fluid" style="background-image: url('/assets/img/hero2.jpg');"></div>
+            <div class="carousel-image img-fluid" style="background-image: url('/assets/img/hero3.png');"></div>
+            <div class="carousel-image img-fluid" style="background-image: url('/assets/img/hero1.png');"></div>
+            <div class="carousel-image img-fluid" style="background-image: url('/assets/img/hero3.png');"></div>
+          </div>
+          <button class="prev" onclick="moveSlide(-1)">❮</button>
+          <button class="next" onclick="moveSlide(1)">❯</button>
         </div>
-      </div>
     </div>
-  </div>
   </div>
 </section>
 
@@ -90,7 +97,7 @@
 </section>
 
 <!-- Sessão instrução -->
-<section id="features" class="features section">
+<section id="informacoes" id="features" class="features section">
   <div class="container section-title" data-aos="fade-up">
     <h2>Passos Simples para Salvar Vidas</h2>
     
@@ -415,7 +422,7 @@
 </div>
 </section>
 </main>
-<!--Section -->
+<!--Section 
 <section id="clients" class="clients section">
 
   <div class="container" data-aos="fade-up" data-aos-delay="100">
@@ -469,4 +476,5 @@
   </div>
 
 </section>
+ -->
 @endsection

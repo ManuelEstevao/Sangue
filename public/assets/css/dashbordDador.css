@@ -44,6 +44,7 @@ body {
 
 .sidebar-logo {
     text-align: center;
+    margin-top: 5px;
     margin-bottom: 20px;
 }
 
@@ -53,6 +54,23 @@ body {
     color: var(--text-color);
 }
 
+ /* Ajuste extra para o ícone de notificações */
+ .nav-link .fa-bell {
+            
+    margin-left:10px;
+    box-shadow: rgba(0, 0, 0, 0.05) 0px 0.1rem 0.2rem;
+    display: block;
+    font-size: 1.2rem;
+    height: 18px;
+    position: relative;
+    right: 20px;
+    text-align: center;
+    top: 15px;
+    width: 18px;
+    border-radius: 50%;
+    padding: 1px;
+    transition: top 0.1s ease-out;
+}
 .sidebar-nav {
     padding-left: 0;
 }
@@ -108,6 +126,7 @@ body {
 }
 
 
+
 .sidebar-title {
     display: block;
     font-size: 0.70rem;
@@ -126,6 +145,7 @@ body {
 .sidebar-item {
     border-radius: 8px;
     cursor: pointer;
+    
 }
 
 
