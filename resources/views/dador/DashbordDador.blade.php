@@ -24,35 +24,36 @@
                     </a>
                 </div>
                 <ul class="sidebar-nav list-unstyled">
-                    <li class="sidebar-item active">
+                    <li class="sidebar-item {{ request()->routeIs('dash') ? 'active' : '' }}">
                         <a href="{{ route('dash') }}" class="sidebar-link text-decoration-none">
                             <i class="fa-solid fa-chart-line pe-2"></i> Dashboard
                         </a>
                     </li>
-                    <li class="sidebar-item">
+                    <li class="sidebar-item {{ request()->routeIs('dador') ? 'active' : '' }}">
                         <a href="{{ route('dador') }}" class="sidebar-link text-decoration-none">
                             <i class="fa-solid fa-house pe-2"></i> Página Inicial
                         </a>
                     </li>
                     <span class="sidebar-title">Meu registro</span>
-                    <li class="sidebar-item">
+                    <li class="sidebar-item {{ request()->routeIs('agendamento') ? 'active' : '' }}">
                         <a href="{{ route('agendamento') }}" class="sidebar-link text-decoration-none">
                             <i class="fa-solid fa-calendar-check pe-2"></i> Agendamentos
                         </a>
                     </li>
-                    <li class="sidebar-item">
-                        <a href="#" class="sidebar-link text-decoration-none">
+                    <li class="sidebar-item {{ request()->routeIs('historico') ? 'active' : '' }}">
+                        <a href="{{ route('historico') }}" class="sidebar-link text-decoration-none">
                             <i class="fa-solid fa-clock-rotate-left pe-2"></i> Histórico de Doação
                         </a>
                     </li>
-                    <span class="sidebar-title">Dados</span>
-                    <li class="sidebar-item">
-                        <a href="#" class="sidebar-link text-decoration-none">
-                            <i class="fa-solid fa-user pe-2"></i> Perfil
+                    <span class="sidebar-title">Meu Perfil</span>
+                    <li class="sidebar-item {{ request()->routeIs('perfil') ? 'active' : '' }}">
+                        <a class="nav-link" href="{{ route('perfil') }}">
+                            <i class="fa-solid fa-user"></i> Meu Perfil
                         </a>
                     </li>
+                    <!-- Espaço para posicionar o botão de logout mais abaixo -->
                     <br><br><br><br><br>
-                    <li class="sidebar-item .btn-logout">
+                    <li class="sidebar-item btn-logout">
                         <form method="POST" action="{{ route('logout') }}">
                             @csrf
                             <button type="submit" class="btn btn-outline-danger w-100">Terminar Sessão</button>
@@ -61,6 +62,7 @@
                 </ul>
             </div>
         </aside>
+
 
         <!-- Main Content -->
         <div class="main flex-grow-1">

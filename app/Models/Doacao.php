@@ -18,6 +18,8 @@ class Doacao extends Model
         'observacoes',
         'data_doacao',
         'id_agendamento',
+        'quantidade_ml',
+        'status',
         'id_doador',
         'id_centro'
     ];

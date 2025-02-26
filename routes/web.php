@@ -7,6 +7,8 @@ use App\Http\Controllers\cadastroController;
 use App\Http\Controllers\dadorController;
 use App\Http\Controllers\DashDadorController;
 use App\Http\Controllers\AgendamentoController;
+use App\Http\Controllers\HistoricoDoacaoController;
+use App\Http\Controllers\PerfilController;
 
 // Rotas Públicas
 Route::controller(navController::class)->group(function () {
@@ -38,6 +40,9 @@ Route::middleware('auth')->group(function () {
         Route::get('/agendamento/create', 'create')->name('agendamento');
         Route::post('/agendamento', 'store')->name('agendamento.store');
     });
+    Route::get('/doacoes/historico', [HistoricoDoacaoController::class, 'index'])
+    ->name('historico');
+    Route::get('/perfil', [PerfilController::class, 'index'])->name('perfil');
 
     Route::post('/logout', [loginController::class, 'logout'])->name('logout');
 });
