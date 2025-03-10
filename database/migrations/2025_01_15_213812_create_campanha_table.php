@@ -17,8 +17,15 @@ return new class extends Migration
             $table->text('descricao')->nullable();
             $table->date('data_inicio');
             $table->date('data_fim');
-            $table->unsignedBigInteger('id_centro')->nullable(); 
-            $table->foreign('id_centro')->references('id_centro')->on('centro')->onDelete('cascade');
+            $table->time('hora_inicio');       
+            $table->time('hora_fim');          
+            $table->string('foto')->nullable(); 
+            $table->unsignedBigInteger('id_centro')->nullable();
+            $table->foreign('id_centro')
+                  ->references('id_centro')
+                  ->on('centro')
+                  ->onDelete('cascade');
+
             $table->timestamps();
         });
     }

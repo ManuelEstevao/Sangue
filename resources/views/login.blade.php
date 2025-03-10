@@ -9,7 +9,7 @@
     rel="stylesheet"
   />
   <link rel="stylesheet" href="{{url('assets/vendor/fontawesome/css/all.min.css')}}">
-  <link rel="shortcut icon" href="../ico/login.png" type="image/x-icon">
+  <link href="assets/img/flavicon.png" rel="icon">
 
     <title>Login</title>
 </head>

@@ -8,6 +8,9 @@ class Agendamento extends Model
 {
     protected $table = 'agendamento';
     protected $primaryKey = 'id_agendamento';
+    public $timestamps = false;
+    public $incrementing = true;
+
 
     protected $fillable = [
         'id_doador',

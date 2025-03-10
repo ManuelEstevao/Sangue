@@ -10,6 +10,8 @@ class centro extends Model
     use HasFactory;
     protected $table = 'centro';
     protected $primaryKey = 'id_centro';
+    public $timestamps = false;
+    public $incrementing = true;
 
     protected $fillable = [
         'nome',
@@ -46,11 +48,11 @@ class centro extends Model
     }
 
     /**
-     * Relacionamento com campanhas (1 para muitos).
+     * Relacionamento com campanha (1 para muitos).
      */
-    public function campanhas(): HasMany
+    public function campanha(): HasMany
     {
-        return $this->hasMany(Campanha::class, 'id_centro', 'id_centro');
+        return $this->hasMany(Campanha::class, 'id_centro');
     }
 
 }

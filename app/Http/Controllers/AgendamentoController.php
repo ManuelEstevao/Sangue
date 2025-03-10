@@ -45,7 +45,6 @@ class AgendamentoController extends Controller
         $request->validate([
             'data_agendada' => 'required|date|after:now',
             'id_centro'   => 'required|exists:centro,id_centro',
-            'id_campanha'      => 'nullable|exists:campanha,id_campanha',
         ]);
 
         // Obtém o usuário autenticado e seu perfil de doador
@@ -56,12 +55,11 @@ class AgendamentoController extends Controller
         Agendamento::create([
             'id_doador'        => $doador->id_doador,
             'id_centro'   => $request->id_centro,
-            'id_campanha'      => $request->id_campanha,
             'data_agendada' => $request->data_agendada,
             'status'           => 'Agendado',
         ]);
 
-        return redirect()->route('dador.agendamento')->with('success', 'Agendamento realizado com sucesso!');
+        return redirect()->route('doador.Dashbord')->with('success', 'Agendamento realizado com sucesso!');
     }
 
 

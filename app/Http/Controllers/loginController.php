@@ -7,51 +7,49 @@ use Illuminate\Support\Facades\Auth;
 
 class loginController extends Controller
 {
-    // Mostra a view de login
     public function index()
     {
         return view('login');
     }
 
-    // Lógica para autenticação do usuário
     public function login(Request $request)
     {
-        // Validação dos campos enviados
         $credentials = $request->validate([
             'email' => 'required|email',
             'senha' => 'required',
         ]);
 
-        // Mapeia o campo "senha" para "password" para compatibilidade com Auth::attempt
         $loginData = [
             'email'    => $credentials['email'],
             'password' => $credentials['senha'],
         ];
 
-        // Tenta autenticar o usuário
         if (Auth::attempt($loginData)) {
-            // Regenera a sessão para evitar session fixation
             $request->session()->regenerate();
+            
+            // Redirecionamento baseado no tipo de usuário
+            $user = Auth::user();
+            
+            if ($user->tipo_usuario === 'centro') {
+                return redirect()->route('centro.Dashbord');
+            } elseif ($user->tipo_usuario === 'doador') {
+                return redirect()->route('doador.Dashbord');
+            }
 
-            // Redireciona para a página desejada (ex.: dashboard)
-            return redirect()->intended('dashboard')->with('success', 'Login efetuado com sucesso!');
+            // Redirecionamento padrão caso o tipo não seja reconhecido
+            return redirect()->intended('/');
         }
 
-        // Se a autenticação falhar, retorna para o formulário com mensagem de erro
         return back()->withErrors([
             'error' => 'Email ou senha inválidos',
         ])->withInput($request->only('email'));
     }
+
     public function logout(Request $request)
     {
         Auth::logout();
-
-        // Invalida a sessão atual
         $request->session()->invalidate();
-
-        // Regenera o token CSRF
         $request->session()->regenerateToken();
-
         return redirect()->route('home')->with('success', 'Sessão terminada com sucesso!');
     }
 }

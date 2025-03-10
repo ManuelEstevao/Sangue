@@ -19,6 +19,7 @@
   <link href="{{url('assets/vendor/glightbox/css/glightbox.min.css')}}" rel="stylesheet">
   <link href="{{url('assets/vendor/swiper/swiper-bundle.min.css')}}" rel="stylesheet">
   <link rel="stylesheet" href="{{url('assets/vendor/fontawesome/css/all.min.css')}}">
+  <link href="assets/img/flavicon.png" rel="icon">
   
   <!-- Mapa-->
   <script src="https://api-maps.yandex.ru/2.1/?lang=pt_PT&apikey=db51d640-6b39-495c-b35b-c2ec8a719fc9" type="text/javascript"></script>
@@ -57,7 +58,7 @@
          <i class="mobile-nav-toggle d-xl-none bi bi-list"></i>
          </nav>
 
-         <a class="btn-getstarted" href="{{route('dash')}}">Painel do doador</a>
+         <a class="btn-getstarted" href="{{route('doador.Dashbord')}}">Painel do doador</a>
           @endauth
           @guest
           <li><a href="#Campanha">Campanha</a></li>

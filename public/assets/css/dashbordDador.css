@@ -40,6 +40,7 @@ body {
     border-right: 1px solid var(--sidebar-border);
     transition: all 0.3s ease;
     padding-top: 20px;
+    
 }
 
 .sidebar-logo {
@@ -87,6 +88,12 @@ body {
     transition: background 0.3s ease;
     border-radius: 4px;
 }
+.wrapper {
+    display: flex;
+    min-height: 100vh;
+}
+
+
 
 .sidebar-nav li a:hover,
 .sidebar-nav li a.active {
@@ -155,6 +162,7 @@ body {
     padding: 20px;
     background: #fff;
     min-height: calc(100vh - 60px); /* Ajuste conforme a altura da navbar */
+    
 }
 
 /* Footer (se houver) */

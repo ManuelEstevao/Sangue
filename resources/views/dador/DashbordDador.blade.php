@@ -24,8 +24,8 @@
                     </a>
                 </div>
                 <ul class="sidebar-nav list-unstyled">
-                    <li class="sidebar-item {{ request()->routeIs('dash') ? 'active' : '' }}">
-                        <a href="{{ route('dash') }}" class="sidebar-link text-decoration-none">
+                    <li class="sidebar-item {{ request()->routeIs('doador.Dashbord') ? 'active' : '' }}">
+                        <a href="{{ route('doador.Dashbord') }}" class="sidebar-link text-decoration-none">
                             <i class="fa-solid fa-chart-line pe-2"></i> Dashboard
                         </a>
                     </li>

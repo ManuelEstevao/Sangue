@@ -3,7 +3,9 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Carbon\Carbon;
 
 
 class Campanha extends Model
@@ -12,21 +14,31 @@ class Campanha extends Model
 
     protected $table = 'campanha';
     protected $primaryKey = 'id_campanha';
+    public $timestamps = false;
+
 
     protected $fillable = [
         'titulo',
         'descricao',
         'data_inicio',
         'data_fim',
-        'id_cenntro',
+        'hora_inicio',
+        'hora_fim',
+        'foto',
+        'id_centro'
     ];
-
+    protected $dates = [
+        'data_inicio',  
+        'data_fim',     
+        'created_at',
+        'updated_at'
+    ];
     /**
-     * Relacionamento com a cenntro (muitos para 1).
+     * Relacionamento com a centro (muitos para 1).
      */
-    public function cenntro(): BelongsTo
+    public function centro(): BelongsTo
     {
-        return $this->belongsTo(cenntro::class, 'id_cenntro', 'id_cenntro');
+        return $this->belongsTo(centro::class, 'id_centro', 'id_centro');
     }
 
 }
