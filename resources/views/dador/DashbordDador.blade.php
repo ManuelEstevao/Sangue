@@ -11,6 +11,7 @@
     <link rel="stylesheet" href="{{ url('assets/vendor/fontawesome/css/all.min.css') }}">
     <!-- Custom CSS -->
     <link rel="stylesheet" href="{{ asset('assets/css/dashbordDador.css') }}">
+    <link href="assets/img/flavicon.png" rel="icon">
     @yield('styles')
 </head>
 <body>
@@ -37,7 +38,7 @@
                     <span class="sidebar-title">Meu registro</span>
                     <li class="sidebar-item {{ request()->routeIs('agendamento') ? 'active' : '' }}">
                         <a href="{{ route('agendamento') }}" class="sidebar-link text-decoration-none">
-                            <i class="fa-solid fa-calendar-check pe-2"></i> Agendamentos
+                            <i class="fa-solid fa-calendar-check pe-2"></i> Agendar Doação
                         </a>
                     </li>
                     <li class="sidebar-item {{ request()->routeIs('historico') ? 'active' : '' }}">

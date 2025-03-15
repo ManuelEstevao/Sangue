@@ -1,50 +1,115 @@
-@extends('layout.main')
-@section('title','Detalhe da Campanha - ConectaDador')
+<!DOCTYPE html>
+<html lang="pt-PT">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Detalhe da Campanha</title>
+    
+    <!-- CSS Essenciais -->
+    <link href="{{ asset('assets/vendor/bootstrap/css/bootstrap.min.css') }}" rel="stylesheet">
+    <link href="{{ asset('assets/vendor/bootstrap-icons/bootstrap-icons.css') }}" rel="stylesheet">
+    <link href="{{ asset('assets/vendor/aos/aos.css') }}" rel="stylesheet">
+    <link rel="stylesheet" href="{{ asset('assets/vendor/fontawesome/css/all.min.css') }}">
+    <link href="{{ asset('assets/css/main.css') }}" rel="stylesheet">
+    <link href="{{ asset('assets/img/flavicon.png') }}" rel="icon">
+</head>
 
-@section('conteudo')
-<!-- service-details.html -->
-<div class="container py-5">
-  <div class="card">
-    <div class="card-body">
-      <div class="row">
-        <!-- Imagem da Campanha -->
-        <div class="col-md-6">
-          @if($campanha->foto)
-            <img src="{{ asset('storage/' . $campanha->foto) }}" 
-                 class="img-fluid rounded" 
-                 alt="{{ $campanha->titulo }}">
-          @else
-            <img src="{{ asset('assets/img/campanha.png') }}" 
-                 alt="Campanha padrão" 
-                 class="img-fluid">
-          @endif
+<body>
+<!-- Conteúdo Principal -->
+<main class="main-content">
+    <section class="section py-5">
+        <div class="container" data-aos="fade-up">
+            <!-- Card Principal -->
+            <div class="card shadow-lg border-0 overflow-hidden">
+                <div class="card-body p-4">
+                    <div class="row g-5 align-items-stretch">
+                        <!-- Coluna da Imagem -->
+                        <div class="col-lg-6">
+                            <div class="position-relative h-100">
+                                @if($campanha->foto)
+                                    <img src="{{ asset('storage/' . $campanha->foto) }}" 
+                                         class="img-fluid rounded-3 w-100 h-100 object-fit-cover" 
+                                         alt="{{ $campanha->titulo }}">
+                                @else
+                                    <img src="{{ asset('assets/img/campanha.png') }}" 
+                                         class="img-fluid rounded-3 w-100 h-100 object-fit-cover" 
+                                         alt="Campanha padrão">
+                                @endif
+                                <!-- Badge com Efeito AOS -->
+                                <div class="badge bg-danger position-absolute top-0 start-0 m-3" data-aos="zoom-in">
+                                {{ \Carbon\Carbon::parse($campanha->data_inicio)->format('d M') }} - {{ \Carbon\Carbon::parse($campanha->data_fim)->format('d M') }}
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Coluna de Conteúdo -->
+                        <div class="col-lg-6">
+                            <div class="d-flex flex-column h-100 px-lg-4">
+                                <!-- Título com Animação -->
+                                <h1 class="display-5 fw-bold mb-4 text-danger" data-aos="fade-left">
+                                    {{ $campanha->titulo }}
+                                </h1>
+
+                                <!-- Bloco de Informações -->
+                                <div class="info-blocks">
+                                    <!-- Seção do Centro -->
+                                    <div class="info-block mb-5" data-aos="fade-up">
+                                        <div class="d-flex align-items-center mb-3">
+                                            <i class="bi bi-building fs-3 text-danger me-3"></i>
+                                            <h3 class="h4 mb-0">{{ $campanha->centro->nome }}</h3>
+                                        </div>
+                                        <ul class="list-unstyled">
+                                            <li class="mb-2">
+                                                <i class="bi bi-geo-alt-fill me-2"></i>
+                                                {{ $campanha->centro->endereco }}
+                                            </li>
+                                            <li class="mb-2">
+                                                <i class="bi bi-clock-fill me-2"></i>
+                                                {{ $campanha->hora_inicio }} - {{ $campanha->hora_fim }}
+                                            </li>
+                                            <li>
+                                                <i class="bi bi-telephone-fill me-2"></i>
+                                                {{ $campanha->centro->telefone }}
+                                            </li>
+                                        </ul>
+                                    </div>
+
+                                    <!-- Descrição -->
+                                    <div class="info-block mb-5" data-aos="fade-up">
+                                        <div class="d-flex align-items-center mb-3">
+                                            <i class="bi bi-info-circle fs-3 text-danger me-3"></i>
+                                            <h3 class="h4 mb-0">Sobre a Campanha</h3>
+                                        </div>
+                                        <p class="lead text-secondary">{{ $campanha->descricao }}</p>
+                                    </div>
+
+                                    <!-- Botões de Ação -->
+                                    <div class="mt-auto" data-aos="fade-up">
+                                        <div class="d-grid gap-3 d-md-flex">
+                                            <a href="#" class="btn btn-danger btn-lg px-4 py-3">
+                                                <i class="bi bi-heart-pulse-fill me-2"></i>Participar
+                                            </a>
+                                            <a href="javascript:void(0);" 
+                                                class="btn btn-outline-secondary btn-lg px-4 py-3" 
+                                                onclick="window.history.back();">
+                                                    <i class="bi bi-arrow-left me-2"></i>Voltar
+                                            </a>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
-        <!-- Detalhes da Campanha e do Centro -->
-        <div class="col-md-6">
-          <h1 class="mb-3">{{ $campanha->titulo }}</h1>
-          <div class="mb-4">
-            <h4>Informações do Centro</h4>
-            <ul class="list-unstyled">
-              <li><strong>Nome:</strong> {{ $campanha->centro->nome }}</li>
-              <li><strong>Endereço:</strong> {{ $campanha->centro->endereco }}</li>
-              <li><strong>Telefone:</strong> {{ $campanha->centro->telefone }}</li>
-            </ul>
+    </section>
+</main>
+<script src="{{ asset('assets/vendor/bootstrap/js/bootstrap.bundle.min.js') }}"></script>
+<script src="{{ asset('assets/vendor/aos/aos.js') }}"></script>
+<script>
+    AOS.init({duration: 1000});
+</script>
 
-            <h4 class="mt-4">Detalhes da Campanha</h4>
-            <ul class="list-unstyled">
-              <li><strong>Data:</strong> {{ \Carbon\Carbon::parse($campanha->data_inicio)->format('d/m/Y') }} - {{ \Carbon\Carbon::parse($campanha->data_fim)->format('d/m/Y') }}</li>
-              <li><strong>Horário:</strong> {{ $campanha->hora_inicio }} às {{ $campanha->hora_fim }}</li>
-            </ul>
-
-            <p class="lead mt-4">{{ $campanha->descricao }}</p>
-
-            <a href="#" class="btn btn-danger btn-lg mt-3">
-              <i class="fas fa-hand-holding-heart me-2"></i> Participar
-            </a>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-</div>
-@endsection
+</body>
+</html>

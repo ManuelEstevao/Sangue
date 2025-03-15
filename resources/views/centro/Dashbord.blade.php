@@ -1,6 +1,6 @@
 @extends('centro.main')
 @section('title', 'Dashboard ')
-
+<link href="assets/img/flavicon.png" rel="icon">
 @section('conteudo')
 <div class="container">
 <h2 class="fw-bold mb-3">Visão geral</h3>

@@ -41,6 +41,8 @@ Route::middleware('guest')->group(function () {
     });
 });
 
+
+Route::get('/campanhas/{campanha}', [CampanhaController::class, 'show'])->name('campanha.detalhe');
 /*
 |--------------------------------------------------------------------------
 | Rotas Protegidas (Usuários Autenticados)
@@ -54,6 +56,9 @@ Route::middleware('auth')->group(function () {
     Route::controller(AgendamentoController::class)->group(function () {
         Route::get('/doador/agendamento/create', 'create')->name('agendamento');
         Route::post('/agendamento', 'store')->name('agendamento.store');
+        Route::get('/doador/agendamento/{id}/edit', 'edit')->name('agendamento.edit');
+        Route::patch('/doador/agendamento/{id}', [AgendamentoController::class, 'update'])->name('agendamento.update');
+        Route::patch('/doador/agendamento/{id}/cancelar', 'cancelar')->name('agendamento.cancelar');
     });
     Route::get('/doacoes/historico', [HistoricoDoacaoController::class, 'index'])->name('historico');
     Route::get('/perfil', [PerfilController::class, 'index'])->name('perfil');
@@ -63,13 +68,20 @@ Route::middleware('auth')->group(function () {
     
     /*
     |--------------------------------------------------------------------------
-    | Rotas para o Centro de Coleta (Protegidas por 'auth' e 'centro')
+    | Rotas para o Centro de Coleta 
     |--------------------------------------------------------------------------
     */
-    Route::middleware('centro')->group(function () {
-        Route::get('/centro/dashboard', [CentroController::class, 'index'])->name('centro.Dashbord');
-        Route::get('/centro/agendamentos', [AgendamentoCentroController::class, 'index'])->name('centro.agendamento');
+    
+    Route::prefix('centro')->group(function () {
+        Route::get('/dashboard', [CentroController::class, 'index'])->name('centro.Dashbord');
+        Route::get('/relatorios', [CentroController::class, 'relatorio'])->name('centro.relatorio');
         
+        Route::controller(AgendamentoCentroController::class)->group(function () {
+            Route::get('/agendamentos', 'index')->name('centro.agendamento');
+            Route::patch('/agendamentos/{agendamento}/concluir', 'concluir')->name('agendamento.concluir');
+            Route::patch('/agendamentos/{agendamento}/confirmar', 'confirmar')->name('agendamentos.confirmar');
+        });
+
     });
     
     /*
@@ -77,15 +89,14 @@ Route::middleware('auth')->group(function () {
     | Rotas para Campanhas
     |--------------------------------------------------------------------------
     */
-    Route::get('/campanhas/{campanha}', [CampanhaController::class, 'show'])->name('campanha.detalhe');
+    
     
     Route::prefix('campanhas')->group(function () {
         Route::get('/', [CampanhaController::class, 'index'])->name('campanhas.index');
         Route::post('/', [CampanhaController::class, 'store'])->name('campanhas.store');
-        Route::get('/{id_campanha}/edit', [CampanhaController::class, 'edit'])->name('campanhas.edit');
-        Route::put('/{id_campanha}', [CampanhaController::class, 'update'])->name('campanhas.update');
-        Route::delete('/{id_campanha}', [CampanhaController::class, 'destroy'])->name('campanhas.destroy');
-    });
+        Route::get('/{campanha}/edit', [CampanhaController::class, 'edit'])->name('campanhas.edit');
+        Route::put('/{campanha}', [CampanhaController::class, 'update'])->name('campanhas.update');
+        Route::delete('/{campanha}', [CampanhaController::class, 'destroy'])->name('campanhas.destroy');});
     
     /*
     |--------------------------------------------------------------------------

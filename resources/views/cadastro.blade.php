@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="{{ asset('assets/css/formulario.css') }}">
+    <link href="assets/img/flavicon.png" rel="icon">
     <title>Cadastro</title>
 </head>
 <body>
@@ -224,7 +225,7 @@ $(document).ready(function () {
                 }
             },
             error: function () {
-                alert("Erro ao buscar os dados. Verifique o BI ou tente novamente.");
+                alert("Erro ao buscar os dados. Verifique a internet ou tente novamente.");
             }
         });
     });

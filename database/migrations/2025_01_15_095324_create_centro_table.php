@@ -17,6 +17,7 @@ return new class extends Migration
             $table->decimal('latitude', 9, 6);
             $table->decimal('longitude', 9, 6);
             $table->string('endereco', 200);
+            $table->unsignedInteger('capacidade_maxima')->default('10');
             $table->timestamp('data_cadastro')->useCurrent();
             $table->unsignedBigInteger('id_user')->nullable(); 
             $table->foreign('id_user')->references('id_user')->on('users')->onDelete('cascade');

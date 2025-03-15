@@ -13,6 +13,11 @@ class centro extends Model
     public $timestamps = false;
     public $incrementing = true;
 
+    protected $casts = [
+        'horario_funcionamento' => 'array',
+        'capacidade_maxima' => 'integer'
+    ];
+
     protected $fillable = [
         'nome',
         'latitude',
@@ -37,6 +42,12 @@ class centro extends Model
     public function agendamentos(): HasMany
     {
         return $this->hasMany(Agendamento::class, 'id_centro', 'id_centro');
+    }
+    // Método para obter horário do dia
+    public function getHorarioDia($data)
+    {
+        $dia = strtolower(\Carbon\Carbon::parse($data)->isoFormat('dddd'));
+        return $this->horario_funcionamento[$dia] ?? null;
     }
 
     /**

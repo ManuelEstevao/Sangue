@@ -191,76 +191,55 @@
 </section>
 
 
+
 <!-- Campanha Section -->
 <section id="Campanha" class="our_department_area">
-  <div class="container">
-    <div class="row text-center mb-5">
-      <h2>Campanha de Coleta de Sangue</h2>
-      <p class="text-muted">Participe e ajude a salvar vidas!</p>
+    <div class="container">
+        <div class="row text-center mb-5">
+            <h2>Campanha de Coleta de Sangue</h2>
+            <p class="text-muted">Participe e ajude a salvar vidas!</p>
+        </div>
+        <div class="row">
+            @forelse($campanhas as $campanha)
+            <div class="col-xl-4 col-md-6 col-lg-4">
+                <div class="single_department">
+                    <div class="department_thumb">
+                        @if($campanha->foto)
+                            <img src="{{ asset('storage/' . $campanha->foto) }}" 
+                                 alt="{{ $campanha->titulo }}" 
+                                 class="img-fluid">
+                        @else
+                            <img src="{{ asset('assets/img/campanha.jpg') }}" 
+                                 alt="Campanha padrão" 
+                                 class="img-fluid">
+                        @endif
+                    </div>
+                    <div class="ms-3">
+                        <h3>{{ $campanha->titulo }}</h3>
+                        <ul class="list-unstyled small text-muted mb-2">
+                            <li><strong>Data:</strong>  {{ \Carbon\Carbon::parse($campanha->data_inicio)->format('d/m/Y') }}</li>
+                            <li><strong>Hora:</strong> {{ $campanha->hora_inicio }} - {{ $campanha->hora_fim }}</li>
+                            <li><strong>Local:</strong> {{ $campanha->centro->nome }}</li>
+                            <li><strong>Endereço:</strong> {{ $campanha->centro->endereco }}</li>
+                        </ul>
+                        <p class="mb-2">{{ Str::limit($campanha->descricao, 100) }}</p>
+                        <a href="{{ route('campanha.detalhe', $campanha->id_campanha) }}" 
+                           class="read-more text-decoration-none fw-bold">
+                            Saiba Mais <i class="bi bi-arrow-right"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+            @empty
+            <div class="col-12 text-center">
+                <div class="alert alert-info">
+                    Nenhuma campanha activa no momento
+                </div>
+            </div>
+            @endforelse
+        </div>
     </div>
-    <div class="row">
-      <div class="col-xl-4 col-md-6 col-lg-4">
-        <div class="single_department">
-          <div class="department_thumb">
-            <img src="assets/img/campanha 2.jpg" alt="Doe Sangue, Salve Vidas">
-          </div>
-          <div class="ms-3">
-            <h3>Doe Sangue, Salve Vidas</h3>
-            <ul class="list-unstyled small text-muted mb-2">
-              <li><strong>Data:</strong> 15 de Janeiro, 2024</li>
-              <li><strong>Hora:</strong> 10:00 - 16:00</li>
-              <li><strong>Local:</strong> Centro de Saúde Local</li>
-            </ul>
-            <p class="mb-2">Participe da nossa campanha de doação de sangue e faça a diferença na vida de alguém.</p>
-            <a href="service-details.html" class="read-more text-decoration-none fw-bold">
-              Saiba Mais <i class="bi bi-arrow-right"></i>
-            </a>
-          </div>
-        </div>
-      </div>
-      <div class="col-xl-4 col-md-6 col-lg-4">
-        <div class="single_department">
-          <div class="department_thumb">
-            <img src="assets/img/campanha 1.jpg" alt="Campanha de Natal Solidário">
-          </div>
-          <div class="ms-3">
-            <h3>Campanha de Natal Solidário</h3>
-            <ul class="list-unstyled small text-muted mb-2">
-              <li><strong>Data:</strong> 25 de Dezembro, 2024</li>
-              <li><strong>Hora:</strong> 09:00 - 14:00</li>
-              <li><strong>Local:</strong> Igreja Central</li>
-            </ul>
-            <p class="mb-2">Doe sangue neste Natal e traga esperança para quem precisa.</p>
-            <a href="service-details.html" class="read-more text-decoration-none fw-bold">
-              Saiba Mais <i class="bi bi-arrow-right"></i>
-            </a>
-          </div>
-        </div>
-      </div>
-      <div class="col-xl-4 col-md-6 col-lg-4">
-        <div class="single_department">
-          <div class="department_thumb">
-            <img src="assets/img/campnha 3.png" alt="Campanha de Verão">
-          </div>
-          <div class="ms-3">
-            <h3>Campanha de Verão</h3>
-            <ul class="list-unstyled small text-muted mb-2">
-              <li><strong>Data:</strong> 10 de Janeiro, 2025</li>
-              <li><strong>Hora:</strong> 11:00 - 17:00</li>
-              <li><strong>Local:</strong> Praça Central</li>
-            </ul>
-            <p class="mb-2">Ajude a manter os estoques de sangue durante o verão.</p>
-            <a href="service-details.html" class="read-more text-decoration-none fw-bold">
-              Saiba Mais <i class="bi bi-arrow-right"></i>
-            </a>
-          </div>
-        </div>
-      </div>
-      <!-- Continue com outros cartões aqui -->
-    </div>
-  </div>
 </section>
-
 
 
 

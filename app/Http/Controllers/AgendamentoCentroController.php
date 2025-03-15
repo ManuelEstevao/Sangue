@@ -33,6 +33,19 @@ class AgendamentoCentroController extends Controller
     {
         //
     }
+        public function confirmar(Agendamento $agendamento)
+    {
+        try {
+            $agendamento->update(['status' => 'confirmado']);
+            return response()->json(['success' => true]);
+            
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Erro ao confirmar agendamento'
+            ], 500);
+        }
+    }
 
     /**
      * Store a newly created resource in storage.

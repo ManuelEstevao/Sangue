@@ -1,22 +1,10 @@
 @extends('dador.DashbordDador')
 
 @section('title', 'Agendamento de Doação')
+<link href="assets/img/flavicon.png" rel="icon">
 
 @section('styles')
 <style>
-    /* Layout Principal */
-    .wrapper {
-        display: flex;
-        min-height: 100vh;
-    }
-    #sidebar {
-        width: 280px;
-        transition: all 0.3s;
-    }
-    .main {
-        width: calc(100% - 280px);
-        transition: all 0.3s;
-    }
     /* Ajustes para o Formulário de Agendamento */
     .agendamento-container {
         max-width: 1200px;
@@ -83,7 +71,7 @@
                     <label class="form-label">📅 Data da Doação</label>
                     <input type="date" 
                            class="form-control" 
-                           name="data_agendamento"
+                           name="data_agendada"
                            min="{{ now()->format('Y-m-d') }}"
                            required>
                 </div>
@@ -91,7 +79,7 @@
                 <div class="mb-4">
                     <label class="form-label">⏰ Horário Preferencial</label>
                     <div class="time-picker">
-                        <select class="form-select" name="hora" required>
+                        <select class="form-select" name="horario" required>
                             @for($h = 8; $h <= 17; $h++)
                                 <option value="{{ $h }}:00">{{ sprintf('%02d:00', $h) }}</option>
                                 @if($h < 17)
@@ -154,6 +142,8 @@
 
 @section('scripts')
 <script src="https://api-maps.yandex.ru/2.1/?lang=pt_PT&apikey=db51d640-6b39-495c-b35b-c2ec8a719fc9" type="text/javascript"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
 <script>
     ymaps.ready(init);
 
@@ -232,5 +222,36 @@
             <p class="small"><i class="fas fa-phone"></i> ${centro[centroId].telefone}</p>
         `;
     }
+    document.addEventListener("DOMContentLoaded", function () {
+        @if(session('error'))
+            Swal.fire({
+                icon: 'error',
+                title: 'Erro!',
+                text: "{{ session('error') }}",
+            });
+        @endif
+
+        @if(session('success'))
+            Swal.fire({
+                icon: 'success',
+                title: 'Sucesso!',
+                text: "{{ session('success') }}",
+            });
+        @endif
+
+        @if ($errors->any())
+            let errorMessages = "";
+            @foreach ($errors->all() as $error)
+                errorMessages += "{{ $error }}<br>";
+            @endforeach
+
+            Swal.fire({
+                icon: 'error',
+                title: 'Erro no Agendamento',
+                html: errorMessages,
+                confirmButtonColor: '#d33'
+            });
+        @endif
+    });
 </script>
 @endsection

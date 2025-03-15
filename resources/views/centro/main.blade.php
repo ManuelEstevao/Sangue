@@ -65,7 +65,7 @@
           <div class="sidebar-content">
             <ul class="nav nav-secondary">
               <!-- Dashboard -->
-              <li class="nav-item {{ request()->routeIs('dashboard') ? 'active' : '' }}">
+              <li class="nav-item {{ request()->routeIs('centro.Dashbord') ? 'active' : '' }}">
                 <a href="{{route('centro.Dashbord')}}">
                   <i class="fas fa-home"></i>
                   <p>Dashboard</p>
@@ -74,19 +74,14 @@
 
               <!-- Seção Doadores -->
               <span class="sidebar-title">Doadores</span>
-              <li class="nav-item {{ request()->routeIs('agendamentos.*') ? 'active' : '' }}">
+              <li class="nav-item {{ request()->routeIs('centro.agendamento') ? 'active' : '' }}">
                 <a href="{{route('centro.agendamento')}}">
                   <i class="fas fa-calendar-check"></i>
                   <p>Agendamentos</p>
                 </a>
               </li>
-              <li class="nav-item {{ request()->routeIs('historico') ? 'active' : '' }}">
-                <a href="#">
-                <i class="fa-solid fa-clock-rotate-left pe-2"></i>
-                <p>Histórico</p>
-                </a>
-              </li>
-              <li class="nav-item {{ request()->routeIs('campanhas.*') ? 'active' : '' }}">
+             
+              <li class="nav-item {{ request()->routeIs('campanhas.index') ? 'active' : '' }}">
                   <a href="{{ route('campanhas.index') }}">
                       <i class="fas fa-bullhorn"></i>
                       <p>Campanhas</p>
@@ -186,7 +181,7 @@
                 <li class="nav-item topbar-user dropdown hidden-caret">
                   <a class="dropdown-toggle profile-pic" data-bs-toggle="dropdown" href="#" aria-expanded="false">
                     <div class="avatar-sm">
-                      <img src="{{ url('assets/Centro/assets/img/profile.jpg') }}" alt="..." class="avatar-img rounded-circle" />
+                      <img src="{{ asset('assets/img/profile.png') }}" alt="..." class="avatar-img rounded-circle" />
                     </div>
                     <span class="profile-username">
                       <span class="op-7">Hi,</span> <span class="fw-bold"></span>
@@ -197,7 +192,7 @@
                       <li>
                         <div class="user-box">
                           <div class="avatar-lg">
-                            <img src="{{ url('assets/Centro/assets/img/profile.jpg') }}" alt="image profile" class="avatar-img rounded" />
+                            <img src="{{ asset('assets/img/profile.png') }}" alt="image profile" class="avatar-img rounded" />
                           </div>
                           <div class="u-text">
                             <h4></h4>

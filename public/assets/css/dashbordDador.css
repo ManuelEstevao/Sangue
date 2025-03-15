@@ -28,18 +28,22 @@ body {
 .wrapper {
     display: flex;
     min-height: 100vh;
-    width: 100%;
 }
 
 
 /* Sidebar */
 #sidebar {
-    width: 260px;
-    min-width: 260px;
+    width: 280px;
+    min-width: 280px;
     background-color: var(--sidebar-bg);
     border-right: 1px solid var(--sidebar-border);
     transition: all 0.3s ease;
     padding-top: 20px;
+    position: fixed;
+    height: 100vh; 
+    top: 0;
+    left: 0;
+    overflow-y: auto; 
     
 }
 
@@ -88,10 +92,7 @@ body {
     transition: background 0.3s ease;
     border-radius: 4px;
 }
-.wrapper {
-    display: flex;
-    min-height: 100vh;
-}
+
 
 
 
@@ -108,7 +109,9 @@ body {
     display: flex;
     flex-direction: column;
     background: #f8f9fa;
-    transition: all 0.3s ease;
+    margin-left: 280px;
+    transition: margin-left 0.3s ease;
+   
 }
 
 /* Navbar Superior */
@@ -120,8 +123,8 @@ body {
 
 
 #sidebar {
-    width: 260px;
-    min-width: 260px;
+    width: 280px;
+    min-width: 280px;
     background-color: var(--sidebar-bg);
     border-right: 1px solid var(--sidebar-border);
     transition: all 0.3s ease;
@@ -129,10 +132,12 @@ body {
     
 }
 #sidebar.collapsed {
-    margin-left: -264px;
+    margin-left: -280px;
 }
 
-
+#sidebar.collapsed + .main {
+    margin-left: 0; /* Remove a margem quando a sidebar é colapsada */
+}
 
 .sidebar-title {
     display: block;
@@ -161,7 +166,7 @@ body {
 .content {
     padding: 20px;
     background: #fff;
-    min-height: calc(100vh - 60px); /* Ajuste conforme a altura da navbar */
+    min-height: calc(100vh - 80px); /* Ajuste conforme a altura da navbar */
     
 }
 

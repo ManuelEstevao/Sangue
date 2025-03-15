@@ -3,6 +3,8 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use App\Models\Campanha;
+use Carbon\Carbon; 
 
 class dadorController extends Controller
 {
@@ -11,7 +13,12 @@ class dadorController extends Controller
      */
     public function index()
     {
-            return view('dador.dador');   
+        $campanhas = Campanha::with('centro')
+        ->where('data_fim', '>=', now())
+        ->orderBy('data_inicio', 'asc')
+        ->paginate(3);
+
+         return view('dador.dador', compact('campanhas')); 
     }
 
     /**

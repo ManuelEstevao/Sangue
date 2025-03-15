@@ -23,7 +23,7 @@
           </p>
 
           <div class="hero-buttons">
-            <a href="#" class="btn btn-primary me-0 me-sm-2 mx-1 ">Fazer agendamento <i class="fa-solid fa-arrow-right"></i></a>
+            <a href="{{route('agendamento')}}" class="btn btn-primary me-0 me-sm-2 mx-1 ">Fazer agendamento <i class="fa-solid fa-arrow-right"></i></a>
             
             </a>
             

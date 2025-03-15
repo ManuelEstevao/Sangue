@@ -8,8 +8,7 @@ use App\Models\Centro;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
-use Carbon\Carbon; 
-
+use Carbon\Carbon;
 
 class CampanhaController extends Controller
 {
@@ -22,6 +21,7 @@ class CampanhaController extends Controller
 
         return view('centro.campanha', compact('campanhas'));
     }
+
     public function show(Campanha $campanha)
     {
         $campanha->load('centro');
@@ -79,7 +79,7 @@ class CampanhaController extends Controller
 
     public function update(Request $request, Campanha $campanha)
     {
-        $request->validate([
+        $validated = $request->validate([
             'titulo' => 'required|string|max:100',
             'descricao' => 'nullable|string',
             'data_inicio' => 'required|date_format:d/m/Y',
@@ -89,34 +89,36 @@ class CampanhaController extends Controller
             'foto' => 'nullable|image|mimes:jpeg,png,jpg|max:2048'
         ]);
 
-        // Converter datas
-        $dataInicio = Carbon::createFromFormat('d/m/Y', $request->data_inicio)->format('Y-m-d');
-        $dataFim = Carbon::createFromFormat('d/m/Y', $request->data_fim)->format('Y-m-d');
-
-        // Atualizar foto se fornecida
-        if ($request->hasFile('foto')) {
-            if ($campanha->foto) Storage::disk('public')->delete($campanha->foto);
-            $caminhoFoto = $request->file('foto')->store('campanhas', 'public');
-            $campanha->foto = $caminhoFoto;
-        }
-
-        $campanha->update([
+        $updateData = [
             'titulo' => $request->titulo,
             'descricao' => $request->descricao,
-            'data_inicio' => $dataInicio,
-            'data_fim' => $dataFim,
+            'data_inicio' => Carbon::createFromFormat('d/m/Y', $request->data_inicio),
+            'data_fim' => Carbon::createFromFormat('d/m/Y', $request->data_fim),
             'hora_inicio' => $request->hora_inicio,
-            'hora_fim' => $request->hora_fim,
-        ]);
+            'hora_fim' => $request->hora_fim
+        ];
 
-        return redirect()->route('campanhas.index')->with('success', 'Campanha atualizada!');
+        if ($request->hasFile('foto')) {
+            if ($campanha->foto) {
+                Storage::disk('public')->delete($campanha->foto);
+            }
+            $updateData['foto'] = $request->file('foto')->store('campanhas', 'public');
+        }
+
+        $campanha->update($updateData);
+
+        return redirect()->route('campanhas.index')
+            ->with('success', 'Campanha atualizada com sucesso!');
     }
 
     public function destroy(Campanha $campanha)
     {
-        if ($campanha->foto) Storage::disk('public')->delete($campanha->foto);
+        if ($campanha->foto) {
+            Storage::disk('public')->delete($campanha->foto);
+        }
         $campanha->delete();
-        return back()->with('success', 'Campanha excluída!');
+        
+        return back()->with('success', 'Campanha excluída com sucesso!');
     }
 
 }

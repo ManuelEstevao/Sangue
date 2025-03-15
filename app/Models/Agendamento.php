@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class Agendamento extends Model
 {
@@ -16,8 +17,8 @@ class Agendamento extends Model
         'id_doador',
         'id_centro',
         'horario',
-        'data',
-        'statu',
+        'data_agendada',
+        'status',
     ];
 
     /**

@@ -16,6 +16,9 @@
         transform: translateY(-3px);
         box-shadow: 0 5px 15px rgba(0,0,0,0.1);
     }
+    .btn-edit {
+        padding: 0.25rem 0.5rem;
+    }
 </style>
 @endsection
 
@@ -52,7 +55,9 @@
                             <thead class="bg-light">
                                 <tr>
                                     <th>Título</th>
-                                    <th>Período</th>
+                                    <th>Descrição</th>
+                                    <th>Data</th>
+                                    <th>Horário</th>
                                     <th>Status</th>
                                     <th class="text-center">Ações</th>
                                 </tr>
@@ -63,18 +68,37 @@
                                     <td>
                                         <div class="d-flex align-items-center">
                                             @if($campanha->foto)
-                                            <img src="{{ Storage::url($campanha->foto) }}" 
-                                                 alt="{{ $campanha->titulo }}"
-                                                 class="rounded me-3"
-                                                 style="width: 60px; height: 40px; object-fit: cover">
+                                            <img src="{{ asset('storage/' . $campanha->foto) }}" 
+                                                alt="{{ $campanha->titulo }}"
+                                                class="rounded me-3"
+                                                style="width: 60px; height: 40px; object-fit: cover"
+                                                onerror="this.style.display='none'">
                                             @endif
                                             {{ $campanha->titulo }}
                                         </div>
                                     </td>
-                                    <td>
-                                        {{ $campanha->data_inicio}} - 
-                                        {{ $campanha->data_fim}}
+                                     <!-- Nova Coluna: Descrição -->
+                                    <td class="text-truncate" style="max-width: 200px;">
+                                        {{ $campanha->descricao }}
                                     </td>
+
+                                    <!-- Coluna Data Atualizada -->
+                                    <td>
+                                        @if(\Carbon\Carbon::parse($campanha->data_inicio)->isSameDay($campanha->data_fim))
+                                            {{ \Carbon\Carbon::parse($campanha->data_inicio)->format('d/m/Y') }}
+                                        @else
+                                            {{ \Carbon\Carbon::parse($campanha->data_inicio)->format('d/m/Y') }} - 
+                                            {{ \Carbon\Carbon::parse($campanha->data_fim)->format('d/m/Y') }}
+                                        @endif
+                                    </td>
+
+                                    <!-- Nova Coluna: Horário -->
+                                    <td>
+                                        {{ \Carbon\Carbon::parse($campanha->hora_inicio)->format('H:i') }} às 
+                                        {{ \Carbon\Carbon::parse($campanha->hora_fim)->format('H:i') }}
+                                    </td>
+
+                                   
                                     <td>
                                         @php
                                             $hoje = now();
@@ -90,21 +114,25 @@
                                     </td>
                                     <td class="text-center">
                                         <div class="btn-group">
-                                            <button class="btn btn-sm btn-link text-primary" 
+                                            <button class="btn btn-sm btn-link text-primary btn-edit" 
                                                     data-bs-toggle="modal" 
                                                     data-bs-target="#modalCampanha"
                                                     onclick="carregarEdicao({{ $campanha->id_campanha }})">
                                                 <i class="fas fa-edit"></i>
                                             </button>
-                                            <form action="{{ route('campanhas.destroy', $campanha->id_campanha) }}" 
-                                                  method="POST">
-                                                @csrf
-                                                @method('DELETE')
-                                                <button type="submit" class="btn btn-sm btn-link text-danger"
-                                                        onclick="return confirm('Tem certeza que deseja excluir?')">
-                                                    <i class="fas fa-trash"></i>
-                                                </button>
-                                            </form>
+                                            <div class="d-flex justify-content-center">
+                                                <form class="delete-form" 
+                                                    action="{{ route('campanhas.destroy', $campanha->id_campanha) }}" 
+                                                    method="POST">
+                                                    @csrf
+                                                    @method('DELETE')
+                                                    <button type="submit" 
+                                                            class="btn btn-sm btn-link text-danger" 
+                                                            onclick="return confirmDelete(event)">
+                                                        <i class="fas fa-trash"></i>
+                                                    </button>
+                                                </form>
+                                            </div>
                                         </div>
                                     </td>
                                 </tr>
@@ -134,48 +162,103 @@
 @endsection
 
 @section('scripts')
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
 <script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/pt.js"></script>
 <script>
-    // Configuração do DatePicker
-    flatpickr.localize(flatpickr.l10ns.pt);
-    const configDate = {
-        dateFormat: 'd/m/Y',
-        locale: 'pt'
-    };
-    
-    flatpickr('#data_inicio', configDate);
-    flatpickr('#data_fim', configDate);
+    let datepickerInicio, datepickerFim;
 
-    // Função para carregar dados para edição
-    function carregarEdicao(id) {
-        fetch(`/campanhas/${id}/edit`)
-            .then(response => response.json())
-            .then(data => {
-                document.querySelector('#modalCampanha [name="titulo"]').value = data.titulo;
-                document.querySelector('#modalCampanha [name="descricao"]').value = data.descricao;
-                document.querySelector('#modalCampanha [name="data_inicio"]').value = 
-                    new Date(data.data_inicio).toLocaleDateString('pt-BR');
-                document.querySelector('#modalCampanha [name="data_fim"]').value = 
-                    new Date(data.data_fim).toLocaleDateString('pt-BR');
-                
-                const form = document.querySelector('#modalCampanha form');
-                form.action = `/campanhas/${data.id_campanha}`;
-                form.method = 'POST';
-                form.innerHTML += '<input type="hidden" name="_method" value="PUT">';
-                
-                new bootstrap.Modal(document.getElementById('modalCampanha')).show();
-            });
+    // Inicialização do Flatpickr
+    document.addEventListener('DOMContentLoaded', function() {
+        flatpickr.localize(flatpickr.l10ns.pt);
+        
+        datepickerInicio = flatpickr('#data_inicio', {
+            dateFormat: 'd/m/Y',
+            locale: 'pt'
+        });
+        
+        datepickerFim = flatpickr('#data_fim', {
+            dateFormat: 'd/m/Y',
+            locale: 'pt'
+        });
+    });
+
+    // Função de Confirmação de Exclusão
+    function confirmDelete(event) {
+        event.preventDefault();
+        const form = event.target.closest('form');
+        
+        Swal.fire({
+            title: 'Tem certeza?',
+            text: "Esta ação não pode ser desfeita!",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#d33',
+            cancelButtonColor: '#3085d6',
+            confirmButtonText: 'Sim, excluir!',
+            cancelButtonText: 'Cancelar'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                form.submit();
+            }
+        });
     }
 
-    // Resetar formulário ao abrir modal para nova campanha
-    document.getElementById('modalCampanha').addEventListener('hidden.bs.modal', function () {
-        const form = this.querySelector('form');
+    // Função de Carregamento para Edição
+    function carregarEdicao(id) {
+    fetch(`/campanhas/${id}/edit`)
+        .then(response => {
+            if (!response.ok) throw new Error('Falha ao carregar dados');
+            return response.json();
+        })
+        .then(data => {
+            const modal = document.getElementById('modalCampanha');
+            const form = modal.querySelector('form');
+            
+            // Preencher todos os campos
+            form.querySelector('[name="titulo"]').value = data.titulo;
+            form.querySelector('[name="descricao"]').value = data.descricao;
+            form.querySelector('[name="hora_inicio"]').value = data.hora_inicio;
+            form.querySelector('[name="hora_fim"]').value = data.hora_fim;
+
+            // Configurar datas
+            datepickerInicio.setDate(data.data_inicio);
+            datepickerFim.setDate(data.data_fim);
+
+            // Atualizar ação do formulário
+            form.action = `/campanhas/${data.id_campanha}`;
+            form.method = 'POST';
+            
+            // Gerenciar método PUT
+            form.querySelector('[name="_method"]')?.remove();
+            form.insertAdjacentHTML('beforeend', '<input type="hidden" name="_method" value="PUT">');
+
+            // Atualizar título do modal
+            modal.querySelector('.modal-title').textContent = 'Editar Campanha';
+            
+            new bootstrap.Modal(modal).show();
+        })
+        .catch(error => {
+            console.error('Erro:', error);
+            Swal.fire('Erro!', 'Não foi possível carregar os dados', 'error');
+        });
+}
+
+// Gerenciamento de Eventos do Modal
+document.getElementById('modalCampanha').addEventListener('show.bs.modal', function(e) {
+    const isEdit = e.relatedTarget?.classList.contains('btn-edit');
+    const modal = this;
+    
+    if (!isEdit) {
+        const form = modal.querySelector('form');
         form.reset();
         form.action = "{{ route('campanhas.store') }}";
         form.method = 'POST';
-        const methodInput = form.querySelector('[name="_method"]');
-        if(methodInput) methodInput.remove();
-    });
+        form.querySelector('[name="_method"]')?.remove();
+        datepickerInicio.clear();
+        datepickerFim.clear();
+        modal.querySelector('.modal-title').textContent = 'Nova Campanha';
+    }
+});
 </script>
 @endsection

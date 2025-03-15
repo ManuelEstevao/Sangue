@@ -36,6 +36,10 @@
                     <label class="form-label">Endereço Completo *</label>
                     <textarea name="endereco" class="form-control" rows="3" required></textarea>
                 </div>
+                <div class="mb-3">
+                    <label class="form-label">Capacidade *</label>
+                    <input type="number" name="capacidade" class="form-control" rows="3" required>
+                </div>
 
                 <div class="row mb-3">
                     <div class="col-md-6">

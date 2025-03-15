@@ -11,6 +11,7 @@ use App\Models\Campanha;
 use App\Models\Solicitacao;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Auth;
+use Carbon\Carbon;
 
 class CentroController extends Controller
 {
@@ -71,7 +72,8 @@ public function register(Request $request)
         'password' => 'required|min:8|confirmed',
         'endereco' => 'required|string|max:200',
         'latitude' => 'required|numeric',
-        'longitude' => 'required|numeric'
+        'longitude' => 'required|numeric',
+        'capacidade'=> 'required|numeric',
     ]);
 
     // Cria usuário com tipo correto
@@ -86,7 +88,8 @@ public function register(Request $request)
         'nome' => $request->nome,
         'endereco' => $request->endereco,
         'latitude' => $request->latitude,
-        'longitude' => $request->longitude
+        'longitude' => $request->longitude,
+        'capacidade' => $request->capacidade_maxima
     ]);
     
     $user->centro()->save($centro);
@@ -95,6 +98,31 @@ public function register(Request $request)
     return redirect()->route('centro.Dashbord')
         ->with('success', 'Centro registrado com sucesso!');
         
+}
+public function relatorio()
+{
+    $centro = Auth::user()->centro;
+    
+    // Dados de doações por tipo sanguíneo
+    $doacoesPorSangue = Doacao::join('doador', 'doacao.id_doador', '=', 'doador.id_doador')
+    ->selectRaw('doador.tipo_sanguineo, COUNT(*) as total')
+    ->where('doacao.id_centro', $centro->id_centro)
+    ->groupBy('doador.tipo_sanguineo')
+    ->get();
+
+
+    // Dados de doações nos últimos 7 dias
+    $doacoesPorDia = Doacao::selectRaw('DATE(data_doacao) as dia, COUNT(*) as total')
+        ->where('id_centro', $centro->id_centro)
+        ->where('data_doacao', '>=', Carbon::now()->subDays(7))
+        ->groupBy('dia')
+        ->orderBy('dia', 'asc')
+        ->get();
+
+    return view('centro.relatorio', [
+        'doacoesPorSangue' => $doacoesPorSangue,
+        'doacoesPorDia' => $doacoesPorDia
+    ]);
 }
 }
 

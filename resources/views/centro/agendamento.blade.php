@@ -1,11 +1,15 @@
 @extends('centro.main')
 
 @section('title', 'Agendamentos - Centro de Coleta')
-<!-- CSS do SweetAlert -->
+@section('styles')
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
-
-<!-- JavaScript do SweetAlert -->
-<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<style>
+    .badge-status {
+        min-width: 90px;
+        transition: all 0.3s ease;
+    }
+</style>
+@endsection
 
 @section('conteudo')
 <div class="container">
@@ -18,19 +22,16 @@
         </div>
         <div class="card-body">
             <!-- Filtro por Tipo Sanguíneo -->
-            <form method="GET" action="#" class="mb-3">
-                <div class="d-flex align-items-center">
-                    <label class="me-2 fw-bold">Filtrar por Tipo Sanguíneo:</label>
+            <form method="GET" action="{{ route('centro.agendamento') }}" class="mb-3">
+                <div class="d-flex align-items-center gap-2">
+                    <label class="fw-bold">Filtrar por:</label>
                     <select name="tipo_sanguineo" class="form-select w-auto" onchange="this.form.submit()">
-                        <option value="">Todos</option>
-                        <option value="A+">A+</option>
-                        <option value="A-">A-</option>
-                        <option value="B+">B+</option>
-                        <option value="B-">B-</option>
-                        <option value="O+">O+</option>
-                        <option value="O-">O-</option>
-                        <option value="AB+">AB+</option>
-                        <option value="AB-">AB-</option>
+                        <option value="">Todos tipos</option>
+                        @foreach(['A+', 'A-', 'B+', 'B-', 'O+', 'O-', 'AB+', 'AB-'] as $tipo)
+                            <option value="{{ $tipo }}" {{ request('tipo_sanguineo') == $tipo ? 'selected' : '' }}>
+                                {{ $tipo }}
+                            </option>
+                        @endforeach
                     </select>
                 </div>
             </form>
@@ -51,24 +52,33 @@
                     <tbody>
                         @forelse($agendamentos as $agendamento)
                             <tr>
-                                <td>{{ $agendamento->data_agendamento->format('d/m/Y') }}</td>
-                                <td>{{ $agendamento->hora_agendamento }}</td>
+                            <td> {{ \Carbon\Carbon::parse($agendamento->data_agendada)->format('d/m/Y') }}</td>
+                            <td> {{ \Carbon\Carbon::parse($agendamento->horario)->format('H:i') }}</td>
                                 <td>{{ $agendamento->doador->nome }}</td>
                                 <td>{{ $agendamento->doador->tipo_sanguineo }}</td>
                                 <td>
-                                    <span class="badge bg-{{ $agendamento->status === 'pendente' ? 'primary' : ($agendamento->status === 'confirmado' ? 'success' : 'danger') }}">
+                                    <span class="badge badge-status bg-{{ $agendamento->status === 'pendente' ? 'primary' : ($agendamento->status === 'confirmado' ? 'success' : 'danger') }}">
                                         {{ ucfirst($agendamento->status) }}
                                     </span>
                                 </td>
                                 <td class="text-center">
                                     <div class="btn-group">
-                                        <button class="btn btn-sm btn-success" title="Confirmar">
+                                        @if($agendamento->status !== 'confirmado')
+                                        <button class="btn btn-sm btn-success" title="Confirmar" 
+                                            onclick="confirmarAgendamento({{ $agendamento->id_agendamento }})">
                                             <i class="fas fa-check"></i>
                                         </button>
-                                        <button class="btn btn-sm btn-danger" title="Cancelar">
+                                        @endif
+                                        
+                                        @if($agendamento->status !== 'cancelado')
+                                        <button class="btn btn-sm btn-danger" title="Cancelar"
+                                            onclick="cancelarAgendamento({{ $agendamento->id_agendamento }})">
                                             <i class="fas fa-times"></i>
                                         </button>
-                                        <button class="btn btn-sm btn-info" title="Ver Histórico" onclick="verHistorico({{ $agendamento->doador->id }})">
+                                        @endif
+                                        
+                                        <button class="btn btn-sm btn-info" title="Ver Histórico" 
+                                            onclick="verHistorico({{ $agendamento->doador->id }})">
                                             <i class="fas fa-history"></i>
                                         </button>
                                     </div>
@@ -107,7 +117,62 @@
 @endsection
 
 @section('scripts')
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
+    function handleAgendamentoAction(url, agendamentoId, successMessage) {
+        Swal.fire({
+            title: 'Tem certeza?',
+            text: successMessage,
+            icon: 'question',
+            showCancelButton: true,
+            confirmButtonColor: '#28a745',
+            cancelButtonColor: '#6c757d',
+            confirmButtonText: 'Confirmar',
+            cancelButtonText: 'Cancelar'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                fetch(url, {
+                    method: 'PATCH',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+                    }
+                })
+                .then(async response => {
+                    const data = await response.json();
+                    if (!response.ok) throw new Error(data.message || 'Erro na operação');
+                    return data;
+                })
+                .then(data => {
+                    const statusBadge = document.querySelector(`tr:has(button[onclick*="${agendamentoId}"]) .badge`);
+                    if(statusBadge && data.success) {
+                        statusBadge.textContent = data.new_status;
+                        statusBadge.className = `badge badge-status bg-${data.new_color}`;
+                    }
+                    Swal.fire('Sucesso!', data.message || 'Operação realizada com sucesso', 'success');
+                })
+                .catch(error => {
+                    Swal.fire('Erro!', error.message || 'Falha na operação', 'error');
+                });
+            }
+        });
+    }
+
+    function confirmarAgendamento(id) {
+        handleAgendamentoAction(
+            `/centro/agendamentos/${id}/confirmar`, 
+            id, 
+            'Deseja confirmar este agendamento?'
+        );
+    }
+
+    function cancelarAgendamento(id) {
+        handleAgendamentoAction(
+            `/centro/agendamentos/${id}/cancelar`, 
+            id, 
+            'Deseja cancelar este agendamento?'
+        );
+    }
     function verHistorico(doadorId) {
         fetch(`/doador/historico/${doadorId}`)
             .then(response => response.json())

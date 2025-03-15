@@ -1,131 +1,110 @@
 @extends('dador.DashbordDador')
-
-@section('title', 'Meu Perfil')
-
+@section('title', 'Perfil - ConectaDador')
+   
 @section('styles')
-<style>
-    .profile-card {
-        background: linear-gradient(135deg, #ffffff, #fff5f5);
-        border-radius: 15px;
-        box-shadow: 0 8px 30px rgba(140, 0, 0, 0.1);
-    }
+    <style>
 
-    .blood-type {
-        width: 100px;
-        height: 100px;
-        border: 3px solid #d10000;
-        border-radius: 15px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 2.5rem;
-        font-weight: 700;
-    }
+        .profile-section {
+            display: grid;
+            grid-template-columns: 1fr 2fr;
+            gap: 2rem;
+            align-items: center;
+            margin: 20px 0; /* Espaçamento vertical */
+        }
 
-    .donation-badge {
-        background: #d10000;
-        color: white;
-        padding: 8px 20px;
-        border-radius: 20px;
-        font-size: 0.9rem;
-    }
+        .avatar {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            border: 5px solid #e63946;
+            padding: 3px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1); /* Sombra suave */
+        }
 
-    .info-card {
-        background: #ffffff;
-        border-left: 4px solid #d10000;
-        border-radius: 8px;
-        padding: 1.5rem;
-    }
-</style>
+        .blood-type-badge {
+            background: #e63946;
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 24px;
+            font-weight: 700;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .card {
+            border: none;
+            border-radius: 8px;
+            background: white;
+            box-shadow: 0 2px 15px rgba(0, 0, 0, 0.1); /* Sombra da card */
+            padding: 20px;
+        }
+
+     
+
+        .form-field {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .form-field label {
+            margin-bottom: 0.5rem;
+            font-weight: bold;
+        }
+
+   
+
+     
+
+        .action-button {
+            border: none;
+            border-radius: 8px;
+            padding: 0.75rem 1.5rem;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        .edit-button {
+            background-color: #e63946;
+            color: white;
+        }
+
+        .edit-button:hover {
+            background-color: #c1272d;
+        }
+    </style>
 @endsection
 
 @section('conteudo')
-<div class="container py-5">
-    <div class="row justify-content-center">
-        <div class="col-lg-8">
-            <div class="profile-card p-4 mb-4">
-                <!-- Cabeçalho -->
-                <div class="d-flex align-items-center gap-4 mb-4">
-                    <div class="blood-type text-danger">
-                        {{ $doador->tipo_sanguineo ?? '-' }}
-                    </div>
-                    <div>
-                        <h2 class="mb-1">{{ $doador->nome }}</h2>
-                        <p class="text-muted mb-0">Bilhete de identidade: {{ $doador->numero_bilhete }}</p>
-                        <div class="donation-badge mt-2">
-                            {{ $doador->doacoes_count }} Doações Realizadas
-                        </div>
-                    </div>
-                </div>
 
-                <!-- Estatísticas -->
-                <div class="row g-3 mb-4">
-                    <div class="col-md-6">
-                        <div class="info-card">
-                            <h5 class="text-danger mb-3">📅 Histórico de Doações</h5>
-                            <div class="d-flex justify-content-between">
-                                <div>
-                                    <p class="mb-1">Primeira Doação</p>
-                                    <strong>{{ $primeiraDoacao ?? '-' }}</strong>
-                                </div>
-                                <div>
-                                    <p class="mb-1">Última Doação</p>
-                                    <strong>{{ $ultimaDoacao ?? '-' }}</strong>
-                                </div>
-                            </div>
+            <!-- Seção de Perfil do Doador -->
+                <div class="card">
+                    <h2 class="mb-4">Perfil do Doador</h2>
+                    <div class="profile-section">
+                    <img src="{{ asset('assets/img/profile.png') }}" class="avatar">
+                        <div>
+                        @php
+                            $doador = Auth::user()->doador; // Obtendo dados do doador
+                            $nomeCompleto = $doador->nome;
+                            $dataNascimento = \Carbon\Carbon::parse($doador->data_nascimento)->format('d/m/Y');
+                            $genero = $doador->genero; // Supondo que "genero" é um campo no modelo Doador
+                        @endphp
+                            <h3>{{ $nomeCompleto }} <span class="blood-type-badge"><i class="ri-drop-fill"></i>O+</span></h3>
+                            <p>Data de Nascimento: {{ $dataNascimento }}</p>
+                            <p>Gênero: {{ $genero }}</p>
+                            <p><i class="ri-mail-fill"></i> {{ Auth::user()->email }}</p>
+                            <p><i class="ri-phone-fill"></i>  {{ $doador->telefone }}</p>
+                            <p><i class="ri-map-pin-fill"></i> São Paulo, SP</p>
                         </div>
                     </div>
 
-                    <div class="col-md-6">
-                        <div class="info-card">
-                            <h5 class="text-danger mb-3">🏆 Conquistas</h5>
-                            <div class="d-flex gap-3">
-                                <div class="text-center">
-                                    <div class="fs-4">🥇</div>
-                                    <small>Doador Regular</small>
-                                </div>
-                                <div class="text-center">
-                                    <div class="fs-4">🎯</div>
-                                    <small>Meta 2024</small>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+                    <!-- Botão para Editar -->
+                    <button class="action-button edit-button" >Editar Informações</button>
 
-                <!-- Ações -->
-                <div class="d-grid gap-3">
-                    <a href="#" class="btn btn-outline-danger">
-                        <i class="fas fa-edit me-2"></i>Editar Perfil
-                    </a>
-                    <a href="{{ route('historico') }}" class="btn btn-outline-danger">
-                        <i class="fas fa-history me-2"></i>Ver Histórico Completo
-                    </a>
                 </div>
-            </div>
-
-            <!-- QR Code de Identificação -->
-            <div class="text-center mt-4">
-                <div class="mb-2">
-                    <i class="fas fa-qrcode fa-3x text-danger"></i>
-                </div>
-                <p class="small text-muted">Use este QR code para identificação em centros de doação</p>
-            </div>
+            </main>
         </div>
     </div>
-</div>
-@endsection
 
-@section('scripts')
-<script>
-    // Script para geração de QR Code dinâmico
-    window.addEventListener('DOMContentLoaded', (event) => {
-        new QRCode(document.getElementById("qrcode"), {
-            text: "DADOR:{{ $doador->id }}",
-            width: 120,
-            height: 120,
-            colorDark : "#d10000",
-        });
-    });
-</script>
 @endsection
+@section('scripts')
