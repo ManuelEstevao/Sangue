@@ -61,7 +61,8 @@ Route::middleware('auth')->group(function () {
         Route::patch('/doador/agendamento/{id}/cancelar', 'cancelar')->name('agendamento.cancelar');
     });
     Route::get('/doacoes/historico', [HistoricoDoacaoController::class, 'index'])->name('historico');
-    Route::get('/perfil', [PerfilController::class, 'index'])->name('perfil');
+    Route::get('/doador/perfil', [PerfilController::class, 'index'])->name('perfil');
+    Route::put('/doador/perfil', [PerfilController::class, 'update'])->name('perfil.update');
     
     // Logout
     Route::post('/logout', [loginController::class, 'logout'])->name('logout');
@@ -80,6 +81,7 @@ Route::middleware('auth')->group(function () {
             Route::get('/agendamentos', 'index')->name('centro.agendamento');
             Route::patch('/agendamentos/{agendamento}/concluir', 'concluir')->name('agendamento.concluir');
             Route::patch('/agendamentos/{agendamento}/confirmar', 'confirmar')->name('agendamentos.confirmar');
+            Route::patch('/centro/agendamentos/{id}/cancelar',  'cancelar')->name('centro.agendamento.cancelar');
         });
 
     });

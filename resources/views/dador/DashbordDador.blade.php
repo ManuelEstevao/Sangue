@@ -82,14 +82,17 @@
                         </li>
                         <li class="nav-item dropdown">
                     <a class="nav-link" href="#" aria-expanded="false">
-                        <img src="{{ asset('assets/img/profile.png') }}" class="rounded-circle" alt="Avatar" style="width:40px;">
+                    
                         @php
+                            $doador=Auth::user()->doador;
                             $nomeCompleto = Auth::user()->doador->nome;
                             $partes = explode(' ', $nomeCompleto);
                             $primeiroNome = $partes[0];
                             $ultimoNome = count($partes) > 1 ? $partes[count($partes)-1] : '';
                             $nomeExibido = $primeiroNome . ($ultimoNome ? ' ' . $ultimoNome : '');
                         @endphp
+                        <img src="{{ $doador->foto ? asset('storage/'.$doador->foto) : asset('assets/img/profile.png') }}" class="img-fluid rounded-circle" 
+                        style="width: 40px; height: 40px; object-fit: cover">
                         <span class="ms-2">{{ $nomeExibido }}</span>
                     </a>
                 </li>

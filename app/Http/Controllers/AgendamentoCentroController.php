@@ -70,6 +70,18 @@ class AgendamentoCentroController extends Controller
     {
         //
     }
+    public function cancelar($id)
+    {
+        // Recupera o agendamento pelo ID
+        $agendamento = Agendamento::findOrFail($id);
+
+        // Define o status como 'Cancelado'
+        $agendamento->status = 'Cancelado';
+        $agendamento->save();
+
+        return redirect()->route('centro.agendamento')
+                         ->with('success', 'Agendamento cancelado com sucesso!');
+    }
 
     /**
      * Update the specified resource in storage.

@@ -17,7 +17,10 @@
     <div id="form">
         <form action="{{ route('login.submit') }}" method="post">
         @csrf
+              <!-- 
+            <img src="assets/img/flavicon.png" alt="" >-->
             <h2>Login</h2>
+            
             <label for="email">Email</label>
             <div class="control">
                 <i class="far fa-envelope" aria-hidden="true"></i>

@@ -57,30 +57,47 @@
                                 <td>{{ $agendamento->doador->nome }}</td>
                                 <td>{{ $agendamento->doador->tipo_sanguineo }}</td>
                                 <td>
-                                    <span class="badge badge-status bg-{{ $agendamento->status === 'pendente' ? 'primary' : ($agendamento->status === 'confirmado' ? 'success' : 'danger') }}">
+                                    <span class="badge badge-status bg-{{ $agendamento->status === 'Agendado' ? 'primary' : ($agendamento->status === 'confirmado' ? 'success' : 'danger') }}">
                                         {{ ucfirst($agendamento->status) }}
                                     </span>
                                 </td>
                                 <td class="text-center">
-                                    <div class="btn-group">
-                                        @if($agendamento->status !== 'confirmado')
-                                        <button class="btn btn-sm btn-success" title="Confirmar" 
-                                            onclick="confirmarAgendamento({{ $agendamento->id_agendamento }})">
-                                            <i class="fas fa-check"></i>
+                                    <div class="dropdown">
+                                        <button class="btn btn-sm btn-secondary dropdown-toggle" type="button" 
+                                                data-bs-toggle="dropdown" aria-expanded="false">
+                                            <i class="fas fa-ellipsis-v"></i>
                                         </button>
-                                        @endif
-                                        
-                                        @if($agendamento->status !== 'cancelado')
-                                        <button class="btn btn-sm btn-danger" title="Cancelar"
-                                            onclick="cancelarAgendamento({{ $agendamento->id_agendamento }})">
-                                            <i class="fas fa-times"></i>
-                                        </button>
-                                        @endif
-                                        
-                                        <button class="btn btn-sm btn-info" title="Ver Histórico" 
-                                            onclick="verHistorico({{ $agendamento->doador->id }})">
-                                            <i class="fas fa-history"></i>
-                                        </button>
+                                        <ul class="dropdown-menu dropdown-menu-end">
+                                            @if($agendamento->status !== 'confirmado')
+                                            <li>
+                                                <button class="dropdown-item text-success" 
+                                                        onclick="iniciarTriagem({{ $agendamento->id_agendamento }})">
+                                                    <i class="fas fa-check me-2"></i>Confirmar Doação
+                                                </button>
+                                            </li>
+                                            @endif
+                                            
+                                            <li>
+                                                <form id="cancelar-form-{{ $agendamento->id_agendamento }}" method="POST"
+                                                    action="{{ route('centro.agendamento.cancelar', $agendamento->id_agendamento) }}">
+                                                    @csrf
+                                                    @method('PATCH')
+                                                </form>
+                                                <a class="dropdown-item text-danger" href="#" 
+                                                    onclick="confirmarCancelamento(event, {{ $agendamento->id_agendamento }})">
+                                                    <i class="fas fa-times me-2"></i>Cancelar
+                                                </a>
+                                            </li>
+                                            
+                                            <li><hr class="dropdown-divider"></li>
+                                            
+                                            <li>
+                                                <button class="dropdown-item text-primary" 
+                                                        onclick="verHistorico({{ $agendamento->doador->id }})">
+                                                    <i class="fas fa-history me-2"></i>Histórico
+                                                </button>
+                                            </li>
+                                        </ul>
                                     </div>
                                 </td>
                             </tr>
@@ -158,20 +175,29 @@
         });
     }
 
-    function confirmarAgendamento(id) {
-        handleAgendamentoAction(
-            `/centro/agendamentos/${id}/confirmar`, 
-            id, 
-            'Deseja confirmar este agendamento?'
-        );
-    }
 
-    function cancelarAgendamento(id) {
-        handleAgendamentoAction(
-            `/centro/agendamentos/${id}/cancelar`, 
-            id, 
-            'Deseja cancelar este agendamento?'
-        );
+    function confirmarCancelamento(event, agendamentoId) {
+        event.preventDefault(); 
+
+        Swal.fire({
+            title: 'Tem certeza?',
+            text: "Deseja cancelar este agendamento?",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#d33',
+            cancelButtonColor: '#6c757d',
+            confirmButtonText: 'Sim, cancelar',
+            cancelButtonText: 'Não'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                let form = document.getElementById(`cancelar-form-${agendamentoId}`);
+                if (form) {
+                    form.submit();
+                } else {
+                    console.error(`Formulário não encontrado para o agendamento ${agendamentoId}`);
+                }
+            }
+        });
     }
     function verHistorico(doadorId) {
         fetch(`/doador/historico/${doadorId}`)

@@ -150,9 +150,9 @@
                             </div>
                             <h5 class="card-title">Cartão Digital</h5>
                             <p class="card-text"></p>
-                            <a href="#" class="btn btn-light mt-1">
+                            <button class="btn btn-light mt-1" data-bs-toggle="modal" data-bs-target="#cartaoModal">
                                 Visualizar Cartão <i class="fa-solid fa-id-badge ms-1"></i>
-                            </a>
+                            </button>
                         </div>
                     </div>
                 </div>
@@ -223,6 +223,186 @@
             </div>
         </div>
     </div>
+    @php
+        $doador = Auth::user()->doador; // Obtendo dados do doador
+    @endphp
+    <div class="modal fade" id="cartaoModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0">
+            <div class="modal-body p-0">
+                <div class="cartao-container">
+                    <div class="cartao-header">
+                        <div class="logo">
+                            <i class="fas fa-tint"></i>
+                            <span>ConectaDador</span>
+                        </div>
+                        <h6>Cartão do Doador</h6>
+                    </div>
+                    
+                    <div class="cartao-body">
+                        <div class="row">
+                            <!-- Coluna da Foto -->
+                            <div class="col-md-5 text-center">
+                                <div class="foto-wrapper">
+                                    <img src="{{ $doador->foto ? asset('storage/'.$doador->foto) : asset('assets/img/profile.png') }}" 
+                                         class="foto-doador"
+                                         alt="Foto do doador">
+                                </div>
+                                <div class="blood-type">
+                                    <i class="fas fa-tint"></i>
+                                    {{ $doador->tipo_sanguineo }}
+                                </div>
+                            </div>
+
+                            <!-- Coluna das Informações -->
+                            <div class="col-md-7">
+                                <div class="info-item">
+                                    <label>Nome</label>
+                                    <p class="doador-nome">{{ $doador->nome }}</p>
+                                </div>
+
+                                <div class="info-item">
+                                    <label>Identidade</label>
+                                    <p class="doador-bi">{{ $doador->bi }}</p>
+                                </div>
+
+                                <div class="row">
+                                    <div class="col-6">
+                                        <div class="info-item">
+                                            <label>Primeira Doação</label>
+                                            <p>{{ $doador->primeira_doacao ?? '--/--/----' }}</p>
+                                        </div>
+                                    </div>
+                                    <div class="col-6">
+                                        <div class="info-item">
+                                            <label>Última Doação</label>
+                                            <p>{{ $doador->ultima_doacao ?? '--/--/----' }}</p>
+                                        </div>
+                                    </div>
+                                </div>
+
+                               
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="cartao-footer">
+                        <small class="copyright">© {{ date('Y') }} ConectaDador. Todos os direitos reservados.</small>
+                    </div>
+                </div>
+            </div>
+
+            <div class="modal-footer justify-content-center">
+                <button type="button" class="btn btn-outline-danger" data-bs-dismiss="modal">Fechar</button>
+                <button onclick="window.print()" class="btn btn-danger">
+                    <i class="fas fa-print me-2"></i>
+                    Imprimir
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.cartao-container {
+    background: linear-gradient(135deg, #ffffff, #f8f9fa);
+    border-radius: 15px;
+    box-shadow: 0 10px 30px rgba(220, 53, 69, 0.2);
+    overflow: hidden;
+}
+
+.cartao-header {
+    background: linear-gradient(135deg, #dc3545, #c82333);
+    color: white;
+    padding: 1.5rem;
+    position: relative;
+}
+
+.cartao-header .logo {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 1.2rem;
+    margin-bottom: 1rem;
+}
+
+.foto-wrapper {
+    width: 120px;
+    height: 120px;
+    border: 3px solid #dc3545;
+    border-radius: 50%;
+    overflow: hidden;
+    margin: 0 auto 1rem;
+}
+
+.foto-doador {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.blood-type {
+    background: linear-gradient(135deg, #dc3545, #c82333);
+    color: white;
+    padding: 0.5rem 1rem;
+    border-radius: 20px;
+    display: inline-block;
+    font-weight: 700;
+}
+
+.info-item {
+    margin-bottom: 1rem;
+}
+
+.info-item label {
+    font-size: 0.8rem;
+    color: #6c757d;
+    margin-bottom: 0.25rem;
+}
+
+.info-item p {
+    font-size: 0.95rem;
+    margin: 0;
+    font-weight: 500;
+}
+
+.doador-nome {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: #343a40;
+}
+
+.doador-bi {
+    font-family: 'Courier New', monospace;
+    letter-spacing: 1px;
+}
+
+.qrcode-section {
+    text-align: center;
+    margin-top: 1.5rem;
+    padding: 0.5rem;
+    background: rgba(220, 53, 69, 0.05);
+    border-radius: 10px;
+}
+
+.cartao-footer {
+    padding: 1rem;
+    background: #f8f9fa;
+    text-align: center;
+    font-size: 0.75rem;
+    color: #6c757d;
+}
+
+@media print {
+    .modal-footer {
+        display: none !important;
+    }
+    
+    .cartao-container {
+        box-shadow: none;
+    }
+}
+</style>
 @foreach ($agendamentos as $agendamento)
 <div class="modal fade" id="editModal{{ $agendamento->id_agendamento }}" tabindex="-1" aria-labelledby="editModalLabel{{ $agendamento->id_agendamento }}" aria-hidden="true">
      <div class="modal-dialog">
