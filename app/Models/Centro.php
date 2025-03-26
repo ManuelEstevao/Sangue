@@ -24,6 +24,8 @@ class centro extends Model
         'longitude',
         'email',
         'endereco',
+        'telefone',
+        'foto',
         'data_cadastro',
         'id_user',
     ];

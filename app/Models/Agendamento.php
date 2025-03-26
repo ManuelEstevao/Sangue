@@ -19,6 +19,7 @@ class Agendamento extends Model
         'horario',
         'data_agendada',
         'status',
+        'motivo_cancelamento',
     ];
 
     /**

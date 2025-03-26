@@ -20,7 +20,7 @@
             <tr>
                 <td>{{ date('d/m/Y H:i', strtotime($doacao->data_doacao)) }}</td>
                 <td>{{ $doacao->centro->nome ?? 'N/D' }}</td>
-                <td>{{ $doacao->quantidade_ml }} ml</td>
+                <td>{{ $doacao->volume_coletado }} ml</td>
                 <td>
                     <span class="badge bg-{{ $doacao->status == 'concluido' ? 'success' : ($doacao->status == 'pendente' ? 'warning' : 'danger') }}">
                         {{ ucfirst($doacao->status) }}

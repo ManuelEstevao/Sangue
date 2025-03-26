@@ -1,4 +1,3 @@
-
 <div class="container py-5">
     <div class="card shadow mx-auto" style="max-width: 600px;">
         <div class="card-header bg-primary text-white">
@@ -13,6 +12,12 @@
                 <div class="mb-3">
                     <label class="form-label">Nome do Centro *</label>
                     <input type="text" name="nome" class="form-control" required>
+                </div>
+
+                <!-- Campo de Telefone -->
+                <div class="mb-3">
+                    <label class="form-label">Telefone *</label>
+                    <input type="tel" name="telefone" class="form-control" required>
                 </div>
 
                 <!-- Dados de Acesso -->

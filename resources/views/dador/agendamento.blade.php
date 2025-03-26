@@ -184,6 +184,7 @@
                         <div class="map-popup">
                             <h6>{{ $centro->nome }}</h6>
                             <p class="small">{{ $centro->endereco }}</p>
+                            <p class="small">{{ $centro->telefone }}</p>
                             <button onclick="selectCenter({{ $centro->id_centro }})" 
                                     class="btn btn-sm btn-danger mt-2">
                                 Selecionar Centro

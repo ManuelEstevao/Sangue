@@ -138,7 +138,7 @@
                                 </tr>
                                 @empty
                                 <tr>
-                                    <td colspan="4" class="text-center py-4">
+                                    <td colspan="6" class="text-center py-4">
                                         <div class="alert alert-info mb-0">
                                             Nenhuma campanha cadastrada
                                         </div>

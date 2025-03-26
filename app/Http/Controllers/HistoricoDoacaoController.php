@@ -5,7 +5,10 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\Doacao;
 use App\Models\Doador;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Http\JsonResponse;
+
 
 class HistoricoDoacaoController extends Controller
 {
@@ -24,4 +27,31 @@ class HistoricoDoacaoController extends Controller
 
         return view('dador.historico', compact('doacoes'));
     }
+
+    
+
+    public function show($doadorId): JsonResponse
+    {
+        try {
+            $doador = Doador::with('doacoes')->findOrFail($doadorId);
+            
+            return response()->json([
+                'success' => true,
+                'doador' => $doador
+            ]);
+    
+        } catch (ModelNotFoundException $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Doador não encontrado'
+            ], 404);
+            
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Erro interno: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+    
 }

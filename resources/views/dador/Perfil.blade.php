@@ -1,6 +1,16 @@
 @extends('dador.DashbordDador')
 @section('title', 'Meu Perfil - ConectaDador')
-   
+<head>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Bootstrap JS e Popper.js (no final do body) -->
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.min.js"></script>
+</head>
 @section('styles')
 <style>
     :root {
@@ -174,7 +184,7 @@
                 </div>
             </div>
         </div>
-
+<!--
         <div class="qr-section">
             <h5 class="mb-3">Identificação do Doador</h5>
             <div class="d-inline-block p-3 bg-white rounded">
@@ -183,7 +193,7 @@
             <p class="text-muted mt-3 mb-0 small">Apresente este código nos postos de coleta</p>
         </div>
     </div>
-</div>
+</div>-->
 
 
 <!-- Adicione no final da seção conteudo -->

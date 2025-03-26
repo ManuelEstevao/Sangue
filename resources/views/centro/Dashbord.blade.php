@@ -143,7 +143,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const bloodTypeChart = new Chart(document.getElementById('bloodTypeChart'), {
         type: 'pie',
         data: {
-            labels: @json($distribuicaoTipos->pluck('tipo')),
+            labels: @json($distribuicaoTipos->pluck('tipo_sanguineo')),
             datasets: [{
                 data: @json($distribuicaoTipos->pluck('total')),
                 backgroundColor: [

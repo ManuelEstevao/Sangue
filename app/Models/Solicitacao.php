@@ -12,6 +12,7 @@ class Solicitacao extends Model
 
     protected $table = 'solicitacao';
     protected $primaryKey = 'id_sol';
+    public $timestamps = false;
 
     protected $fillable = [
         'id_centro',

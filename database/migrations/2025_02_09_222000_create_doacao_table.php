@@ -12,15 +12,13 @@ return new class extends Migration
     public function up() {
         Schema::create('doacao', function (Blueprint $table) {
             $table->id('id_doacao');
-            $table->text('observacoes');
+            // Dados da coleta
+            $table->decimal('hemoglobina', 4, 1);
+            $table->string('pressao_arterial', 7);
+            $table->integer('volume_coletado')->default(450) ;
+            $table->text('observacoes')->nullable();
+            $table->enum('status', ['Reprovado', 'Aprovado']);
             $table->timestamp('data_doacao')->useCurrent();
-            
-            // Chaves estrangeiras
-            $table->unsignedBigInteger('id_agendamento');
-            $table->foreign('id_agendamento')
-                  ->references('id_agendamento')
-                  ->on('agendamento')
-                  ->onDelete('cascade');
                   
             $table->unsignedBigInteger('id_doador');
             $table->foreign('id_doador')

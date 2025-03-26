@@ -12,13 +12,16 @@ class Doacao extends Model
 
     protected $table = 'doacao';
     protected $primaryKey = 'id_doacao';
+    public $timestamps = false;
 
     // Campos preenchíveis
     protected $fillable = [
         'observacoes',
         'data_doacao',
         'id_agendamento',
-        'quantidade_ml',
+        'Volume_coletado',
+        'hemoglobina', 
+        'pressao_arterial',
         'status',
         'id_doador',
         'id_centro'

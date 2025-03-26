@@ -5,12 +5,16 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="{{ asset('assets/css/formulario.css') }}">
     <link href="assets/img/flavicon.png" rel="icon">
+    <link rel="stylesheet" href="{{url('assets/vendor/fontawesome/css/all.min.css')}}">
     <title>Cadastro</title>
 </head>
-<body>
+<body style="background: linear-gradient(135deg, 
+        rgba(198, 66, 66, 0.95) 0%, 
+        #c62828 100%),
+        url('assets/img/Fundo.png');">
     <main>
         <header>
-            <h2>Registar-se</h2>
+            <h2>Cadastro de Doador</h2>
         </header>
 
         <form id="form" class="form" action="{{ route('store-cadastro') }}" method="POST">
@@ -18,6 +22,7 @@
 
             <!-- Bilhete de Identidade -->
             <div class="form-control">
+            <i class="fas fa-id-card input-icon"></i>
                 <input 
                     type="text" 
                     id="bi" 
@@ -26,14 +31,15 @@
                     placeholder="Bilhete de Identidade (14 caracteres)" 
                     maxlength="14"
                 >
-                <i class="fas fa-exclamation-circle"></i>
-                <i class="fas fa-check-circle"></i>
+                <i class="fas fa-exclamation-circle icon-sucess"></i>
+                <i class="fas fa-check-circle icon-sucess"></i>
                 <small class="error-message"></small>
                 
             </div>
 
             <!-- Nome -->
             <div class="form-control">
+            <i class="fas fa-user"></i>
                 <input 
                     type="text" 
                     id="nome" 
@@ -42,19 +48,15 @@
                     placeholder="Nome Completo" 
                     readonly
                 >
-                <i class="fas fa-exclamation-circle"></i>
-                <i class="fas fa-check-circle"></i>
-                <small class="error-message"></small>
-                
-            </div>
-
-              
+                <i class="fas fa-exclamation-circle icon-sucess"></i>
+                <i class="fas fa-check-circle icon-sucess"></i>
                 <small class="error-message"></small>
                 
             </div>
 
             <!-- Data de Nascimento -->
             <div class="data" >
+                <i class="fas fa-calendar-alt"></i>
                 <input 
                     type="text" 
                     id="data" 
@@ -63,24 +65,27 @@
                     placeholder="Data de Nascimento" 
                     readonly
                 >
-        
+               
+                <i class="fas fa-exclamation-circle icon-sucess"></i>
                 <small class="error-message"></small>
                 
             </div>
           <!-- Gênero -->
             <div class="form-control">
+            <i class="fas fa-venus-mars"></i>
             <select id="genero" name="genero">
                 <option value="">Selecione o gênero</option>
                 <option value="Masculino">Masculino</option>
                 <option value="Feminino" >Feminino</option>
             </select>
-            <i class="fas fa-exclamation-circle"></i>
-            <i class="fas fa-check-circle"></i>
+            <i class="fas fa-exclamation-circle icon-sucess"></i>
+            <i class="fas fa-check-circle icon-sucess"></i>
             <small class="error-message"></small>
             </div>
 
             <!-- Tipo Sanguíneo -->
             <div class="form-control">
+                <i class="fas fa-tint"></i>
                 <select id="tisangue" name="tisangue">
                     <option value="">Selecione o tipo sanguíneo</option>
                     @foreach ($tiposSanguineos as $tipo)
@@ -92,14 +97,15 @@
                         </option>
                     @endforeach
                 </select>
-                <i class="fas fa-exclamation-circle"></i>
-                <i class="fas fa-check-circle"></i>
+                <i class="fas fa-exclamation-circle icon-sucess"></i>
+                <i class="fas fa-check-circle icon-sucess"></i>
                 <small class="error-message"></small>
                 
             </div>
 
             <!-- Email -->
             <div class="form-control">
+            <i class="fas fa-envelope"></i>
                 <input 
                     type="email" 
                     id="email" 
@@ -107,14 +113,15 @@
                     value="{{ old('email') }}" 
                     placeholder="Email"
                 >
-                <i class="fas fa-exclamation-circle"></i>
-                <i class="fas fa-check-circle"></i>
+                <i class="fas fa-exclamation-circle icon-sucess"></i>
+                <i class="fas fa-check-circle icon-sucess"></i>
                 <small class="error-message"></small>
                 
             </div>
 
             <!-- Contacto -->
             <div class="form-control">
+            <i class="fas fa-phone"></i>
                 <input 
                     type="tel" 
                     id="contacto" 
@@ -125,36 +132,38 @@
                     pattern="\+244\s[0-9]{3}\s[0-9]{3}\s[0-9]{3}"
                     
                 >
-                <i class="fas fa-exclamation-circle"></i>
-                <i class="fas fa-check-circle"></i>
+                <i class="fas fa-exclamation-circle icon-sucess"></i>
+                <i class="fas fa-check-circle icon-sucess"></i>
                 <small class="error-message"></small>
                 
             </div>
 
             <!-- Senha -->
             <div class="form-control">
+            <i class="fas fa-lock"></i>
                 <input 
                     type="password" 
                     id="senha" 
                     name="senha" 
                     placeholder="Senha"
                 >
-                <i class="fas fa-exclamation-circle"></i>
-                <i class="fas fa-check-circle"></i>
+                <i class="fas fa-exclamation-circle icon-sucess"></i>
+                <i class="fas fa-check-circle icon-sucess"></i>
                 <small class="error-message"></small>
                 
             </div>
 
             <!-- Confirmar Senha -->
             <div class="form-control">
+            <i class="fas fa-lock"></i>
                 <input 
                     type="password" 
                     id="confSenha" 
                     name="senha_confirmation" 
                     placeholder="Confirmar a Senha"
                 >
-                <i class="fas fa-exclamation-circle"></i>
-                <i class="fas fa-check-circle"></i>
+                <i class="fas fa-exclamation-circle icon-sucess"></i>
+                <i class="fas fa-check-circle icon-sucess"></i>
                 <small class="error-message"></small>
                 
             </div>
@@ -205,9 +214,8 @@ $(document).ready(function () {
                                 var updateField = `
                                     <div class="form-control" id="updateDateContainer">
                                         <label for="updateData">Atualize sua data de nascimento</label>
+                                        
                                         <input type="date" id="updateData" name="data_atualizada">
-                                        <i class="fas fa-exclamation-circle"></i>
-                                        <i class="fas fa-check-circle"></i>
                                         <small class="error-message"></small>
                                     </div>
                                 `;
@@ -221,7 +229,7 @@ $(document).ready(function () {
                         $('#data').val('');
                     }
                 } else {
-                    alert("Dados não encontrados.");
+                    alert("Dados não encontrados. Por favor acesse o site da AGT para actualizar seu bilhete.");
                 }
             },
             error: function () {

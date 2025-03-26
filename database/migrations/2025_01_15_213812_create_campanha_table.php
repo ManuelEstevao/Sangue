@@ -19,7 +19,8 @@ return new class extends Migration
             $table->date('data_fim');
             $table->time('hora_inicio');       
             $table->time('hora_fim');          
-            $table->string('foto')->nullable(); 
+            $table->string('foto')->nullable();
+            $table->string('endereco', 200)-> nullable(); 
             $table->unsignedBigInteger('id_centro')->nullable();
             $table->foreign('id_centro')
                   ->references('id_centro')

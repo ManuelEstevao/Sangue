@@ -19,7 +19,8 @@ return new class extends Migration
             $table->foreign('id_doador')->references('id_doador')->on('doador')->onDelete('cascade');
             $table->unsignedBigInteger('id_centro')->nullable(); 
             $table->foreign('id_centro')->references('id_centro')->on('centro')->onDelete('cascade');
-            $table->enum('status', ['Agendado', 'Confirmado', 'Cancelado'])->default('Agendado');
+            $table->enum('status', ['Agendado', 'Comparecido','Não Compareceu', 'Cancelado', 'Concluido' ])->default('Agendado');
+            $table->string('motivo_cancelamento', 255)->nullable();
             $table->timestamps();
         });
     }

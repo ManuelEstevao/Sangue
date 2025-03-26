@@ -2,7 +2,7 @@ const form = document.getElementById("form");
 const bi = document.getElementById("bi");
 const nome = document.getElementById("nome");
 const genero = document.getElementById("genero");
-//const data = document.getElementById("data");
+const data = document.getElementById("data");
 const tisangue = document.getElementById("tisangue");
 const email = document.getElementById("email");
 const contacto = document.getElementById("contacto");
@@ -18,7 +18,7 @@ function checkInputs() {
   const biValue = bi.value.trim();
   const nomeValue = nome.value.trim();
   const generoValue = genero.value.trim();
-  //const dataValue = data.value.trim();
+  const dataValue = data.value.trim();
   const tisangueValue = tisangue.value;
   const emailValue = email.value.trim();
   const contactoValue = contacto.value.trim();
@@ -48,33 +48,36 @@ function checkInputs() {
   } else {
     setSuccessFor(genero);
   }
+
+
   const updateDataField = document.getElementById("updateData");
-if (updateDataField) {
-  const updateDataValue = updateDataField.value.trim();
-  if (updateDataValue === "") {
-    setErrorFor(updateDataField, "Atualize a data de nascimento.");
-  } else {
-    setSuccessFor(updateDataField);
-  }
-}
-
-
-/*Validação da Data de Nascimento
-  if (dataValue === "") {
-    setErrorFor(data, "A data de nascimento é obrigatória.");
-  } else {
-    const hoje = new Date();
-    const nascimento = new Date(dataValue);
-    const idade = Math.floor((hoje - nascimento) / (365.25 * 24 * 60 * 60 * 1000));
-    
-    if (idade < 18) {
-      setErrorFor(data, "Deve ter pelo menos 18 anos");
-    } else if (idade > 65) {
-      setErrorFor(data, "Idade máxima permitida é 65 anos");
+  if (updateDataField) {
+    const updateDataValue = updateDataField.value.trim();
+    if (updateDataValue === "") {
+      setErrorFor(updateDataField, "Atualize a data de nascimento.");
     } else {
-      setSuccessFor(data);
+      setSuccessFor(updateDataField);
     }
-  }*/
+  }
+  
+  
+  //Validação da Data de Nascimento
+    if (dataValue === "") {
+      setErrorFor(data, "A data de nascimento é obrigatória.");
+    } /*else {
+      const hoje = new Date();
+      const nascimento = new Date(dataValue);
+      const idade = Math.floor((hoje - nascimento) / (365.25 * 24 * 60 * 60 * 1000));
+      
+      if (idade < 18) {
+        setErrorFor(data, "Deve ter pelo menos 18 anos");
+      } else if (idade > 65) {
+        setErrorFor(data, "Idade máxima permitida é 65 anos");
+      } else {
+        setSuccessFor(data);
+      }
+    }*/
+
 
   // Validação do Tipo Sanguíneo
   if (tisangueValue === "") {

@@ -93,6 +93,7 @@
 @endsection
 
 @section('conteudo')
+   
     <div class="container-fluid">
         <div class="p-4">
             <!-- Linha de Cards -->
@@ -106,19 +107,18 @@
                             </div>
                             <h5 class="card-title">Próxima Doação</h5>
                             <p class="card-text">
-    @if($proximaDoacao)
-        {{ \Carbon\Carbon::parse($proximaDoacao->data_agendada . ' ' . $proximaDoacao->horario)->format('d/m/Y H:i') }}<br>
-    @elseif($ultimaDoacao)
-        Próxima doação disponível: 
-        {{ \Carbon\Carbon::parse($ultimaDoacao->data_realizada)->addDays(90)->format('d/m/Y') }}
-    @else
-        Nenhuma doação agendada
-    @endif
-</p>
+                            @if($proximaDoacao)
+                                {{ \Carbon\Carbon::parse($proximaDoacao->data_agendada . ' ' . $proximaDoacao->horario)->format('d/m/Y H:i') }}<br>
+                            @elseif($proximaDataPermitida)
+                            Próxima doação disponível: {{ $proximaDataPermitida->format('d/m/Y') }}
+                            @else
+                                Nenhuma doação agendada
+                            @endif
+                        </p>
 
-<a href="{{ route('agendamento') }}" class="btn btn-light mt-1 {{ $proximaDoacao ? 'disabled' : '' }}">
-    Agendar <i class="fa-solid fa-calendar-plus ms-1"></i>
-</a>
+                        <a href="{{ route('agendamento') }}" class="btn btn-light mt-1 {{ ($proximaDoacao || $proximaDataPermitida) ? 'disabled' : '' }}">
+                            Agendar <i class="fa-solid fa-calendar-plus ms-1"></i>
+                        </a>
                         </div>
                     </div>
                 </div>
@@ -186,7 +186,7 @@
                                         @case('Agendado')
                                             <span class="">Agendado</span>
                                             @break
-                                        @case('Concluído')
+                                        @case('Concluido')
                                             <span class="badge bg-success text-white">Concluído</span>
                                             @break
                                         @case('Cancelado')
@@ -211,7 +211,7 @@
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="4" class="text-center">Nenhum agendamento encontrado.</td>
+                                <td colspan="6" class="text-center">Nenhum agendamento encontrado.</td>
                             </tr>
                         @endforelse
                     </tbody>
@@ -263,7 +263,7 @@
 
                                 <div class="info-item">
                                     <label>Identidade</label>
-                                    <p class="doador-bi">{{ $doador->bi }}</p>
+                                    <p class="doador-bi">{{ $doador->numero_bilhete }}</p>
                                 </div>
 
                                 <div class="row">
@@ -438,4 +438,17 @@
     </div>
 </div>
 @endforeach
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+<!-- Exibir mensagem de erro -->
+@if(session('error'))
+    <script>
+        Swal.fire({
+            icon: 'error',
+            title: 'Atenção!',
+            text: "{{ session('error') }}",
+            confirmButtonText: 'OK'
+        });
+    </script>
+@endif
 @endsection

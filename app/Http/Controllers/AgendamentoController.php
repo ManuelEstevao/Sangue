@@ -9,6 +9,7 @@ use App\Models\Campanha;
 use App\Models\Doador;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Session;
+use Carbon\Carbon; 
 
 
 
@@ -27,50 +28,45 @@ class AgendamentoController extends Controller
      */
     public function create()
     {
-        // Busca todos os centros/centros disponíveis
         $centros = Centro::all();
         $doador = Auth::user()->doador;
 
-        // Busca as campanhas ativas (opcional)
+        // Buscar campanhas ativas
         $campanhas = Campanha::where('data_inicio', '<=', now())
                              ->where('data_fim', '>=', now())
                              ->get();
+
+        // Buscar a última doação concluída
+        $ultimaDoacao = Agendamento::where('id_doador', $doador->id_doador)
+            ->where('status', 'Concluído')
+            ->orderBy('data_agendada', 'desc')
+            ->first();
+
+        // Definir intervalo mínimo baseado no gênero
+        $intervaloMinimo = ($doador->genero == 'Masculino') ? 90 : 120;
+
+        // Calcular a próxima data permitida de doação com base na última doação
+        $proximaDataPermitida = $ultimaDoacao ? Carbon::parse($ultimaDoacao->data_agendada)->addDays($intervaloMinimo) : null;
     
-      // 🔹 Recuperar o último agendamento do doador (se houver)
-    $ultimoAgendamento = Agendamento::where('id_doador', $doador->id_doador)
-    ->where('status', 'Concluído') // Só consideramos doações já concluídas
-    ->latest('data_agendada')
-    ->first();
-
-        // Definir data mínima para o próximo agendamento (exemplo: 3 meses depois)
-        $dataDisponivel = $ultimoAgendamento ? Carbon::parse($ultimoAgendamento->data_agendada)->addMonths(3) : now();
-
-        if (now()->lessThan($dataDisponivel)) {
-            return redirect()->route('dashboard.doador')->with([
-                'bloqueio_doacao' => "Você só poderá agendar uma nova doação a partir de " . $dataDisponivel->format('d/m/Y') . "."
+        // Verificar se o doador pode doar novamente
+        $podeDoarNovamente = true;
+        $dataDisponivel = now();
+    
+        if ($proximaDataPermitida && now()->lessThan($proximaDataPermitida)) {
+            $podeDoarNovamente = false;
+            $dataDisponivel = $proximaDataPermitida;
+        }
+    
+        // Se o doador não pode agendar, redireciona para a Dashboard com a mensagem de erro
+        if (!$podeDoarNovamente) {
+            return redirect()->route('doador.Dashbord')->with([
+                'error' => 'Você não pode doar novamente antes de ' . $dataDisponivel->format('d/m/Y') . '.',
+                'dataDisponivel' => $dataDisponivel
             ]);
         }
-        // 🔹 Buscar a última doação concluída do doador
-        $ultimaDoacao = Agendamento::where('id_doador', $doador->id_doador)
-        ->where('status', 'Concluído')
-        ->orderBy('data_agendada', 'desc')
-        ->first();
-
-    // 🔹 Definir intervalo mínimo baseado no gênero
-    $intervaloMinimo = $doador->genero === 'Masculino' ? 90 : 120;
-    $podeDoarNovamente = true;
-    $dataDisponivel = now();
-
-    if ($ultimaDoacao) {
-        $dataDisponivel = Carbon::parse($ultimaDoacao->data_agendada)->addDays($intervaloMinimo);
-
-        if (now()->lessThan($dataDisponivel)) {
-            $podeDoarNovamente = false;
-        }
+        return view('dador.agendamento', compact('centros', 'doador', 'campanhas', 'podeDoarNovamente', 'dataDisponivel'));
     }
 
-    return view('dador.agendamento', compact('centros','doador','campanhas', 'podeDoarNovamente', 'dataDisponivel'));
-    }
 
     /**
      * Processa o formulário de agendamento e cria um novo registro.
@@ -115,11 +111,11 @@ class AgendamentoController extends Controller
 
     // 🔹 Recuperar o último agendamento do doador (se houver)
     $ultimoAgendamento = Agendamento::where('id_doador', $doador->id_doador)
-        ->where('status', 'Concluído') // Só consideramos doações já concluídas
+        ->where('status', 'Concluido') // Só consideramos doações já concluídas
         ->latest('data_agendada')
         ->first();
 
-    // 🔹 Definir intervalo mínimo baseado no gênero
+    /*🔹 Definir intervalo mínimo baseado no gênero
     $intervaloMinimo = ($doador->genero == 'Masculino') ? 90 : 120;
 
     if ($ultimoAgendamento) {
@@ -130,7 +126,7 @@ class AgendamentoController extends Controller
                 'agendamento' => "Você só pode doar novamente após {$dataPermitida->format('d/m/Y')}."
             ]);
         }
-    }
+    }*/
 
     
     // Criar o agendamento se tudo estiver OK

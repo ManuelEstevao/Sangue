@@ -14,8 +14,9 @@ return new class extends Migration
             $table->string('nome', 255);
             $table->date('data_nascimento');
             $table->enum('genero', ['Masculino', 'Feminino']);
-            $table->enum('tipo_sanguineo', ['Não sei', 'A+', 'A-', 'B+', 'B-', 'O+', 'O-', 'AB+', 'AB-']); 
+            $table->enum('tipo_sanguineo', ['Desconhecido', 'A+', 'A-', 'B+', 'B-', 'O+', 'O-', 'AB+', 'AB-']); 
             $table->string('telefone', 16);
+            $table->string('endereco', 200)-> nullable();
             $table->string('foto')->nullable();
             $table->timestamp('data_cadastro')->useCurrent(); 
             $table->unsignedBigInteger('id_user'); 

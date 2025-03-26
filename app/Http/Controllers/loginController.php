@@ -13,37 +13,32 @@ class loginController extends Controller
     }
 
     public function login(Request $request)
-    {
-        $credentials = $request->validate([
-            'email' => 'required|email',
-            'senha' => 'required',
-        ]);
+{
+    $request->validate([
+        'email' => 'required|email',
+        'senha' => 'required',
+    ]);
 
-        $loginData = [
-            'email'    => $credentials['email'],
-            'password' => $credentials['senha'],
-        ];
+    $credentials = [
+        'email' => $request->email,
+        'password' => $request->senha
+    ];
 
-        if (Auth::attempt($loginData)) {
-            $request->session()->regenerate();
-            
-            // Redirecionamento baseado no tipo de usuário
-            $user = Auth::user();
-            
-            if ($user->tipo_usuario === 'centro') {
-                return redirect()->route('centro.Dashbord');
-            } elseif ($user->tipo_usuario === 'doador') {
-                return redirect()->route('doador.Dashbord');
-            }
-
-            // Redirecionamento padrão caso o tipo não seja reconhecido
-            return redirect()->intended('/');
-        }
-
-        return back()->withErrors([
-            'error' => 'Email ou senha inválidos',
-        ])->withInput($request->only('email'));
+    if(Auth::attempt($credentials, $request->remember)) {
+        $request->session()->regenerate();
+        
+        $user = Auth::user();
+        
+        return match($user->tipo_usuario) {
+            'centro' => redirect()->route('centro.Dashbord'),
+            'doador' => redirect()->route('doador.Dashbord'),
+            default => redirect()->intended('/')
+        };
     }
+
+    return back()->withInput()
+        ->withErrors(['error' => 'Credenciais inválidas ou conta não encontrada']);
+}
 
     public function logout(Request $request)
     {

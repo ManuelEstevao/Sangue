@@ -11,6 +11,7 @@ class Notificacao extends Model
     use HasFactory;
     protected $table = 'notificacao';
     protected $primaryKey = 'id_notificacao';
+    public $timestamps = false;
 
     // Tipos de notificação
     const TIPO_AGENDAMENTO = 'agendamento';

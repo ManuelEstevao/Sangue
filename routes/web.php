@@ -12,6 +12,7 @@ use App\Http\Controllers\PerfilController;
 use App\Http\Controllers\CentroController;
 use App\Http\Controllers\AgendamentoCentroController;
 use App\Http\Controllers\CampanhaController;
+use App\Http\Controllers\DoacaoController;
 
 /*
 |--------------------------------------------------------------------------
@@ -61,6 +62,8 @@ Route::middleware('auth')->group(function () {
         Route::patch('/doador/agendamento/{id}/cancelar', 'cancelar')->name('agendamento.cancelar');
     });
     Route::get('/doacoes/historico', [HistoricoDoacaoController::class, 'index'])->name('historico');
+    // centro
+    Route::get('/doador/historico/{doador}', [HistoricoDoacaoController::class, 'show'])->name('doador.historico');
     Route::get('/doador/perfil', [PerfilController::class, 'index'])->name('perfil');
     Route::put('/doador/perfil', [PerfilController::class, 'update'])->name('perfil.update');
     
@@ -76,13 +79,21 @@ Route::middleware('auth')->group(function () {
     Route::prefix('centro')->group(function () {
         Route::get('/dashboard', [CentroController::class, 'index'])->name('centro.Dashbord');
         Route::get('/relatorios', [CentroController::class, 'relatorio'])->name('centro.relatorio');
+        Route::get('doacoes',[ DoacaoController::class, 'index'])->name('centro.doacao');
         
         Route::controller(AgendamentoCentroController::class)->group(function () {
             Route::get('/agendamentos', 'index')->name('centro.agendamento');
             Route::patch('/agendamentos/{agendamento}/concluir', 'concluir')->name('agendamento.concluir');
             Route::patch('/agendamentos/{agendamento}/confirmar', 'confirmar')->name('agendamentos.confirmar');
             Route::patch('/centro/agendamentos/{id}/cancelar',  'cancelar')->name('centro.agendamento.cancelar');
+
+            Route::patch('/agendamentos/{id}/comparecido', 'marcarComparecido')->name('centro.agendamentos.comparecido');
+
         });
+
+
+
+        Route::post('/doacoes', [DoacaoController::class, 'store'])->name('doacoes.store');
 
     });
     
@@ -105,6 +116,7 @@ Route::middleware('auth')->group(function () {
     | Rotas para Cadastro do Centro
     |--------------------------------------------------------------------------
     */
-    Route::get('/registro-centro', [CentroController::class, 'showRegistrationForm'])->name('centro.register');
-    Route::post('/registro-centro', [CentroController::class, 'register'])->name('centro.submit');
+
 });
+Route::get('/registro-centro', [CentroController::class, 'showRegistrationForm'])->name('centro.register');
+Route::post('/registro-centro', [CentroController::class, 'register'])->name('centro.submit');

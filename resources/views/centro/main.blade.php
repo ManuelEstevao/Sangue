@@ -34,7 +34,6 @@
     <!-- CSS Just for demo purpose -->
     <link rel="stylesheet" href="{{ url('assets/Centro/assets/css/demo.css') }}">
 
-
     @yield('styles')
   </head>
   <body>
@@ -43,8 +42,14 @@
       <div class="sidebar" data-background-color="dark">
         <div class="sidebar-logo">
           <!-- Logo Header -->
-          <div class="logo-header" data-background-color="dark">
-            <a href="#" class="logo text-white h4">
+
+          <div class="logo-header " style="  display: flex;
+            align-items: center;" data-background-color="dark">
+          
+            <i class="fas fa-tint  logo text-white h3" style="margin-right: 10px;"></i>   
+            
+            <a href="#" class="logo text-white h3">
+             
               ConectaDador
             </a>
             <div class="nav-toggle">
@@ -80,6 +85,12 @@
                   <p>Agendamentos</p>
                 </a>
               </li>
+              <li class="nav-item {{ request()->routeIs('centro.doacao') ? 'active' : '' }}">
+                  <a href="{{route('centro.doacao')}}">
+                      <i class="fas fa-hand-holding-heart"></i>
+                      <p>Doações</p>
+                  </a>
+              </li>
              
               <li class="nav-item {{ request()->routeIs('campanhas.index') ? 'active' : '' }}">
                   <a href="{{ route('campanhas.index') }}">
@@ -87,6 +98,7 @@
                       <p>Campanhas</p>
                   </a>
               </li>
+
 
               <!-- Seção Relatórios -->
               <span class="sidebar-title">Relatórios</span>
@@ -184,7 +196,7 @@
                       <img src="{{ asset('assets/img/profile.png') }}" alt="..." class="avatar-img rounded-circle" />
                     </div>
                     <span class="profile-username">
-                      <span class="op-7">Hi,</span> <span class="fw-bold"></span>
+                      <span class="op-7"></span> <span class="fw-bold"></span>
                     </span>
                   </a>
                   <ul class="dropdown-menu dropdown-user animated fadeIn">

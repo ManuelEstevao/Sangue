@@ -64,23 +64,24 @@ class CentroController extends Controller
         return view('centro.registo');
     }
 
-public function register(Request $request)
-{
-    $request->validate([
-        'nome' => 'required|string|max:100',
-        'email' => 'required|email|unique:users,email',
-        'password' => 'required|min:8|confirmed',
-        'endereco' => 'required|string|max:200',
-        'latitude' => 'required|numeric',
-        'longitude' => 'required|numeric',
-        'capacidade'=> 'required|numeric',
-    ]);
+    public function register(Request $request)
+    {
+        $request->validate([
+            'nome' => 'required|string|max:100',
+            'email' => 'required|email|unique:users,email',
+            'password' => 'required|min:8|confirmed',
+            'endereco' => 'required|string|max:200',
+            'latitude' => 'required|numeric',
+            'longitude' => 'required|numeric',
+            'capacidade'=> 'required|numeric',
+            'telefone'=> 'required',
+        ]);
 
-    // Cria usuário com tipo correto
-    $user = User::create([
-        'tipo_usuario' => 'centro', 
-        'email' => $request->email,
-        'password' => Hash::make($request->password)
+        // Cria usuário com tipo correto
+        $user = User::create([
+            'tipo_usuario' => 'centro', 
+            'email' => $request->email,
+            'password' => Hash::make($request->password)
     ]);
 
     // Cria centro com relacionamento
@@ -89,7 +90,8 @@ public function register(Request $request)
         'endereco' => $request->endereco,
         'latitude' => $request->latitude,
         'longitude' => $request->longitude,
-        'capacidade' => $request->capacidade_maxima
+        'capacidade' => $request->capacidade_maxima,
+        'telefone'=>$request->telefone
     ]);
     
     $user->centro()->save($centro);

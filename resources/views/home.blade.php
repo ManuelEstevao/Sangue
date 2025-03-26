@@ -122,7 +122,12 @@
         </li>
         <li class="nav-item">
           <a class="nav-link" data-bs-toggle="tab" data-bs-target="#features-tab-3">
-            <h4>Impacto da Doação</h4>
+           <h4>Quando Não Doar</h4>
+          </a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" data-bs-toggle="tab" data-bs-target="#features-tab-4">
+              <h4>Curiosidades</h4>
           </a>
         </li>
 
@@ -162,10 +167,72 @@
             </p>
             <ul>
               <li><i class="bi bi-heart-pulse"></i> <span><strong>Check-up Gratuito:</strong> Testes de HIV, hepatite, sífilis e tipagem sanguínea.</span></li>
-              <li><i class="bi bi-people"></i> <span><strong>Impacto Coletivo:</strong> 1 doação beneficia até 4 pessoas.</span></li>
+              <li><i class="bi bi-people"></i> <span><strong>Impacto Coletivo:</strong> 1 doação beneficia até 3 pessoas.</span></li>
               <li><i class="bi bi-shield-check"></i> <span><strong>Segurança Garantida:</strong> Todo material é descartável e esterilizado.</span></li>
               <li><i class="bi bi-graph-up"></i> <span><strong>Saúde em Dia:</strong> Doar regularmente ajuda a reduzir risco de doenças cardíacas.</span></li>
              
+            </ul>
+          </div>
+          <div class="col-lg-6 order-1 order-lg-2 text-center">
+            <img src="assets/img/intrucao3.png" alt="" class="img-fluid" style="width: 80%;">
+            
+          </div>
+        </div>
+      </div><!-- End tab content item -->
+
+      <div class="tab-pane fade" id="features-tab-3">
+        <div class="row">
+          <div class="col-lg-6 order-2 order-lg-1 mt-3 mt-lg-0 d-flex flex-column justify-content-center">
+            <h3>Não Doe Sangue, Se...</h3>
+            <p class="fst-italic">
+            Sua segurança e a dos pacientes são prioridade:
+            </p>
+            <ul>
+                <li><i class="bi bi-x-circle text-danger"></i> 
+                <span><strong>Portador de VIH/SIDA:</strong> Ou teste positivo recente</span></li>
+
+              <li><i class="bi bi-slash-circle text-danger"></i> 
+                <span><strong>Histórico de Sífilis:</strong> Sem tratamento completo nos últimos 12 meses</span></li>
+
+              <li><i class="bi bi-exclamation-triangle text-danger"></i> 
+                <span><strong>Receptor de Sangue:</strong> Esperar 1 ano após última transfusão</span></li>
+              <li><i class="bi bi-capsule text-danger"></i> 
+                <span><strong>Medicação Contínua:</strong> Antibióticos, anticoagulantes ou quimioterapia</span></li>
+                <li><i class="bi bi-droplet text-danger"></i> 
+              <span><strong>Anemia Grave:</strong> Taxa de hemoglobina abaixo de 12,5g/dL </span></li>
+
+              <li><i class="bi bi-moon-stars text-danger"></i> 
+               <span><strong>Grávidas:</strong> Aguardar 6 meses pós-parto para doar</span></li>
+            </ul>
+            
+          </div>
+          <div class="col-lg-6 order-1 order-lg-2 text-center">
+             <img src="assets/img/11.png" alt="" class="img-fluid" style="width: 75%;">
+          </div>
+        </div>
+      </div><!-- End tab content item -->
+
+      <div class="tab-pane fade" id="features-tab-4">
+        <div class="row">
+          <div class="col-lg-6 order-2 order-lg-1 mt-3 mt-lg-0 d-flex flex-column justify-content-center">
+            <h3>Sabia Que...</h3>
+            <p class="fst-italic">
+              Fatos surpreendentes sobre doação de sangue:
+            </p>
+            <ul>
+              <li><i class="bi bi-lightning-charge text-danger"></i> 
+                <span><strong>Velocidade Sanguínea:</strong> Seu corpo repõe o plasma em 24h!</span></li>
+              
+              <li><i class="bi bi-globe-americas text-danger"></i> 
+                <span><strong>Universalidade:</strong> Tipo O- é doador universal</span></li>
+              
+              <li><i class="bi bi-heartbreak text-danger"></i>
+                <span><strong>Vitalidade:</strong> Sangue transporta oxigênio, nutrientes e defesas - nenhum substituto completo existe</span></li>
+              <li><i class="bi bi-clock-history text-danger"></i> 
+                <span><strong>Frequência:</strong> Homens podem doar a cada 2 meses</span></li>
+              
+              <li><i class="bi bi-thermometer-sun text-danger"></i> 
+                <span><strong>Emergências:</strong> 70% das doações são para cirurgias</span></li>
             </ul>
           </div>
           <div class="col-lg-6 order-1 order-lg-2 text-center">
@@ -174,24 +241,6 @@
         </div>
       </div><!-- End tab content item -->
 
-      <div class="tab-pane fade" id="features-tab-3">
-        <div class="row">
-          <div class="col-lg-6 order-2 order-lg-1 mt-3 mt-lg-0 d-flex flex-column justify-content-center">
-            <h3>Voluptatibus commodi accusamu</h3>
-            <p class="fst-italic">
-              Cada doação faz a diferença. Veja como sua contribuição ajuda:
-            </p>
-            <ul>
-              <li><i class="bi bi-check2-all"></i> <span>Uma única doação pode salvar até três vidas.</span></li>
-              <li><i class="bi bi-check2-all"></i> <span>Ajuda a manter os estoques de sangue para emergências e tratamentos contínuos.</span></li>
-              <li><i class="bi bi-check2-all"></i> <span>Fortalece a cultura de solidariedade na comunidade.</span></li>
-            </ul>
-          </div>
-          <div class="col-lg-6 order-1 order-lg-2 text-center">
-            <img src="assets/img/intrucao3.png" alt="" class="img-fluid" style="width: 80%;">
-          </div>
-        </div>
-      </div><!-- End tab content item -->
     </div>
   </div>
 </section>
