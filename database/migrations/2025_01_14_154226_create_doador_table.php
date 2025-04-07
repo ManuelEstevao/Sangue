@@ -16,6 +16,7 @@ return new class extends Migration
             $table->enum('genero', ['Masculino', 'Feminino']);
             $table->enum('tipo_sanguineo', ['Desconhecido', 'A+', 'A-', 'B+', 'B-', 'O+', 'O-', 'AB+', 'AB-']); 
             $table->string('telefone', 16);
+            $table->decimal('peso', 5, 2)->nullable();
             $table->string('endereco', 200)-> nullable();
             $table->string('foto')->nullable();
             $table->timestamp('data_cadastro')->useCurrent(); 

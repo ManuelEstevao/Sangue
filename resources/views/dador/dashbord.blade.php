@@ -110,7 +110,7 @@
                             @if($proximaDoacao)
                                 {{ \Carbon\Carbon::parse($proximaDoacao->data_agendada . ' ' . $proximaDoacao->horario)->format('d/m/Y H:i') }}<br>
                             @elseif($proximaDataPermitida)
-                            Próxima doação disponível: {{ $proximaDataPermitida->format('d/m/Y') }}
+                            Próxima doação disponível apartir de: {{ $proximaDataPermitida->format('d/m/Y') }}
                             @else
                                 Nenhuma doação agendada
                             @endif
@@ -186,6 +186,9 @@
                                         @case('Agendado')
                                             <span class="">Agendado</span>
                                             @break
+                                        @case('Comparecido')
+                                            <span class="">Comparecido</span>
+                                            @break
                                         @case('Concluido')
                                             <span class="badge bg-success text-white">Concluído</span>
                                             @break
@@ -195,19 +198,35 @@
                                     @endswitch
                                 </td>
                                 <td>
-                                 <!-- Botão de Editar (abre o modal de edição) --> 
-                                <button class="btn btn-sm btn-info" data-bs-toggle="modal" data-bs-target="#editModal{{ $agendamento->id_agendamento}}">
-                                    <i class="fa-solid fa-pen"></i>
-                                </button>
-                                <!-- Botão de Cancelar --> 
-                                <form action="{{ route('agendamento.cancelar', $agendamento->id_agendamento) }}" method="POST" class="d-inline">
-                                    @csrf
-                                    @method('PATCH')
-                                    <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('Tem certeza que deseja cancelar este agendamento?')">
-                                        <i class="fa-solid fa-times"></i>
-                                    </button>
-                                </form>
+                                @if ($agendamento->status === 'Agendado')
+                                        <!-- Botão de Editar (abre o modal de edição) -->
+                                        <button class="btn btn-sm btn-info" data-bs-toggle="modal" data-bs-target="#editModal{{ $agendamento->id_agendamento }}">
+                                            <i class="fa-solid fa-pen"></i>
+                                        </button>
+                                        
+                                        <!-- Botão de Cancelar --> 
+                                        <form action="{{ route('agendamento.cancelar', $agendamento->id_agendamento) }}" method="POST" class="d-inline">
+                                            @csrf
+                                            @method('PATCH')
+                                            <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('Tem certeza que deseja cancelar este agendamento?')">
+                                                <i class="fa-solid fa-times"></i>
+                                            </button>
+                                        </form>
+                                    @else
+                                        
+                                       <!-- Botões desabilitados -->
+                                        <button class="btn btn-sm btn-info disabled" aria-disabled="true">
+                                            <i class="fa-solid fa-pen"></i>
+                                        </button>
+                                        
+                                        <form class="d-inline">
+                                            <button type="button" class="btn btn-sm btn-danger disabled" aria-disabled="true">
+                                                <i class="fa-solid fa-times"></i>
+                                            </button>
+                                        </form>
+                                    @endif
                                 </td>
+                               
                             </tr>
                         @empty
                             <tr>
@@ -224,19 +243,19 @@
         </div>
     </div>
     @php
-        $doador = Auth::user()->doador; // Obtendo dados do doador
-    @endphp
-    <div class="modal fade" id="cartaoModal" tabindex="-1">
+    $doador = Auth::user()->doador; // Obtendo dados do doador
+@endphp
+<div class="modal fade" id="cartaoModal" tabindex="-1">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content border-0">
             <div class="modal-body p-0">
                 <div class="cartao-container">
                     <div class="cartao-header">
+                        <h6>CARTÃO DO DOADOR DE SANGUE</h6>
                         <div class="logo">
                             <i class="fas fa-tint"></i>
                             <span>ConectaDador</span>
                         </div>
-                        <h6>Cartão do Doador</h6>
                     </div>
                     
                     <div class="cartao-body">
@@ -244,7 +263,7 @@
                             <!-- Coluna da Foto -->
                             <div class="col-md-5 text-center">
                                 <div class="foto-wrapper">
-                                    <img src="{{ $doador->foto ? asset('storage/'.$doador->foto) : asset('assets/img/profile.png') }}" 
+                                   <img src="{{ $doador->foto ? asset('storage/fotos/' . $doador->foto) : asset('assets/img/profile.png') }}"
                                          class="foto-doador"
                                          alt="Foto do doador">
                                 </div>
@@ -280,8 +299,6 @@
                                         </div>
                                     </div>
                                 </div>
-
-                               
                             </div>
                         </div>
                     </div>
@@ -305,31 +322,30 @@
 
 <style>
 .cartao-container {
-    background: linear-gradient(135deg, #ffffff, #f8f9fa);
+    background: #dc3545; /* Cor de fundo principal do cartão */
     border-radius: 15px;
-    box-shadow: 0 10px 30px rgba(220, 53, 69, 0.2);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+    color: white;
     overflow: hidden;
 }
 
 .cartao-header {
-    background: linear-gradient(135deg, #dc3545, #c82333);
-    color: white;
     padding: 1.5rem;
-    position: relative;
+    text-align: center;
 }
 
 .cartao-header .logo {
     display: flex;
     align-items: center;
+    justify-content: center;
     gap: 0.5rem;
-    font-size: 1.2rem;
-    margin-bottom: 1rem;
+    font-size: 1.5rem;
 }
 
 .foto-wrapper {
     width: 120px;
     height: 120px;
-    border: 3px solid #dc3545;
+    border: 3px solid white; /* Cor da borda da foto */
     border-radius: 50%;
     overflow: hidden;
     margin: 0 auto 1rem;
@@ -342,8 +358,7 @@
 }
 
 .blood-type {
-    background: linear-gradient(135deg, #dc3545, #c82333);
-    color: white;
+    background: #c82333; /* Tom mais escuro para o tipo sanguíneo */
     padding: 0.5rem 1rem;
     border-radius: 20px;
     display: inline-block;
@@ -356,7 +371,7 @@
 
 .info-item label {
     font-size: 0.8rem;
-    color: #6c757d;
+    color: #f8f9fa;
     margin-bottom: 0.25rem;
 }
 
@@ -369,7 +384,6 @@
 .doador-nome {
     font-size: 1.25rem;
     font-weight: 700;
-    color: #343a40;
 }
 
 .doador-bi {
@@ -377,20 +391,11 @@
     letter-spacing: 1px;
 }
 
-.qrcode-section {
-    text-align: center;
-    margin-top: 1.5rem;
-    padding: 0.5rem;
-    background: rgba(220, 53, 69, 0.05);
-    border-radius: 10px;
-}
-
 .cartao-footer {
     padding: 1rem;
-    background: #f8f9fa;
+    background: #b22222; /* Cor para o rodapé */
     text-align: center;
     font-size: 0.75rem;
-    color: #6c757d;
 }
 
 @media print {

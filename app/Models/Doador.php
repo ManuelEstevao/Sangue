@@ -4,6 +4,8 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Support\Facades\Storage;
 
 class Doador extends Model
 {
@@ -18,10 +20,33 @@ class Doador extends Model
         'genero',  
         'tipo_sanguineo',
         'telefone',
+        'peso',
+        'endereco',
         'foto',
         'data_cadastro',
         'id_user',
     ];
+
+    
+    protected $appends = ['foto_url'];
+
+    public function getFotoUrlAttribute()
+    {
+        
+        if (!$this->foto) {
+            return asset('assets/img/profile.png');
+        }
+    
+   
+        $caminhoRelativo = "fotos/{$this->foto}";
+    
+       
+        if (Storage::disk('public')->exists($caminhoRelativo)) {
+            return asset("storage/{$caminhoRelativo}");
+        }
+    
+        return asset('assets/img/profile.png');
+    }
     public static function getEnumValues($column)
     {
         // Obtém a definição da coluna do banco de dados
@@ -57,4 +82,19 @@ class Doador extends Model
         return $this->hasMany(Agendamento::class, 'id_doador', 'id_doador');
     }
 
+    /* Todas as doações através dos agendamentos
+    *Fazendo um join
+    */
+    public function doacoes()
+    {
+        return $this->hasManyThrough(
+            Doacao::class,
+            Agendamento::class,
+            'id_doador', 
+            'id_agendamento', 
+            'id_doador', 
+            'id_agendamento'
+        );
+    }
+  
 }

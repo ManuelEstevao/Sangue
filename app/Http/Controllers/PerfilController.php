@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use App\Models\Doacao;
 use SimpleSoftwareIO\QrCode\Facades\QrCode;
+use Illuminate\Support\Facades\Storage;
 
 class PerfilController extends Controller
 {
@@ -15,8 +16,13 @@ class PerfilController extends Controller
         $doador = $usuario->doador;
 
         // Buscar informações sobre doações
-        $totalDoacoes = Doacao::where('id_doador', $doador->id_doador)->count();
-        $ultimaDoacao = Doacao::where('id_doador', $doador->id_doador)->latest('data_doacao')->first();
+        $totalDoacoes = Doacao::whereHas('agendamento', function($query) use ($doador) {
+            $query->where('id_doador', $doador->id_doador);
+        })->count();
+
+        $ultimaDoacao = Doacao::whereHas('agendamento', function($query) use ($doador) {
+            $query->where('id_doador', $doador->id_doador);
+        })->latest('data_doacao')->first();
 
         return view('dador.perfil', compact('doador', 'totalDoacoes', 'ultimaDoacao'));
     }
@@ -31,13 +37,20 @@ class PerfilController extends Controller
     $doador = Auth::user()->doador;
 
     if ($request->hasFile('foto')) {
-        $path = $request->file('foto')->store('fotos', 'public');
-        $validated['foto'] = $path;
-        
-        // Remove foto antiga se existir
+        // Deletar foto antiga se existir
         if ($doador->foto) {
-            Storage::disk('public')->delete($doador->foto);
+            Storage::disk('public')->delete('fotos/' . $doador->foto);
         }
+
+        // Armazenar nova foto
+        $fileName = time() . '_' . $request->file('foto')->getClientOriginalName();
+        $path = $request->file('foto')->storeAs(
+            'fotos',
+            $fileName,
+            'public'
+        );
+        
+        $validated['foto'] = $fileName;
     }
 
     $doador->update($validated);

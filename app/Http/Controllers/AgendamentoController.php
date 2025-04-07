@@ -64,8 +64,29 @@ class AgendamentoController extends Controller
                 'dataDisponivel' => $dataDisponivel
             ]);
         }
-        return view('dador.agendamento', compact('centros', 'doador', 'campanhas', 'podeDoarNovamente', 'dataDisponivel'));
+        // Pré-calcular horários para cada centro
+        $horariosCentros = [];
+        foreach ($centros as $centro) {
+            $horariosCentros[$centro->id_centro] = $this->gerarHorariosCentro(
+                $centro->horario_abertura,
+                $centro->horario_fechamento
+            );
+        }
+        return view('dador.agendamento', compact('centros', 'doador', 'campanhas', 'podeDoarNovamente', 'dataDisponivel','horariosCentros'));
     }
+    private function gerarHorariosCentro($abertura, $fechamento)
+{
+    $horarios = [];
+    $inicio = Carbon::parse($abertura);
+    $fim = Carbon::parse($fechamento);
+
+    while ($inicio <= $fim) {
+        $horarios[] = $inicio->format('H:i');
+        $inicio->addMinutes(30);
+    }
+
+    return $horarios;
+}
 
 
     /**
@@ -111,7 +132,7 @@ class AgendamentoController extends Controller
 
     // 🔹 Recuperar o último agendamento do doador (se houver)
     $ultimoAgendamento = Agendamento::where('id_doador', $doador->id_doador)
-        ->where('status', 'Concluido') // Só consideramos doações já concluídas
+        ->where('status', 'Concluido')
         ->latest('data_agendada')
         ->first();
 

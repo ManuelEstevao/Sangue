@@ -27,7 +27,7 @@ class DashDadorController extends Controller
 
         // Obtém a próxima doação agendada
         $proximaDoacao = Agendamento::where('id_doador', $doador->id_doador)
-            ->whereDate('data_agendada', '>=', now()->toDateString()) // Comparando só a data
+            ->whereDate('data_agendada', '>=', now()->toDateString()) 
             ->where('status', 'Agendado')
             ->orderBy('data_agendada', 'asc')
             ->first();
@@ -36,21 +36,20 @@ class DashDadorController extends Controller
            
             
 
-        
+        // Doações através do relacionamento com agendamento
+        $doacoesQuery = Doacao::whereHas('agendamento', function($query) use ($doador) {
+            $query->where('id_doador', $doador->id_doador);
+        });
 
-
-        // Calcula o tempo restante para a próxima doação, se houver
-        //$tempoRestante = $proximaDoacao ? Carbon::parse($proximaDoacao->data_agendada)->diffForHumans(now(), true) : null;
-
-        // Obtém o total de doações realizadas
-        $totalDoacoes = Doacao::where('id_doador', $doador->id_doador)
+        // Total de doações aprovadas
+        $totalDoacoes = $doacoesQuery->clone()
             ->where('status', 'Aprovado')
             ->count();
 
         // Obtém a última doação realizada
-        $ultimaDoacao = Doacao::where('id_doador', $doador->id_doador)
+        $ultimaDoacao = $doacoesQuery->clone()
             ->where('status', 'Aprovado')
-            ->orderBy('data_doacao', 'desc')
+            ->orderByDesc('data_doacao')
             ->first();
 
         // 🔹 Definir intervalo mínimo baseado no gênero
@@ -61,7 +60,7 @@ class DashDadorController extends Controller
 
         // Obtém os últimos agendamentos do usuário
         $agendamentos = Agendamento::where('id_doador', $doador->id_doador)
-            ->orderBy('data_agendada', 'desc')
+            ->latest('data_agendada') 
             ->paginate(2);
             
 

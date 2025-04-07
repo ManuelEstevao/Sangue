@@ -40,6 +40,10 @@
                             <input type="time" class="form-control" id="hora_fim" name="hora_fim" required>
                         </div>
                     </div>
+                    <div class="col-md-12">
+                        <label for="endereco" class="form-label">Endereço</label>
+                        <input type="text" class="form-control" name="endereco" id="endereco" placeholder="Local da campanha (opcional)">
+                    </div>
 
                     <div class="mb-3">
                         <label for="foto" class="form-label">Imagem da Campanha</label>

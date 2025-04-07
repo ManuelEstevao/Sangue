@@ -4,12 +4,64 @@
 @section('styles')
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
 <style>
-    /* Mantenha todos os estilos anteriores e adicione estes */
-    .table-donations td, .table-donations th {
-        vertical-align: middle;
+    
+   
+   .table-donations {
+        table-layout: auto;
+        margin-bottom: 0;
     }
-    .badge-status {
-        min-width: 90px;
+    
+    .table-donations th {
+        font-weight: 500;
+        background-color: #f8f9fa;
+        padding: 0.78rem;
+    }
+
+    .table-donations td {
+        padding: 0.78rem;
+        vertical-align: middle;
+        white-space: nowrap;
+    }
+
+    .table-responsive {
+        overflow-x: auto;
+        max-height: none;
+        border-radius: 8px;
+    }
+
+    .compact-column {
+        max-width: 125px;
+        min-width: 100px;
+    }
+
+    .status-column {
+        width: 100px;
+    }
+
+    @media (max-width: 768px) {
+        .mobile-hidden {
+            display: none;
+        }
+        
+        .table-donations td, .table-donations th {
+            white-space: normal;
+            padding: 0.5rem;
+        }
+        
+        .dropdown-menu {
+            min-width: 120px;
+        }
+    }
+
+    .btn-custom {
+        background-color: rgba(198, 66, 66, 0.9);
+        color: white;
+        border: none;
+        padding: 0.375rem 0.75rem;
+    }
+
+    .dropdown-toggle {
+        padding: 0.25rem 0.5rem;
     }
 </style>
 @endsection
@@ -30,92 +82,118 @@
 </div>
         
         <div class="card-body">
-            <!-- Filtro por Status -->
-            <form method="GET" action="" class="mb-3">
+        <form method="GET" action="" class="mb-3">
+            <div class="d-flex justify-content-between align-items-center gap-3">
+
+
+            <div class="d-flex align-items-center gap-2" style="max-width: 300px;">
+                    <div class="input-group">
+                        <input type="text" 
+                            name="search" 
+                            class="form-control" 
+                            placeholder="Nome do doador..." 
+                            value="{{ request('search') }}"
+                            aria-label="Buscar doador">
+                        <button type="submit" class="btn btn-custom">
+                            <i class="fas fa-search"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Filtro de Status (Esquerda) -->
                 <div class="d-flex align-items-center gap-2">
                     <label class="fw-bold">Filtrar por:</label>
                     <select name="status" class="form-select w-auto" onchange="this.form.submit()">
                         <option value="">Todos status</option>
                         <option value="Aprovado" {{ request('status') == 'Aprovado' ? 'selected' : '' }}>Aprovado</option>
                         <option value="Reprovado" {{ request('status') == 'Reprovado' ? 'selected' : '' }}>Reprovado</option>
-        
                     </select>
                 </div>
-            </form>
 
-            <!-- Tabela de Doações -->
-            <div class="table-responsive">
-                <table class="table table-hover table-donations">
+                <!-- Barra de Pesquisa (Direita) -->
+               
+            </div>
+        </form>
+
+ <!-- Tabela de Doações -->
+ <div class="table-responsive">
+    <table class="table table-hover ">
                     <thead>
                         <tr>
-                            <th>Data</th>
                             <th>Doador</th>
-                            <th>Volume (ml)</th>
-                            <th>Hemoglobina</th>
+                            <th class="mobile-hidden">Tipo</th>
+                            <th class="mobile-hidden">Peso</th>
                             <th>Pressão</th>
+                            <th class="mobile-hidden">Hemog.</th>
+                            <th>Data</th>
                             <th>Status</th>
                             <th class="text-center">Ações</th>
                         </tr>
                     </thead>
                     <tbody>
                         @forelse($doacoes as $doacao)
-                            <tr>
-                                <td>{{ $doacao->data_doacao}}</td>
-                                <td>{{ $doacao->doador->nome }}</td>
-                                <td>{{ $doacao->Volume_coletado }} ml</td>
-                                <td>{{ $doacao->hemoglobina }} g/dL</td>
-                                <td>{{ $doacao->pressao_arterial }}</td>
-                                <td>
-                                    <span class="badge badge-status bg-@switch($doacao->status)
-                                        @case('Aprovado')success @break
-                                        @case('Pendente')warning @break
-                                        @default('danger')
-                                    @endswitch">
-                                        {{ $doacao->status }}
-                                    </span>
-                                </td>
-                                <td class="text-center">
-                                    <div class="dropdown">
-                                        <button class="btn btn-sm dropdown-toggle" 
-                                                style="background-color: rgba(198, 66, 66, 0.95); color:white;" 
-                                                data-bs-toggle="dropdown">
-                                            <i class="fas fa-ellipsis-v"></i>
-                                        </button>
-                                        <ul class="dropdown-menu dropdown-menu-end">
-                                            <li>
-                                                <a class="dropdown-item" 
-                                                   href="">
-                                                    <i class="fas fa-edit me-2"></i>Editar
-                                                </a>
-                                            </li>
-                                            <li>
-                                                <form id="delete-form-{{ $doacao->id_doacao }}" 
-                                                    action="" 
-                                                    method="POST">
-                                                    @csrf
-                                                    @method('DELETE')
-                                                </form>
-                                                <a class="dropdown-item text-danger" href="#" 
-                                                    onclick="confirmarExclusao(event, {{ $doacao->id_doacao }})">
+                        <tr>
+                            <td>{{ Str::limit($doacao->agendamento->doador->nome, 26) }}</td>
+                            <td class="mobile-hidden">{{ $doacao->agendamento->doador->tipo_sanguineo }}</td>
+                            <td class="mobile-hidden">{{ $doacao->agendamento->doador->peso }} kg</td>
+                            <td>{{ $doacao->pressao_arterial }}</td>
+                            <td class="mobile-hidden">{{ $doacao->hemoglobina }}g/dL</td>
+                            <td>{{ \Carbon\Carbon::parse($doacao->data_doacao)->format('d/m/y') }}</td>
+                            <td>
+                                <span class="badge bg-{{ $doacao->status == 'Aprovado' ? 'success' : 'danger' }}">
+                                    {{ ucfirst($doacao->status) }}
+                                </span>
+                            </td>
+                            <td class="text-center">
+                                <div class="dropdown">
+                                    <button class="btn btn-sm dropdown-toggle" 
+                                            style="background-color: rgba(198, 66, 66, 0.95); color:white;" 
+                                            data-bs-toggle="dropdown">
+                                        <i class="fas fa-ellipsis-v"></i>
+                                    </button>
+                                    <ul class="dropdown-menu dropdown-menu-end">
+                                    <li>
+                                            <a class="dropdown-item text-primary" href="#"
+                                            data-id="{{ $doacao->id_doacao }}"
+                                            data-hemoglobina="{{ $doacao->hemoglobina }}"
+                                            data-pressao="{{ $doacao->pressao_arterial }}"
+                                            data-volume="{{ $doacao->volume_coletado }}"
+                                            data-peso="{{ $doacao->agendamento->doador->peso }}"
+                                            data-profissional="{{ $doacao->nome_profissional }}"
+                                            data-status="{{ $doacao->status }}"
+                                            data-observacoes="{{ $doacao->observacoes }}"
+                                            onclick="abrirModalEdicao(this)">
+                                            <i class="fas fa-edit me-2"></i>Editar
+                                            </a>
+                                        </li>
+                                        <li>
+                                            <form id="delete-form-{{ $doacao->id_doacao }}" action="{{ route('centro.doacao.destroy', $doacao->id_doacao) }}" method="POST" style="display: inline;">
+                                                @csrf
+                                                @method('DELETE')
+                                                <a class="dropdown-item text-danger" href="#" onclick="confirmarExclusao(event, {{ $doacao->id_doacao }})">
                                                     <i class="fas fa-trash me-2"></i>Excluir
                                                 </a>
-                                            </li>
-                                        </ul>
-                                    </div>
-                                </td>
-                            </tr>
+                                            </form>
+                                        </li>
+                                        <li><a class="dropdown-item" href="#"><i class="fas fa-file-alt me-2"></i>Relatório</a></li>
+                                    </ul>
+                                </div>
+                            </td>
+                        </tr>
                         @empty
-                            <tr>
-                                <td colspan="7" class="text-center">
-                                    <div class="alert alert-info mb-0">
-                                        Nenhuma doação registrada.
-                                    </div>
-                                </td>
-                            </tr>
+                        <tr>
+                            <td colspan="8" class="text-center py-4">
+                                <div class="alert alert-info mb-0">
+                                    Nenhuma doação encontrada
+                                </div>
+                            </td>
+                        </tr>
                         @endforelse
                     </tbody>
                 </table>
-            </div>
+</div>
+
+
 
             <!-- Paginação -->
             @if ($doacoes->hasPages())
@@ -155,25 +233,157 @@
         </div>
     </div>
 </div>
+
+
+<!-- Modal de Edição de Doação -->
+<div class="modal fade" id="editarDoacaoModal" tabindex="-1" aria-labelledby="editarDoacaoModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form id="editarDoacaoForm" method="POST" action="">
+                @csrf
+                @method('PUT')
+                <div class="modal-header">
+                    <h5 class="modal-title" id="editarDoacaoModalLabel">Editar Doação</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
+                </div>
+                <div class="modal-body">
+                    <!-- Exemplo de campos para edição -->
+                    <div class="mb-3">
+                        <label>Hemoglobina (g/dL)</label>
+                        <input type="number" step="0.1" name="hemoglobina" id="editHemoglobina" class="form-control" required>
+                    </div>
+                    <div class="mb-3">
+                        <label>Pressão Arterial</label>
+                        <input type="text" name="pressao_arterial" id="editPressao" class="form-control" placeholder="Ex: 120/80" pattern="\d{2,3}/\d{2,3}" required>
+                    </div>
+                    <div class="mb-3">
+                        <label>Volume Coletado (ml)</label>
+                        <input type="number" name="volume_coletado" id="editVolume" class="form-control" required>
+                    </div>
+                    <div class="mb-3">
+                        <label>Peso (kg)</label>
+                        <input type="number" step="0.1" name="peso" id="editPeso" class="form-control" required>
+                    </div>
+                    <div class="mb-3">
+                        <label>Profissional Responsável</label>
+                        <input type="text" name="nome_profissional" id="editProfissional" class="form-control" required>
+                    </div>
+                    <div class="mb-3">
+                        <label>Status da Doação</label>
+                        <select name="status" id="editStatus" class="form-select" required>
+                            <option value="Aprovado">Aprovado</option>
+                            <option value="Reprovado">Reprovado</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label>Observações</label>
+                        <textarea name="observacoes" id="editObservacoes" class="form-control" rows="2"></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn btn-custom">Salvar Alterações</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
 @endsection
 
 @section('scripts')
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script>
-    function confirmarExclusao(event, doacaoId) {
-        event.preventDefault();
-        Swal.fire({
-            title: 'Tem certeza?',
-            text: "Esta ação não pode ser desfeita!",
-            icon: 'warning',
-            showCancelButton: true,
-            confirmButtonColor: '#c62828',
-            cancelButtonColor: '#6c757d',
-            confirmButtonText: 'Sim, excluir!'
-        }).then((result) => {
-            if (result.isConfirmed) {
-                document.getElementById(`delete-form-${doacaoId}`).submit();
-            }
-        });
+   function confirmarExclusao(event, doacaoId) {
+    event.preventDefault();
+    Swal.fire({
+        title: 'Tem certeza?',
+        text: "Esta ação não pode ser desfeita!",
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#c62828',
+        cancelButtonColor: '#6c757d',
+        confirmButtonText: 'Sim, excluir!'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            document.getElementById(`delete-form-${doacaoId}`).submit();
+        }
+    });
+}
+
+function abrirModalEdicao(element) {
+        // Obter os dados a partir dos data attributes
+        const id = element.getAttribute('data-id');
+        const hemoglobina = element.getAttribute('data-hemoglobina');
+        const pressao = element.getAttribute('data-pressao');
+        const volume = element.getAttribute('data-volume');
+        const peso = element.getAttribute('data-peso');
+        const profissional = element.getAttribute('data-profissional');
+        const status = element.getAttribute('data-status');
+        const observacoes = element.getAttribute('data-observacoes');
+
+        // Preencher os campos do modal
+        document.getElementById('editHemoglobina').value = hemoglobina;
+        document.getElementById('editPressao').value = pressao;
+        document.getElementById('editVolume').value = volume;
+        document.getElementById('editPeso').value = peso;
+        document.getElementById('editProfissional').value = profissional;
+        document.getElementById('editStatus').value = status;
+        document.getElementById('editObservacoes').value = observacoes;
+
+        // Atualizar a action do formulário para a rota de atualização
+        const form = document.getElementById('editarDoacaoForm');
+        form.action = `/centro/doacao/${id}`;
+
+        // Abrir o modal usando Bootstrap
+        const modal = new bootstrap.Modal(document.getElementById('editarDoacaoModal'));
+        modal.show();
     }
+    $(document).ready(function() {
+    $('#editarDoacaoForm').on('submit', function(e) {
+        let valid = true;
+        let errorMessage = '';
+
+        // Validação da Hemoglobina: deve ser um número positivo
+        const hemoglobina = $('#editHemoglobina').val();
+        if (!hemoglobina || isNaN(hemoglobina) || parseFloat(hemoglobina) <= 0) {
+            valid = false;
+            errorMessage = 'Informe uma hemoglobina válida.';
+        }
+
+        // Validação da Pressão Arterial: deve seguir o padrão 120/80
+        const pressao = $('#editPressao').val();
+        const regexPressao = /^\d{2,3}\/\d{2,3}$/;
+        if (!regexPressao.test(pressao)) {
+            valid = false;
+            errorMessage = 'Informe uma pressão arterial válida (ex: 120/80).';
+        }
+
+        // Validação do Volume Coletado: deve estar entre 300 e 500 ml
+        const volume = $('#editVolume').val();
+        if (parseInt(volume) < 300 || parseInt(volume) > 500) {
+            valid = false;
+            errorMessage = 'O volume coletado deve estar entre 300 e 500 ml.';
+        }
+
+        // Validação do Peso: deve ser um número positivo
+        const peso = $('#editPeso').val();
+        if (!peso || isNaN(peso) || parseFloat(peso) <= 0) {
+            valid = false;
+            errorMessage = 'Informe um peso válido.';
+        }
+
+        // Se houver erro, exibe o alerta e impede o envio do formulário
+        if (!valid) {
+            e.preventDefault();
+            Swal.fire({
+                icon: 'error',
+                title: 'Erro de Validação',
+                text: errorMessage
+            });
+        }
+    });
+});
 </script>
 @endsection

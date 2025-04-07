@@ -18,31 +18,44 @@ class Doacao extends Model
     protected $fillable = [
         'observacoes',
         'data_doacao',
-        'id_agendamento',
-        'Volume_coletado',
+        'volume_coletado',
         'hemoglobina', 
         'pressao_arterial',
         'status',
-        'id_doador',
-        'id_centro'
+        'nome_profissional',
+        'id_agendamento'
     ];
 
+    protected $casts = [
+        'data_doacao' => 'datetime:Y-m-d H:i:s', // Conversão explícita
+    ];
+
+    protected $appends = ['data_formatada']; // Adiciona ao JSON
+
+    public function getDataFormatadaAttribute()
+    {
+        return $this->data_doacao 
+            ? $this->data_doacao->format('d/m/Y H:i')
+            : '--/--/---- --:--';
+    }
 
 
     // Relacionamentos
-    public function agendamento(): BelongsTo
+    public function agendamento()
     {
-        return $this->belongsTo(Agendamento::class, 'id_agendamento');
+        return $this->belongsTo(Agendamento::class, 'id_agendamento', 'id_agendamento');
     }
 
-    public function doador(): BelongsTo
+    // Acesso ao centro através do agendamento
+    public function centro()
     {
-        return $this->belongsTo(Doador::class, 'id_doador');
+        return $this->agendamento->centro;
     }
 
-    public function centro(): BelongsTo
+    // Acesso ao doador através do agendamento
+    public function doador()
     {
-        return $this->belongsTo(Centro::class, 'id_centro');
+        return $this->agendamento->doador;
     }
 
 }

@@ -8,35 +8,41 @@
     <table class="table table-striped">
         <thead class="table-light">
             <tr>
-                <th>Data da Doação</th>
+            <tr>
+                <th>Data</th>
                 <th>Centro</th>
-                <th>Quantidade (ml)</th>
+                <th>Peso</th>
+                <!--  <th>Volume(ml)</th>-->  
                 <th>Status</th>
+                <th>Profissional</th>
                 <th>Observações</th>
+            </tr>
             </tr>
         </thead>
         <tbody>
             @forelse($doacoes as $doacao)
             <tr>
                 <td>{{ date('d/m/Y H:i', strtotime($doacao->data_doacao)) }}</td>
-                <td>{{ $doacao->centro->nome ?? 'N/D' }}</td>
-                <td>{{ $doacao->volume_coletado }} ml</td>
+                <td>{{ $doacao->agendamento->centro->nome ?? 'N/D' }}</td>
+                <td>{{ number_format($doacao->agendamento->doador->peso, 2) }}</td>
+              <!--  <td>{{ $doacao->volume_coletado }} ml</td>-->  
                 <td>
-                    <span class="badge bg-{{ $doacao->status == 'concluido' ? 'success' : ($doacao->status == 'pendente' ? 'warning' : 'danger') }}">
+                    <span class="badge bg-{{ $doacao->status == 'Aprovado' ? 'success' :  'danger' }}">
                         {{ ucfirst($doacao->status) }}
                     </span>
                 </td>
+                <td>{{ $doacao->nome_profissional ?? 'Não registado' }}</td>
                 <td>{{ $doacao->observacoes ?? 'Sem observações' }}</td>
             </tr>
             @empty
             <tr>
-                <td colspan="5" class="text-center text-muted">Nenhuma doação registrada.</td>
+                <td colspan="6" class="text-center text-muted">Nenhuma doação registrada.</td>
             </tr>
             @endforelse
         </tbody>
     </table>
-    <div class="d-flex justify-content-center">
-        {{ $doacoes->links() }}
+    <div class="d-flex justify-content-center mt-4">
+        {{ $doacoes->links('pagination::bootstrap-5') }}
     </div>
 </div>
 @endsection

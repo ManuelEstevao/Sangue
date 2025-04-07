@@ -3,7 +3,7 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\navController;
 use App\Http\Controllers\loginController;
-use App\Http\Controllers\cadastroController;
+use App\Http\Controllers\CadastroController;
 use App\Http\Controllers\dadorController;
 use App\Http\Controllers\DashDadorController;
 use App\Http\Controllers\AgendamentoController;
@@ -36,7 +36,7 @@ Route::middleware('guest')->group(function () {
         Route::post('/login', 'login')->name('login.submit');
     });
     // Cadastro
-    Route::controller(cadastroController::class)->group(function () {
+    Route::controller(CadastroController::class)->group(function () {
         Route::get('/registar', 'index')->name('cadastro');
         Route::post('/registar', 'store')->name('store-cadastro');
     });
@@ -57,9 +57,13 @@ Route::middleware('auth')->group(function () {
     Route::controller(AgendamentoController::class)->group(function () {
         Route::get('/doador/agendamento/create', 'create')->name('agendamento');
         Route::post('/agendamento', 'store')->name('agendamento.store');
+        Route::post('/agendamento/questionario', 'storeQuestionario')->name('agendamento.questionario.store');
+
+
         Route::get('/doador/agendamento/{id}/edit', 'edit')->name('agendamento.edit');
         Route::patch('/doador/agendamento/{id}', [AgendamentoController::class, 'update'])->name('agendamento.update');
         Route::patch('/doador/agendamento/{id}/cancelar', 'cancelar')->name('agendamento.cancelar');
+
     });
     Route::get('/doacoes/historico', [HistoricoDoacaoController::class, 'index'])->name('historico');
     // centro
@@ -79,8 +83,8 @@ Route::middleware('auth')->group(function () {
     Route::prefix('centro')->group(function () {
         Route::get('/dashboard', [CentroController::class, 'index'])->name('centro.Dashbord');
         Route::get('/relatorios', [CentroController::class, 'relatorio'])->name('centro.relatorio');
-        Route::get('doacoes',[ DoacaoController::class, 'index'])->name('centro.doacao');
-        
+        Route::get('/listar/doadores',[ CentroController::class, 'listaDoadores'])->name('listar.doador');
+
         Route::controller(AgendamentoCentroController::class)->group(function () {
             Route::get('/agendamentos', 'index')->name('centro.agendamento');
             Route::patch('/agendamentos/{agendamento}/concluir', 'concluir')->name('agendamento.concluir');
@@ -91,9 +95,18 @@ Route::middleware('auth')->group(function () {
 
         });
 
-
-
-        Route::post('/doacoes', [DoacaoController::class, 'store'])->name('doacoes.store');
+ /*
+    |--------------------------------------------------------------------------
+    | Rotas para doações
+    |--------------------------------------------------------------------------
+    */
+        Route::controller(DoacaoController::class)->group(function () {
+            Route::get('/doacoes', 'index')->name('centro.doacao'); 
+            Route::post('/doacoes', 'store')->name('doacoes.store'); 
+            Route::get('/doacao/{id}/edit', 'edit')->name('centro.doacao.edit'); 
+            Route::put('/doacao/{id}', 'update')->name('centro.doacao.update'); 
+            Route::delete('/doacao/{id}', 'destroy')->name('centro.doacao.destroy'); 
+        });
 
     });
     
@@ -120,3 +133,16 @@ Route::middleware('auth')->group(function () {
 });
 Route::get('/registro-centro', [CentroController::class, 'showRegistrationForm'])->name('centro.register');
 Route::post('/registro-centro', [CentroController::class, 'register'])->name('centro.submit');
+
+
+// Adicione temporariamente em uma rota
+Route::get('/time', function() {
+    return now()->format('Y-m-d H:i:s (e)');
+});
+
+use Barryvdh\DomPDF\Facade\Pdf;
+
+Route::get('/teste-manual', function() {
+    $pdf = PDF::loadHTML('<h1>Teste Manual</h1><p>DomPDF instalado manualmente!</p>');
+    return $pdf->stream();
+});

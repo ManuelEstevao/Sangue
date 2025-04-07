@@ -123,7 +123,7 @@
         </button>
         
         <div class="avatar-wrapper">
-            <img src="{{ $doador->foto ? asset('storage/'.$doador->foto) : asset('assets/img/profile.png') }}" 
+            <img src="{{ $doador->foto ? asset('storage/fotos/' . $doador->foto) : asset('assets/img/profile.png') }}" 
                  class="img-fluid" 
                  alt="Foto do perfil">
         </div>
@@ -282,7 +282,7 @@
         </div>
     </div>
 </div>
-
+@endsection
 @section('scripts')
 <script>
 document.addEventListener('DOMContentLoaded', function() {
@@ -301,5 +301,4 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 });
 </script>
-@endsection
 @endsection

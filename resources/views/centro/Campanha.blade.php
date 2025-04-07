@@ -115,11 +115,10 @@
                                     <td class="text-center">
                                         <div class="btn-group">
                                             <button class="btn btn-sm btn-link text-primary btn-edit" 
-                                                    data-bs-toggle="modal" 
-                                                    data-bs-target="#modalCampanha"
                                                     onclick="carregarEdicao({{ $campanha->id_campanha }})">
                                                 <i class="fas fa-edit"></i>
                                             </button>
+
                                             <div class="d-flex justify-content-center">
                                                 <form class="delete-form" 
                                                     action="{{ route('campanhas.destroy', $campanha->id_campanha) }}" 
@@ -207,42 +206,43 @@
     // Função de Carregamento para Edição
     function carregarEdicao(id) {
     fetch(`/campanhas/${id}/edit`)
-        .then(response => {
-            if (!response.ok) throw new Error('Falha ao carregar dados');
-            return response.json();
-        })
+        .then(response => response.json())
         .then(data => {
-            const modal = document.getElementById('modalCampanha');
-            const form = modal.querySelector('form');
-            
-            // Preencher todos os campos
-            form.querySelector('[name="titulo"]').value = data.titulo;
-            form.querySelector('[name="descricao"]').value = data.descricao;
-            form.querySelector('[name="hora_inicio"]').value = data.hora_inicio;
-            form.querySelector('[name="hora_fim"]').value = data.hora_fim;
+            console.log('Dados recebidos:', data);
 
-            // Configurar datas
-            datepickerInicio.setDate(data.data_inicio);
-            datepickerFim.setDate(data.data_fim);
+            const modalEl = document.getElementById('modalCampanha');
+            const modal = new bootstrap.Modal(modalEl);
+            modal.show();
 
-            // Atualizar ação do formulário
-            form.action = `/campanhas/${data.id_campanha}`;
-            form.method = 'POST';
-            
-            // Gerenciar método PUT
-            form.querySelector('[name="_method"]')?.remove();
-            form.insertAdjacentHTML('beforeend', '<input type="hidden" name="_method" value="PUT">');
+            modalEl.addEventListener('shown.bs.modal', () => {
+                document.getElementById('titulo').value = data.titulo || '';
+                document.getElementById('descricao').value = data.descricao || '';
+                document.getElementById('hora_inicio').value = data.hora_inicio?.slice(0, 5) || '';
+                document.getElementById('hora_fim').value = data.hora_fim?.slice(0, 5) || '';
+                document.getElementById('endereco').value = data.endereco || '';
+                document.getElementById('data_inicio').value = data.data_inicio || '';
+                document.getElementById('data_fim').value = data.data_fim || '';
 
-            // Atualizar título do modal
-            modal.querySelector('.modal-title').textContent = 'Editar Campanha';
-            
-            new bootstrap.Modal(modal).show();
+                const form = document.getElementById('formCampanha');
+                form.action = `/campanhas/${data.id_campanha}`;
+
+                let methodInput = form.querySelector('input[name="_method"]');
+                if (!methodInput) {
+                    methodInput = document.createElement('input');
+                    methodInput.type = 'hidden';
+                    methodInput.name = '_method';
+                    form.appendChild(methodInput);
+                }
+                methodInput.value = 'PUT';
+
+                document.getElementById('modalCampanhaLabel').textContent = 'Editar Campanha';
+            }, { once: true }); // Só escuta 1 vez
         })
         .catch(error => {
-            console.error('Erro:', error);
-            Swal.fire('Erro!', 'Não foi possível carregar os dados', 'error');
+            console.error('Erro ao carregar dados:', error);
         });
 }
+
 
 // Gerenciamento de Eventos do Modal
 document.getElementById('modalCampanha').addEventListener('show.bs.modal', function(e) {

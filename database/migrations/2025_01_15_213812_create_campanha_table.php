@@ -26,7 +26,7 @@ return new class extends Migration
                   ->references('id_centro')
                   ->on('centro')
                   ->onDelete('cascade');
-
+                  
             $table->timestamps();
         });
     }

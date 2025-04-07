@@ -5,6 +5,10 @@ use App\Models\Agendamento;
 use App\Models\Doacao; 
 use Illuminate\Http\Request;
 use App\Models\Doador;
+use Carbon\Carbon; 
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
+use App\Models\Notificacao;
 
 class AgendamentoCentroController extends Controller
 {
@@ -12,28 +16,33 @@ class AgendamentoCentroController extends Controller
      * Display a listing of the resource.
      */
     public function index(Request $request)
-    {
-        $agendamentos = Agendamento::with('doador')->get();
-        $query = Agendamento::with('doador');
-
-        // Aplica filtro se existir
-        if ($request->filled('tipo_sanguineo')) {
-            $query->whereHas('doador', function($q) use ($request) {
-                $q->where('tipo_sanguineo', $request->tipo_sanguineo);
-            });
-        }
+{
+    
+    $centro = Auth::user()->centro;
+    
+    
+    $query = Agendamento::with('doador')
+             ->where('id_centro', $centro->id_centro); 
 
     
-        $agendamentos = $query->paginate(8)->appends($request->query());
-      
+    $query->when($request->filled('tipo_sanguineo'), function($q) use ($request) {
+        $q->whereHas('doador', function($subQuery) use ($request) {
+            $subQuery->where('tipo_sanguineo', $request->tipo_sanguineo);
+        });
+    });
 
-    return view('centro.agendamento', compact('agendamentos'));
-    }
+    
+    $agendamentos = $query->latest('data_agendada')
+                      ->paginate(8)
+                      ->appends($request->query());
+
+    return view('centro.agendamento', compact('agendamentos',));
+}
     public function historico($id)
 {
     // Busca o histórico do doador (ex: agendamentos anteriores)
     $historico = Agendamento::where('id_doador', $id)
-        ->where('status', 'concluído')
+        ->where('status', 'concluido')
         ->get(['data_agendamento', 'status']);
 
     return response()->json($historico);
@@ -77,7 +86,7 @@ class AgendamentoCentroController extends Controller
             
         // Atualiza status do agendamento
         Agendamento::where('id_agendamento', $validated['id_agendamento'])
-        ->update(['status' => $validated['status'] === 'Aprovado' ? 'Concluído' : 'Reprovado']);
+        ->update(['status' => $validated['status'] === 'Aprovado' ? 'Concluido' : 'Reprovado']);
 
             DB::commit();
 
@@ -108,6 +117,51 @@ class AgendamentoCentroController extends Controller
     
     return redirect()->route('centro.agendamento')
         ->with('success', 'Comparecimento registrado com sucesso!');
+}
+
+public function verificarComparecimentos()
+{
+    $limite = now()->subMinutes(2);
+    
+    $agendamentosAtrasados = Agendamento::where('status', 'Agendado')
+    ->where('data_agendada', '<=', $limite->toDateString())
+    ->whereTime('horario', '<=', $limite->toTimeString())
+    ->with(['doador.user', 'centro'])
+    ->get();
+    
+
+    foreach ($agendamentosAtrasados as $agendamento) {
+        try {
+            DB::beginTransaction();
+            
+            
+            $agendamento->update(['status' => 'Não Compareceu']);
+            
+            
+            Notificacao::create([
+                'mensagem' => sprintf(
+                    "Não comparecimento registrado no agendamento de %s às %s no centro %s. Por favor, entre em contato para reagendar.",
+                    Carbon::parse($agendamento->data_agendada)->format('d/m/Y'), 
+                    Carbon::parse($agendamento->horario)->format('H:i'),
+                    $agendamento->centro->nome
+                ),
+                'tipo' => 'nao_compareceu',
+                'id_user' => $agendamento->doador->user->id_user,
+                'id_agendamento' => $agendamento->id_agendamento
+            ]);
+
+            DB::commit();
+            
+        } catch (\Exception $e) {
+            DB::rollBack();
+            Log::error("Erro ao processar agendamento {$agendamento->id_agendamento}: " . $e->getMessage());
+        }
+    }
+
+    return response()->json([
+        'total_atualizados' => $agendamentosAtrasados->count(),
+        'ultima_verificacao' => now()->format('Y-m-d H:i:s')
+    ]);
 }
 
     /**

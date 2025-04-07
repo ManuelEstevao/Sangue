@@ -64,18 +64,13 @@ class CampanhaController extends Controller
         return redirect()->route('campanhas.index')->with('success', 'Campanha criada com sucesso!');
     }
 
-    public function edit(Campanha $campanha)
+    public function edit($id)
     {
-        return response()->json([
-            'id_campanha' => $campanha->id_campanha,
-            'titulo' => $campanha->titulo,
-            'descricao' => $campanha->descricao,
-            'data_inicio' => $campanha->data_inicio->format('d/m/Y'),
-            'data_fim' => $campanha->data_fim->format('d/m/Y'),
-            'hora_inicio' => $campanha->hora_inicio,
-            'hora_fim' => $campanha->hora_fim
-        ]);
+        $campanha = Campanha::findOrFail($id);
+        return response()->json($campanha);
     }
+    
+
 
     public function update(Request $request, Campanha $campanha)
     {

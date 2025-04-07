@@ -1,0 +1,166 @@
+/* responsive.css */
+/* =================== NAVBAR =================== */
+/* Layout principal */
+.wrapper {
+    display: flex;
+    min-height: 100vh;
+    flex-direction: column;
+  }
+  
+  /* Sidebar responsiva */
+  .sidebar {
+    width: 280px;
+    transition: transform 0.3s ease;
+  }
+  
+  @media (max-width: 991.98px) {
+    .sidebar {
+      transform: translateX(-280px);
+      position: fixed;
+      z-index: 1030;
+      height: 100vh;
+    }
+    
+    .sidebar.active {
+      transform: translateX(0);
+    }
+  
+    .main-panel {
+      margin-left: 0;
+      width: 100%;
+    }
+  }
+  
+  /* Logo mobile */
+  .logo-header .logo {
+    font-size: 1.25rem;
+  }
+  
+  @media (min-width: 992px) {
+    .logo-header .logo {
+      font-size: 1.5rem;
+    }
+  }
+  
+  /* Menu hamburguer */
+  .nav-toggle {
+    display: flex;
+    gap: 0.5rem;
+  }
+  
+  .toggle-sidebar {
+    display: none;
+  }
+  
+  @media (max-width: 991.98px) {
+    .toggle-sidebar {
+      display: block;
+    }
+  }
+  
+  /* =================== TABELAS =================== */
+  .table-responsive {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+  
+  .table-custom {
+    min-width: 600px;
+    border-collapse: separate;
+    border-spacing: 0;
+  }
+  
+  .table-custom th {
+    background-color: #f8f9fa;
+    font-weight: 500;
+    white-space: nowrap;
+    padding: 0.75rem 1rem;
+  }
+  
+  .table-custom td {
+    padding: 0.75rem 1rem;
+    vertical-align: middle;
+    border-top: 1px solid #dee2e6;
+  }
+  
+  /* Estilos responsivos para tabelas */
+  @media (max-width: 767.98px) {
+    .table-custom {
+      font-size: 0.875rem;
+    }
+    
+    .table-custom th,
+    .table-custom td {
+      padding: 0.5rem;
+    }
+  
+    .mobile-hidden {
+      display: none;
+    }
+  
+    .actions-column {
+      position: sticky;
+      right: 0;
+      background: white;
+      box-shadow: -2px 0 8px rgba(0,0,0,0.1);
+    }
+  }
+  
+  /* =================== COMPONENTES COMUNS =================== */
+  /* Cards responsivos */
+  .card {
+    box-shadow: 0 0.5rem 1rem rgba(0,0,0,0.15);
+    margin-bottom: 1.5rem;
+  }
+  
+  @media (max-width: 575.98px) {
+    .card-header {
+      flex-direction: column;
+      gap: 1rem;
+      align-items: flex-start;
+    }
+  }
+  
+  /* Formulários */
+  .filter-group {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+  }
+  
+  @media (max-width: 767.98px) {
+    .filter-group {
+      flex-direction: column;
+    }
+    
+    .search-input {
+      width: 100%;
+    }
+  }
+  
+  /* Paginação */
+  .pagination {
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+  
+  /* =================== UTILITÁRIOS =================== */
+  .text-truncate {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 200px;
+  }
+  
+  @media (max-width: 575.98px) {
+    .text-truncate {
+      max-width: 150px;
+    }
+  }
+  
+  /* Breakpoints customizados */
+  @media (max-width: 575.98px) { /* Extra small */ }
+  @media (max-width: 767.98px) { /* Small */ }
+  @media (max-width: 991.98px) { /* Medium */ }
+  @media (max-width: 1199.98px) { /* Large */ }
+  @media (min-width: 1200px) { /* Extra large */ }

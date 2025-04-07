@@ -14,9 +14,11 @@ return new class extends Migration
         Schema::create('centro', function (Blueprint $table) {
             $table->id('id_centro');
             $table->string('nome', 100);
-            $table->decimal('latitude', 9, 6);
-            $table->decimal('longitude', 9, 6);
+            $table->decimal('latitude', 10, 8);
+            $table->decimal('longitude', 11, 8);
             $table->string('telefone', 16);
+            $table->time('horario_abertura')->default('08:00:00');
+            $table->time('horario_fechamento')->default('17:30:00');
             $table->string('endereco', 200);
             $table->string('foto')->nullable();
             $table->unsignedInteger('capacidade_maxima')->default('10');

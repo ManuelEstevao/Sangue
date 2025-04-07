@@ -20,7 +20,7 @@ return new class extends Migration
             $table->unsignedBigInteger('id_centro')->nullable(); 
             $table->foreign('id_centro')->references('id_centro')->on('centro')->onDelete('cascade');
             $table->enum('status', ['Agendado', 'Comparecido','Não Compareceu', 'Cancelado', 'Concluido' ])->default('Agendado');
-            $table->string('motivo_cancelamento', 255)->nullable();
+            
             $table->timestamps();
         });
     }

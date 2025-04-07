@@ -91,7 +91,7 @@
                             $ultimoNome = count($partes) > 1 ? $partes[count($partes)-1] : '';
                             $nomeExibido = $primeiroNome . ($ultimoNome ? ' ' . $ultimoNome : '');
                         @endphp
-                        <img src="{{ $doador->foto ? asset('storage/'.$doador->foto) : asset('assets/img/profile.png') }}" class="img-fluid rounded-circle" 
+                        <img src="{{ $doador->foto ?  asset('storage/fotos/' . $doador->foto) : asset('assets/img/profile.png') }}" class="img-fluid rounded-circle" 
                         style="width: 40px; height: 40px; object-fit: cover">
                         <span class="ms-2">{{ $nomeExibido }}</span>
                     </a>

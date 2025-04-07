@@ -5,6 +5,7 @@
     <title>@yield('title')</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no" />
     <link href="assets/img/flavicon.png" rel="icon">
+    
 
     <!-- Fonts and Icons -->
     <script src="{{ url('assets/Centro/assets/js/plugin/webfont/webfont.min.js') }}"></script>
@@ -31,6 +32,7 @@
     <link rel="stylesheet" href="{{ url('assets/Centro/assets/css/plugins.min.css') }}" />
     <link rel="stylesheet" href="{{ url('assets/Centro/assets/css/kaiadmin.min.css') }}" />
     <link rel="stylesheet" href="{{ url('assets/vendor/fontawesome/css/all.min.css') }}">
+    <!--<link rel="stylesheet" href="{{ asset('assets/css/responsive.css') }}">-->
     <!-- CSS Just for demo purpose -->
     <link rel="stylesheet" href="{{ url('assets/Centro/assets/css/demo.css') }}">
 
@@ -76,9 +78,15 @@
                   <p>Dashboard</p>
                 </a>
               </li>
-
+              <br>
               <!-- Seção Doadores -->
               <span class="sidebar-title">Doadores</span>
+              <li class="nav-item {{ request()->routeIs('listar.doador') ? 'active' : '' }}">
+                <a href="{{route('listar.doador')}}">
+                  <i class="fas fa-users"></i>
+                  <p>Doadores</p>
+                </a>
+              </li>
               <li class="nav-item {{ request()->routeIs('centro.agendamento') ? 'active' : '' }}">
                 <a href="{{route('centro.agendamento')}}">
                   <i class="fas fa-calendar-check"></i>
@@ -99,8 +107,8 @@
                   </a>
               </li>
 
-
-              <!-- Seção Relatórios -->
+              
+              <!-- Seção Relatórios 
               <span class="sidebar-title">Relatórios</span>
               <li class="nav-item">
                 <a data-bs-toggle="collapse" href="#relatorios" aria-expanded="false">
@@ -108,7 +116,7 @@
                   <p>Relatórios</p>
                   <span class="caret"></span>
                 </a>
-                <div class="collapse" id="relatorios">
+                 <div class="collapse" id="relatorios">
                   <ul class="nav nav-collapse">
                     <li>
                       <a href="#">
@@ -122,8 +130,8 @@
                     </li>
                   </ul>
                 </div>
-              </li>
-
+              </li>-->
+              <br>
               <!-- Seção Emergências -->
               <span class="sidebar-title">Emergências</span>
               <li class="nav-item">
@@ -133,7 +141,7 @@
                   <span class="badge badge-danger">3</span>
                 </a>
               </li>
-              <br>
+              <br><br>
               <li class="sidebar-item btn-logout">
                   <form method="POST" action="{{ route('logout') }}">
                     @csrf

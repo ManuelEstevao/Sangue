@@ -33,9 +33,20 @@ class Agendamento extends Model
     /**
      * Relacionamento com a centro (muitos para 1).
      */
+
+    public function doacao()
+    {
+         return $this->hasOne(Doacao::class, 'id_agendamento', 'id_agendamento');
+    }
+
     public function centro(): BelongsTo
     {
         return $this->belongsTo(centro::class, 'id_centro', 'id_centro');
+    }
+
+    public function questionario()
+    {
+        return $this->hasOne(Questionario::class, 'id_agendamento', 'id_agendamento');
     }
 
 }

@@ -13,18 +13,13 @@ class Notificacao extends Model
     protected $primaryKey = 'id_notificacao';
     public $timestamps = false;
 
-    // Tipos de notificação
-    const TIPO_AGENDAMENTO = 'agendamento';
-    const TIPO_CAMPANHA = 'campanha';
-    const TIPO_LEMBRETE = 'lembrete';
-    const TIPO_EMERGENCIA = 'emergencia';
-
     // Campos preenchíveis
     protected $fillable = [
         'mensagem',
         'tipo',
         'data_envio',
-        'user_id'
+        'id_user',
+        'id_agendamento',
     ];
 
 
@@ -32,6 +27,12 @@ class Notificacao extends Model
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class, 'user_id', 'id_user');
+    }
+
+    //Relacionamento com agendamento (opcional)
+    public function agendamento(): BelongsTo
+    {
+        return $this->belongsTo(Agendamento::class, 'id_agendamento', 'id_agendamento'); // Relacionamento com o modelo Agendamento
     }
 
 }

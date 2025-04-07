@@ -51,7 +51,7 @@
             </div>
 
             <div class="link">
-                <a href="{{route('cadastro')}}">Novo aqui? Junte-se a nossa causa!</a>
+                <a href="{{route('cadastro')}}">Cadastre-se e ajude a fazer a diferença!</a>
             </div>
         </form>
     </div>

@@ -79,13 +79,8 @@
                 <div class="mb-4">
                     <label class="form-label">⏰ Horário Preferencial</label>
                     <div class="time-picker">
-                        <select class="form-select" name="horario" required>
-                            @for($h = 8; $h <= 17; $h++)
-                                <option value="{{ $h }}:00">{{ sprintf('%02d:00', $h) }}</option>
-                                @if($h < 17)
-                                    <option value="{{ $h }}:30">{{ sprintf('%02d:30', $h) }}</option>
-                                @endif
-                            @endfor
+                        <select class="form-select" name="horario" id="horario" required>
+                            <option value="">Selecione um centro primeiro</option>
                         </select>
                     </div>
                 </div>
@@ -208,9 +203,33 @@
     }
 
     function selectCenter(centroId) {
-        document.getElementById('id_centro').value = centroId;
-        updateCenterInfo(centroId);
-    }
+    const centro = @json($centros->keyBy('id_centro'))[centroId];
+    
+    document.getElementById('id_centro').value = centroId;
+    const event = new Event('change');
+    document.getElementById('id_centro').dispatchEvent(event);
+    
+    // Atualiza as informações do centro
+    updateCenterInfo(centroId);
+}
+
+    const horariosCentros = @json($horariosCentros);
+
+    document.getElementById('id_centro').addEventListener('change', function() {
+        const centroId = this.value;
+        const horarioSelect = document.getElementById('horario');
+        
+        horarioSelect.innerHTML = '<option value="">Selecione um horário</option>';
+        
+        if (centroId && horariosCentros[centroId]) {
+            horariosCentros[centroId].forEach(horario => {
+                const option = document.createElement('option');
+                option.value = horario;
+                option.textContent = horario;
+                horarioSelect.appendChild(option);
+            });
+        }
+    });
 
     function updateCenterInfo(centroId) {
         const centro = @json($centros->keyBy('id_centro'));
