@@ -1,5 +1,4 @@
 <?php
-
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\navController;
 use App\Http\Controllers\loginController;
@@ -13,6 +12,8 @@ use App\Http\Controllers\CentroController;
 use App\Http\Controllers\AgendamentoCentroController;
 use App\Http\Controllers\CampanhaController;
 use App\Http\Controllers\DoacaoController;
+use App\Http\Controllers\SolicitacaoController;
+use App\Http\Controllers\Adm\DashboardController;
 
 /*
 |--------------------------------------------------------------------------
@@ -35,6 +36,7 @@ Route::middleware('guest')->group(function () {
         Route::get('/login', 'index')->name('login');
         Route::post('/login', 'login')->name('login.submit');
     });
+
     // Cadastro
     Route::controller(CadastroController::class)->group(function () {
         Route::get('/registar', 'index')->name('cadastro');
@@ -42,107 +44,125 @@ Route::middleware('guest')->group(function () {
     });
 });
 
-
+/*
+|--------------------------------------------------------------------------
+| Rotas de Campanhas
+|--------------------------------------------------------------------------
+*/
 Route::get('/campanhas/{campanha}', [CampanhaController::class, 'show'])->name('campanha.detalhe');
+
 /*
 |--------------------------------------------------------------------------
 | Rotas Protegidas (Usuários Autenticados)
 |--------------------------------------------------------------------------
 */
 Route::middleware('auth')->group(function () {
-
+    
     // Rotas para doadores
     Route::get('/doador', [dadorController::class, 'index'])->name('dador');
     Route::get('/doador/dashboard', [DashDadorController::class, 'index'])->name('doador.Dashbord');
+
+    // Agendamentos
     Route::controller(AgendamentoController::class)->group(function () {
         Route::get('/doador/agendamento/create', 'create')->name('agendamento');
         Route::post('/agendamento', 'store')->name('agendamento.store');
         Route::post('/agendamento/questionario', 'storeQuestionario')->name('agendamento.questionario.store');
-
-
         Route::get('/doador/agendamento/{id}/edit', 'edit')->name('agendamento.edit');
-        Route::patch('/doador/agendamento/{id}', [AgendamentoController::class, 'update'])->name('agendamento.update');
+        Route::patch('/doador/agendamento/{id}', 'update')->name('agendamento.update');
         Route::patch('/doador/agendamento/{id}/cancelar', 'cancelar')->name('agendamento.cancelar');
-
     });
+
+    // Histórico de Doações
     Route::get('/doacoes/historico', [HistoricoDoacaoController::class, 'index'])->name('historico');
-    // centro
     Route::get('/doador/historico/{doador}', [HistoricoDoacaoController::class, 'show'])->name('doador.historico');
+
+    // Perfil do Doador
     Route::get('/doador/perfil', [PerfilController::class, 'index'])->name('perfil');
     Route::put('/doador/perfil', [PerfilController::class, 'update'])->name('perfil.update');
-    
+
     // Logout
     Route::post('/logout', [loginController::class, 'logout'])->name('logout');
-    
+
     /*
     |--------------------------------------------------------------------------
-    | Rotas para o Centro de Coleta 
+    | Rotas para o Centro de Coleta
     |--------------------------------------------------------------------------
     */
-    
     Route::prefix('centro')->group(function () {
         Route::get('/dashboard', [CentroController::class, 'index'])->name('centro.Dashbord');
         Route::get('/relatorios', [CentroController::class, 'relatorio'])->name('centro.relatorio');
-        Route::get('/listar/doadores',[ CentroController::class, 'listaDoadores'])->name('listar.doador');
+        Route::get('/listar/doadores', [CentroController::class, 'listarDoadores'])->name('listar.doador');
+        Route::get('/centro/doador/pdf', [CentroController::class, 'exportarPdf'])->name('centro.doador.pdf');
 
+
+        // Agendamentos do Centro
         Route::controller(AgendamentoCentroController::class)->group(function () {
             Route::get('/agendamentos', 'index')->name('centro.agendamento');
             Route::patch('/agendamentos/{agendamento}/concluir', 'concluir')->name('agendamento.concluir');
             Route::patch('/agendamentos/{agendamento}/confirmar', 'confirmar')->name('agendamentos.confirmar');
-            Route::patch('/centro/agendamentos/{id}/cancelar',  'cancelar')->name('centro.agendamento.cancelar');
-
+            Route::patch('/centro/agendamentos/{id}/cancelar', 'cancelar')->name('centro.agendamento.cancelar');
             Route::patch('/agendamentos/{id}/comparecido', 'marcarComparecido')->name('centro.agendamentos.comparecido');
-
         });
 
- /*
-    |--------------------------------------------------------------------------
-    | Rotas para doações
-    |--------------------------------------------------------------------------
-    */
+        // Rotas para doações
         Route::controller(DoacaoController::class)->group(function () {
-            Route::get('/doacoes', 'index')->name('centro.doacao'); 
-            Route::post('/doacoes', 'store')->name('doacoes.store'); 
-            Route::get('/doacao/{id}/edit', 'edit')->name('centro.doacao.edit'); 
-            Route::put('/doacao/{id}', 'update')->name('centro.doacao.update'); 
-            Route::delete('/doacao/{id}', 'destroy')->name('centro.doacao.destroy'); 
-        });
+            Route::get('/doacoes', 'index')->name('centro.doacao');
+            Route::post('/doacoes', 'store')->name('doacoes.store');
+            Route::get('/doacao/{id}/edit', 'edit')->name('centro.doacao.edit');
+            Route::put('/doacao/{id}', 'update')->name('centro.doacao.update');
+            Route::delete('/doacao/{id}', 'destroy')->name('centro.doacao.destroy');
+            Route::get('/centro/doacoes/exportar-pdf', 'exportarPdf')->name('centro.exportarPdf');
 
+        });
     });
-    
+
     /*
     |--------------------------------------------------------------------------
     | Rotas para Campanhas
     |--------------------------------------------------------------------------
     */
-    
-    
     Route::prefix('campanhas')->group(function () {
         Route::get('/', [CampanhaController::class, 'index'])->name('campanhas.index');
         Route::post('/', [CampanhaController::class, 'store'])->name('campanhas.store');
         Route::get('/{campanha}/edit', [CampanhaController::class, 'edit'])->name('campanhas.edit');
         Route::put('/{campanha}', [CampanhaController::class, 'update'])->name('campanhas.update');
-        Route::delete('/{campanha}', [CampanhaController::class, 'destroy'])->name('campanhas.destroy');});
-    
-    /*
-    |--------------------------------------------------------------------------
-    | Rotas para Cadastro do Centro
-    |--------------------------------------------------------------------------
-    */
+        Route::delete('/{campanha}', [CampanhaController::class, 'destroy'])->name('campanhas.destroy');
+    });
+
+    // Rotas para Solicitações
+    Route::get('/solicitacoes', [SolicitacaoController::class, 'index'])->name('solicitacoes.index');
+    Route::get('/solicitacoes/criar', [SolicitacaoController::class, 'create'])->name('solicitacoes.create');
+    Route::post('/solicitacoes', [SolicitacaoController::class, 'store'])->name('solicitacoes.store');
 
 });
+
+/*
+|--------------------------------------------------------------------------
+| Rotas para Cadastro do Centro
+|--------------------------------------------------------------------------
+*/
 Route::get('/registro-centro', [CentroController::class, 'showRegistrationForm'])->name('centro.register');
 Route::post('/registro-centro', [CentroController::class, 'register'])->name('centro.submit');
 
-
-// Adicione temporariamente em uma rota
+// Rotas temporárias
 Route::get('/time', function() {
     return now()->format('Y-m-d H:i:s (e)');
 });
 
-use Barryvdh\DomPDF\Facade\Pdf;
 
-Route::get('/teste-manual', function() {
-    $pdf = PDF::loadHTML('<h1>Teste Manual</h1><p>DomPDF instalado manualmente!</p>');
-    return $pdf->stream();
+
+Route::get('admin/dashboard', [DashboardController::class, 'index'])->name('admin.dashboard');
+
+Route::prefix('admin')->middleware('auth')->name('admin.')->group(function () {
+    // Dashboard
+    
+    Route::resource('doadores', DoadoresController::class);
+    Route::resource('agendamentos', AgendamentosController::class);
+    Route::resource('campanhas', CampanhasController::class);
+    Route::resource('centros', CentrosController::class);
+    Route::resource('relatorios', RelatoriosController::class);
+    Route::resource('notificacoes', NotificacoesController::class);
+    Route::resource('emergencias', EmergenciasController::class);
+    Route::resource('usuarios', UsuariosController::class);
+    Route::resource('configuracoes', ConfiguracoesController::class);
 });

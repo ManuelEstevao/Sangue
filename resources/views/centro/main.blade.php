@@ -107,47 +107,22 @@
                   </a>
               </li>
 
-              
-              <!-- Seção Relatórios 
-              <span class="sidebar-title">Relatórios</span>
-              <li class="nav-item">
-                <a data-bs-toggle="collapse" href="#relatorios" aria-expanded="false">
-                  <i class="fas fa-chart-bar"></i>
-                  <p>Relatórios</p>
-                  <span class="caret"></span>
-                </a>
-                 <div class="collapse" id="relatorios">
-                  <ul class="nav nav-collapse">
-                    <li>
-                      <a href="#">
-                        <span class="sub-item">Diário</span>
-                      </a>
-                    </li>
-                    <li>
-                      <a href="#">
-                        <span class="sub-item">Semanal</span>
-                      </a>
-                    </li>
-                  </ul>
-                </div>
-              </li>-->
               <br>
               <!-- Seção Emergências -->
               <span class="sidebar-title">Emergências</span>
-              <li class="nav-item">
-                <a href="#">
+              <li class="nav-item {{ request()->routeIs('solicitacoes.*') ? 'active' : '' }}">
+                  <a href="{{ route('solicitacoes.index') }}" class="nav-link">
                   <i class="fas fa-ambulance"></i>
-                  <p>Solicitação</p>
-                  <span class="badge badge-danger">3</span>
+                  <span>Solicitações de Sangue</span>
                 </a>
               </li>
-              <br><br>
+              <!--<br><br>
               <li class="sidebar-item btn-logout">
                   <form method="POST" action="{{ route('logout') }}">
                     @csrf
                     <button type="submit" class="btn btn-outline-danger w-100">Terminar Sessão</button>
                   </form>
-              </li>
+              </li>-->
             </ul>
           </div>
         </div>
@@ -192,19 +167,53 @@
                   Mensagens, se necessário 
                 </li>-->
                 <li class="nav-item topbar-icon dropdown hidden-caret">
-                  <a class="nav-link dropdown-toggle" href="#" id="notifDropdown" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                    <i class="fa fa-bell"></i>
-                    <span class="notification">4</span>
+                  <a
+                      class="nav-link dropdown-toggle"
+                      href="#"
+                      id="notifDropdown"
+                      role="button"
+                      data-bs-toggle="dropdown"
+                      aria-haspopup="true"
+                      aria-expanded="false"
+                  >
+                      <i class="fa fa-bell"></i>
+                      <span class="notification"></span>
                   </a>
-                  <!-- Notificações -->
-                </li>
-                <li class="nav-item topbar-user dropdown hidden-caret">
+                  <ul
+                      class="dropdown-menu notif-box animated fadeIn"
+                      aria-labelledby="notifDropdown"
+                  >
+                      <li>
+                          <div class="dropdown-title">
+                              You have  
+                          </div>
+                      </li>
+                      <li>
+                          <div class="notif-scroll scrollbar-outer">
+                              <div class="notif-center">
+                                
+                                      <a href="#">
+                                          <div class="notif-icon notif-primary">
+                                              <i class="fa fa-bell"></i> <!-- Pode ser alterado conforme o tipo -->
+                                          </div>
+                                          <div class="notif-content">
+                                              <span class="block"></span>
+                                              <span class="time"></span>
+                                          </div>
+                                      </a>
+                                  
+                              </div>
+                          </div>
+                      </li>
+                  </ul>
+              </li>
+                              <li class="nav-item topbar-user dropdown hidden-caret">
                   <a class="dropdown-toggle profile-pic" data-bs-toggle="dropdown" href="#" aria-expanded="false">
                     <div class="avatar-sm">
                       <img src="{{ asset('assets/img/profile.png') }}" alt="..." class="avatar-img rounded-circle" />
                     </div>
                     <span class="profile-username">
-                      <span class="op-7"></span> <span class="fw-bold"></span>
+                      <span class="fw-bold">{{ Auth::user()->centro->nome }}</span>
                     </span>
                   </a>
                   <ul class="dropdown-menu dropdown-user animated fadeIn">
@@ -212,23 +221,23 @@
                       <li>
                         <div class="user-box">
                           <div class="avatar-lg">
-                            <img src="{{ asset('assets/img/profile.png') }}" alt="image profile" class="avatar-img rounded" />
+                            <img src="{{ asset('assets/img/profile.png') }}" alt="perfil" class="avatar-img rounded" />
                           </div>
                           <div class="u-text">
-                            <h4></h4>
-                            <p class="text-muted"></p>
-                            <a href="" class="btn btn-xs btn-secondary btn-sm">View Profile</a>
+                            <h4>{{ Auth::user()->centro->nome }}</h4>
+                            <p class="text-muted">{{ Auth::user()->email }}</p>
+                            <a href="" class="btn btn-xs btn-secondary btn-sm">Ver Perfil</a>
                           </div>
                         </div>
                       </li>
                       <li>
+                      <div class="dropdown-divider"></div>
+                        <a class="dropdown-item" href="">Meu Perfil</a>
+                        <a class="dropdown-item" href="">Configurações</a>
                         <div class="dropdown-divider"></div>
-                        <a class="dropdown-item" href="">My Profile</a>
-                        <a class="dropdown-item" href="#">Settings</a>
-                        <div class="dropdown-divider"></div>
-                        <form method="POST" action="">
+                        <form method="POST" action="{{ route('logout') }}">
                           @csrf
-                          <button class="dropdown-item" type="submit">Logout</button>
+                          <button class="dropdown-item" type="submit">Sair</button>
                         </form>
                       </li>
                     </div>
@@ -259,12 +268,20 @@
     </div>
 
     <!-- Scripts -->
-    <script src="{{ url('assets/Centro/assets/Centro/assets/js/core/jquery-3.7.1.min.js') }}"></script>
-    <script src="{{ url('assets/Centro/assets/js/core/popper.min.js') }}"></script>
-    <script src="{{ url('assets/Centro/assets/js/core/bootstrap.min.js') }}"></script>
-    <script src="{{ url('assets/Centro/assets/js/plugin/jquery-scrollbar/jquery.scrollbar.min.js') }}"></script>
-    <script src="{{ url('assets/Centro/assets/js/plugin/chart.js/chart.min.js') }}"></script>
-    <script src="{{ url('assets/Centro/assets/js/kaiadmin.min.js') }}"></script>
+    <script src="{{ asset('assets/Centro/assets/js/core/jquery-3.7.1.min.js') }}"></script>
+    <script src="{{ asset('assets/Centro/assets/js/core/popper.min.js') }}"></script>
+    <script src="{{ asset('assets/Centro/assets/js/core/bootstrap.min.js') }}"></script>
+    <script src="{{ asset('assets/Centro/assets/js/plugin/jquery-scrollbar/jquery.scrollbar.min.js') }}"></script>
+    <script src="{{ asset('assets/Centro/assets/js/plugin/chart.js/chart.min.js') }}"></script>
+    <script src="{{ asset('assets/Centro/assets/js/plugin/jquery.sparkline/jquery.sparkline.min.js') }}"></script>
+    <script src="{{ asset('assets/Centro/assets/js/plugin/chart-circle/circles.min.js') }}"></script>
+    <script src="{{ asset('assets/Centro/assets/js/plugin/datatables/datatables.min.js') }}"></script>
+    <script src="{{ asset('assets/Centro/assets/js/plugin/bootstrap-notify/bootstrap-notify.min.js') }}"></script>
+    <script src="{{ asset('assets/Centro/assets/js/plugin/jsvectormap/jsvectormap.min.js') }}"></script>
+    <script src="{{ asset('assets/Centro/assets/js/plugin/jsvectormap/world.js') }}"></script>
+    <script src="{{ asset('assets/Centro/assets/js/plugin/gmaps/gmaps.js') }}"></script>
+    <script src="{{ asset('assets/Centro/assets/js/plugin/sweetalert/sweetalert.min.js') }}"></script>
+    <script src="{{ asset('assets/Centro/assets/js/kaiadmin.min.js') }}"></script>
     @yield('scripts')
   </body>
 </html>

@@ -108,7 +108,15 @@
                             <h5 class="card-title">Próxima Doação</h5>
                             <p class="card-text">
                             @if($proximaDoacao)
-                                {{ \Carbon\Carbon::parse($proximaDoacao->data_agendada . ' ' . $proximaDoacao->horario)->format('d/m/Y H:i') }}<br>
+                                <?php 
+                                    // Extrai a data sem o horário extra (garante apenas a parte de data)
+                                    $data = \Carbon\Carbon::parse($proximaDoacao->data_agendada)->format('Y-m-d');
+                                    // Extrai somente a parte do horário
+                                    $hora = \Carbon\Carbon::parse($proximaDoacao->horario)->format('H:i:s');
+                                    // Junta os dois e cria um novo objeto Carbon
+                                    $dataHora = \Carbon\Carbon::parse("{$data} {$hora}")->format('d/m/Y H:i');
+                                ?>
+                                {{ $dataHora }}<br>
                             @elseif($proximaDataPermitida)
                             Próxima doação disponível apartir de: {{ $proximaDataPermitida->format('d/m/Y') }}
                             @else
@@ -423,7 +431,11 @@
                                 <div class="modal-body">
                                     <label class="form-label">Data da Doação</label>
                                     <input type="datetime-local" class="form-control" name="data_agendada" 
-                                    value="{{ \Carbon\Carbon::parse($agendamento->data_agendada . ' ' . $agendamento->horario)->format('Y-m-d\TH:i') }}">
+                                        value="{{ \Carbon\Carbon::parse(
+                                            \Carbon\Carbon::parse($agendamento->data_agendada)->format('Y-m-d')
+                                            . ' ' .
+                                            \Carbon\Carbon::parse($agendamento->horario)->format('H:i:s')
+                                        )->format('Y-m-d\TH:i') }}">
 
 
                                     <label class="form-label mt-2">Centro de Doação</label>

@@ -8,40 +8,66 @@ use App\Models\Doacao;
 use App\Models\Doador;        
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
+use Barryvdh\DomPDF\Facade\Pdf;
+
 
 class DoacaoController extends Controller
 {
 
     public function index(Request $request)
     {
-        $centro = Auth::user()->centro;
-        $query = Doacao::with(['agendamento.doador'])
-            ->whereHas('agendamento', function($query) use ($centro) {
-                $query->where('id_centro', $centro->id_centro);
-            });
+        $doacoes = $this->filtrarDoacoes($request)
+                        ->orderByDesc('data_doacao')
+                        ->paginate(10)
+                        ->appends($request->query());
+    
+        return view('centro.doacao', compact('doacoes'));
+    }
+    
 
-        // Filtros
-        $query->when($request->filled('status'), function ($query) use ($request) {
-            $query->where('status', $request->status);
+    private function filtrarDoacoes(Request $request)
+{
+    $centro = Auth::user()->centro;
+    $query = Doacao::with(['agendamento.doador'])
+        ->whereHas('agendamento', function($query) use ($centro) {
+            $query->where('id_centro', $centro->id_centro);
         });
 
-        $query->when($request->filled('search'), function ($query) use ($request) {
-            $query->whereHas('agendamento.doador', function ($subQuery) use ($request) {
-                $subQuery->where('nome', 'like', '%' . $request->search . '%');
-            });
+    // Filtro por Status
+    $query->when($request->filled('status'), function ($query) use ($request) {
+        $query->where('status', $request->status);
+    });
+
+    // Filtro por Nome do Doador
+    $query->when($request->filled('search'), function ($query) use ($request) {
+        $query->whereHas('agendamento.doador', function ($subQuery) use ($request) {
+            $subQuery->where('nome', 'like', '%' . $request->search . '%');
         });
+    });
 
-        $doacoes = $query->orderByDesc('data_doacao')
-        ->paginate(10)
-        ->appends($request->query());
+    // Filtro por Data (entre Data Início e Data Fim)
+    $query->when($request->filled('data_inicio') && $request->filled('data_fim'), function ($query) use ($request) {
+        $query->whereBetween('data_doacao', [$request->data_inicio, $request->data_fim]);
+    });
 
-
-    return view('centro.doacao', compact('doacoes'));
+    return $query;
 }
+    public function exportarPdf(Request $request)
+{
+    $centro = Auth::user()->centro;
+    $doacoes = $this->filtrarDoacoes($request)
+                    ->orderByDesc('data_doacao')
+                    ->get();
+
+    $pdf = Pdf::loadView('centro.pdf.doacao', compact('doacoes', 'centro'));
+    return $pdf->download('lista_doacoes.pdf');
+}
+
+    
 public function store(Request $request)
 {
     $validated = $request->validate([
-        'agendamento_id' => 'required|exists:agendamento,id_agendamento',
+        'id_agendamento' => 'required|exists:agendamento,id_agendamento',
         'hemoglobina' => 'required|numeric',
         'pressao_arterial' => 'required|regex:/^\d{2,3}\/\d{2,3}$/',
         'volume_coletado' => 'required|integer|between:300,500',
@@ -55,7 +81,7 @@ public function store(Request $request)
     try {
         DB::beginTransaction();
 
-        $agendamento = Agendamento::findOrFail($request->agendamento_id);
+        $agendamento = Agendamento::findOrFail($request->id_agendamento);
 
         // Verificação de segurança
         if ($agendamento->id_centro !== auth()->user()->centro->id_centro) {
@@ -78,7 +104,7 @@ public function store(Request $request)
         }
 
         Doacao::create([
-            'id_agendamento' => $request->agendamento_id,
+            'id_agendamento' => $request->id_agendamento,
             'hemoglobina' => $request->hemoglobina,
             'pressao_arterial' => $request->pressao_arterial,
             'volume_coletado' => $request->volume_coletado,
@@ -94,10 +120,23 @@ public function store(Request $request)
 
         DB::commit();
 
-        return redirect()->back()->with('success', 'Doação registrada com sucesso!');
+        return response()->json([
+            'success' => true,
+            'message' => 'Doação registrada com sucesso!'
+        ], 201);
+
+    } catch (\Illuminate\Validation\ValidationException $e) {
+        return response()->json([
+            'success' => false,
+            'message' => 'Erro de validação',
+            'errors' => $e->errors()
+        ], 422);
     } catch (\Exception $e) {
         DB::rollBack();
-        return redirect()->back()->with('error', 'Erro: ' . $e->getMessage());
+        return response()->json([
+            'success' => false,
+            'message' => 'Erro: ' . $e->getMessage()
+        ], 500);
     }
 }
 

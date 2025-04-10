@@ -14,6 +14,8 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
+use Barryvdh\DomPDF\Facade\Pdf;
+
 
 class CentroController extends Controller
 {
@@ -139,11 +141,11 @@ public function relatorio()
     ]);
 }
 
-public function listaDoadores(Request $request)
+private function filtrarDoadores(Request $request)
 {
     $centroId = auth()->user()->Centro->id_centro;
 
-    $doadores = Doador::whereHas('doacoes', function ($query) use ($centroId) {
+    return Doador::whereHas('doacoes', function ($query) use ($centroId) {
             $query->where('id_centro', $centroId);
         })
         ->when($request->search, function ($query) use ($request) {
@@ -154,11 +156,30 @@ public function listaDoadores(Request $request)
         })
         ->with(['doacoes' => function ($query) use ($centroId) {
             $query->where('id_centro', $centroId)->latest('data_doacao');
-        }])
-        ->paginate(8)
-        ->appends($request->query());
+        }, 'user']);
+}
+
+
+public function listarDoadores(Request $request)
+{
+    $doadores = $this->filtrarDoadores($request)
+                     ->paginate(8)
+                     ->appends($request->query());
 
     return view('centro.doador', compact('doadores'));
 }
+
+
+public function exportarPdf(Request $request)
+{
+    $centro = auth()->user()->Centro;
+    $doadores = $this->filtrarDoadores($request)->get();
+
+    $pdf = Pdf::loadView('centro.pdf.doador', compact('doadores', 'centro'));
+    return $pdf->download('lista_doadores.pdf');
+}
+
+
+
 }
 

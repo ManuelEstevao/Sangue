@@ -79,7 +79,7 @@
         <div class="card-header d-flex justify-content-between align-items-center">
             <h4 class="mb-0">Lista de Doadores</h4>
             <div class="d-flex gap-2">
-                <a href="#" class="btn btn-custom">
+                <a href="{{ route('centro.doador.pdf', request()->query()) }}" class="btn btn-custom">
                     <i class="fas fa-file-pdf me-2"></i> Exportar PDF
                 </a>
                 <a href="#" class="btn btn-custom">

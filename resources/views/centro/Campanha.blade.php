@@ -19,6 +19,7 @@
     .btn-edit {
         padding: 0.25rem 0.5rem;
     }
+    
 </style>
 @endsection
 
@@ -44,7 +45,7 @@
             <div class="card">
                 <div class="card-header d-flex justify-content-between">
                     <h4 class="card-title">Campanhas Ativas</h4>
-                    <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#modalCampanha">
+                    <button class="btn " style="background-color: rgba(198, 66, 66, 0.9); color: white;" data-bs-toggle="modal" data-bs-target="#modalCampanha">
                         <i class="fas fa-plus me-2"></i>Nova Campanha
                     </button>
                 </div>

@@ -27,10 +27,10 @@ class Doacao extends Model
     ];
 
     protected $casts = [
-        'data_doacao' => 'datetime:Y-m-d H:i:s', // Conversão explícita
+        'data_doacao' => 'datetime:Y-m-d H:i:s', 
     ];
 
-    protected $appends = ['data_formatada']; // Adiciona ao JSON
+    protected $appends = ['data_formatada']; 
 
     public function getDataFormatadaAttribute()
     {

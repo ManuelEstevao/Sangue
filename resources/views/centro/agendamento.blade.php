@@ -89,19 +89,33 @@
     border-radius: 5px;
 }
 
+.is-invalid {
+    border-color: #dc3545 !important;
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12' width='12' height='12' fill='none' stroke='%23dc3545'%3e%3ccircle cx='6' cy='6' r='4.5'/%3e%3cpath stroke-linejoin='round' d='M5.8 3.6h.4L6 6.5z'/%3e%3ccircle cx='6' cy='8.2' r='.6' fill='%23dc3545' stroke='none'/%3e%3c/svg%3e");
+    background-repeat: no-repeat;
+    background-position: right calc(0.375em + 0.1875rem) center;
+    background-size: calc(0.75em + 0.375rem) calc(0.75em + 0.375rem);
+}
+
+.invalid-feedback {
+    width: 100%;
+    margin-top: 0.25rem;
+    font-size: 0.875em;
+    color: #dc3545;
+}
+
 </style>
 @endsection
 
 @section('conteudo')
 <div class="container">
     <!-- Modal para Registro de Doação -->
-    
 <div class="modal fade" id="registrarDoacaoModal" tabindex="-1">
     <div class="modal-dialog">
         <div class="modal-content">
             <form id="registrarDoacaoForm" method="POST" action="{{ route('doacoes.store') }}">
                 @csrf
-                <input type="hidden" name="agendamento_id" id="agendamento_id">
+                <input type="hidden" name="id_agendamento" id="id_agendamento">
                 <input type="hidden" name="doador_id" id="doador_id">
                 
                 <div class="modal-header">
@@ -114,7 +128,7 @@
                     <div class="mb-3" id="bloodTypeField" style="display: none;">
                         <label>Tipo Sanguíneo</label>
                         <select name="tipo_sanguineo" id="tipo_sanguineo" class="form-select">
-                            <option value="Desconhecido">Selecionar Tipo Sanguíneo</option>
+                            <option value="" disabled selected>Selecione o tipo</option>
                             @foreach(['A+', 'A-', 'B+', 'B-', 'O+', 'O-', 'AB+', 'AB-'] as $tipo)
                                 <option value="{{ $tipo }}">{{ $tipo }}</option>
                             @endforeach
@@ -369,117 +383,83 @@
         }
     });
 }
-
-$(document).ready(function () {
-    $('#registrarDoacaoForm').on('submit', function (e) {
-        let valid = true;
-        let errorMessage = '';
-
-        const tipoSanguineoField = $('#bloodTypeField');
-        const tipoSanguineo = $('#tipo_sanguineo').val();
-
-        if (tipoSanguineoField.is(':visible') && (!tipoSanguineo || tipoSanguineo === 'Desconhecido')) {
-            valid = false;
-            errorMessage = 'Por favor, selecione o tipo sanguíneo.';
-        }
-
-        const peso = parseFloat($('#peso').val());
-        if (isNaN(peso) || peso < 45) {
-            valid = false;
-            errorMessage = 'O peso deve ser no mínimo 45 kg.';
-        }
-
-        const hemoglobina = parseFloat($('#hemoglobina').val());
-        if (isNaN(hemoglobina) || hemoglobina < 12.5) {
-            valid = false;
-            errorMessage = 'Hemoglobina deve ser igual ou superior a 12.5 g/dL.';
-        }
-
-        const pressao = $('#pressao_arterial').val();
-        const regexPressao = /^\d{2,3}\/\d{2,3}$/;
-        if (!regexPressao.test(pressao)) {
-            valid = false;
-            errorMessage = 'Pressão arterial inválida. Use o formato 120/80.';
-        }
-
-        const volume = parseInt($('#volume_coletado').val());
-        if (isNaN(volume) || volume < 300 || volume > 500) {
-            valid = false;
-            errorMessage = 'Volume coletado deve estar entre 300 e 500 ml.';
-        }
-
-        const profissional = $('#nome_profissional').val();
-        if (!profissional || profissional.trim().length < 3) {
-            valid = false;
-            errorMessage = 'Informe o nome completo do profissional responsável.';
-        }
-
-        if (!valid) {
-            e.preventDefault();
-            Swal.fire({
-                icon: 'error',
-                title: 'Erro de Validação',
-                text: errorMessage
-            });
-        }
-    });
-});
-    // Abrir Modal de Doação
+// Abrir Modal
 function abrirModalDoacao(agendamentoId, doadorId, tipoSanguineo) {
     const modal = new bootstrap.Modal(document.getElementById('registrarDoacaoModal'));
-    
-    // Preenche os campos ocultos
-    document.getElementById('agendamento_id').value = agendamentoId;
+    document.getElementById('id_agendamento').value = agendamentoId;
     document.getElementById('doador_id').value = doadorId;
-
-    // Controle do campo de tipo sanguíneo
+    
     const bloodTypeField = document.getElementById('bloodTypeField');
+    const selectTipoSanguineo = document.getElementById('tipo_sanguineo');
+
     if (tipoSanguineo === 'Desconhecido') {
         bloodTypeField.style.display = 'block';
-        bloodTypeField.querySelector('select').required = true;
+        selectTipoSanguineo.required = true;
+        selectTipoSanguineo.value = '';
     } else {
         bloodTypeField.style.display = 'none';
-        bloodTypeField.querySelector('select').required = false;
+        selectTipoSanguineo.required = false;
+        selectTipoSanguineo.value = '';
     }
-
     modal.show();
 }
+// Validação e Submissão 
+$(document).ready(function () {
+    $('#registrarDoacaoForm').on('submit', function (e) {
+        e.preventDefault();
+        let isValid = true;
+        const errorMessages = [];
+        const $form = $(this);
 
-// Submissão do formulário com AJAX
-document.getElementById('registrarDoacaoForm').addEventListener('submit', function(e) {
-    e.preventDefault();
-    
-    const formData = new FormData(this);
-    
-    fetch(this.action, {
-        method: 'POST',
-        body: formData,
-        headers: {
-            'X-CSRF-TOKEN': '{{ csrf_token() }}',
-            'Accept': 'application/json'
-        }
-    })
-    .then(async response => {
-        const data = await response.json();
-        
-        if (!response.ok) {
-            throw new Error(data.message || 'Erro no servidor');
-        }
-        
-        Swal.fire({
-            icon: 'success',
-            title: 'Doação registrada!',
-            text: data.message
-        }).then(() => {
-            window.location.reload();
+        // Reset errors
+        $('.is-invalid').removeClass('is-invalid');
+        $('.invalid-feedback').remove();
+
+
+        // Validação dos Campos
+        const validations = [
+            {id: '#peso', test: (v) => v >= 45, msg: 'Peso mínimo: 45 kg'},
+            {id: '#hemoglobina', test: (v) => v >= 12.5, msg: 'Hemoglobina mínima: 12.5 g/dL'},
+            {id: '#pressao_arterial', test: (v) => /^\d{2,3}\/\d{2,3}$/.test(v), msg: 'Formato inválido (ex: 120/80)'},
+            {id: '#volume_coletado', test: (v) => v >= 300 && v <= 500, msg: 'Volume deve ser entre 300-500 ml'},
+            {id: '#nome_profissional', test: (v) => v.trim().length >= 3, msg: 'Nome profissional incompleto'},
+        ];
+
+        validations.forEach(({id, test, msg}) => {
+            const value = $(id).val();
+            if (!test(value)) {
+                isValid = false;
+                errorMessages.push(msg);
+                $(id).addClass('is-invalid')
+                    .after(`<div class="invalid-feedback">${msg}</div>`);
+            }
         });
-    })
-    .catch(error => {
-        Swal.fire({
-            icon: 'error',
-            title: 'Erro!',
-            text: error.message
-        });
+
+        // Tratar Resultado
+        if (!isValid) {
+            Swal.fire({
+                icon: 'error',
+                title: 'Erros encontrados',
+                html: `<ul>${errorMessages.map(m => `<li>${m}</li>`).join('')}</ul>`
+            });
+        } else {
+            fetch($form.attr('action'), {
+                method: 'POST',
+                body: new FormData($form[0]),
+                headers: {'X-CSRF-TOKEN': '{{ csrf_token() }}', 'Accept': 'application/json'}
+            })
+            .then(async response => {
+                const data = await response.json();
+                if (!response.ok) throw data;
+                
+                Swal.fire('Sucesso!', data.message, 'success').then(() => {
+                    window.location.reload();
+                });
+            })
+            .catch(error => {
+                Swal.fire('Erro!', error.message || 'Falha no servidor', 'error');
+            });
+        }
     });
 });
 

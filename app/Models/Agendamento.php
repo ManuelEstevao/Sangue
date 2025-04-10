@@ -12,7 +12,12 @@ class Agendamento extends Model
     public $timestamps = false;
     public $incrementing = true;
 
-
+    protected $casts = [
+        'data_agendada' => 'date:Y-m-d',
+        'horario' => 'datetime:H:i:s',
+        'created_at' => 'datetime',
+        'updated_at' => 'datetime'
+    ];
     protected $fillable = [
         'id_doador',
         'id_centro',

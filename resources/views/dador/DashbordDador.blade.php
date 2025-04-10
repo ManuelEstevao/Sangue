@@ -11,7 +11,7 @@
     <link rel="stylesheet" href="{{ url('assets/vendor/fontawesome/css/all.min.css') }}">
     <!-- Custom CSS -->
     <link rel="stylesheet" href="{{ asset('assets/css/dashbordDador.css') }}">
-    <link href="assets/img/flavicon.png" rel="icon">
+    <link href="assets/img/flavicon.png" rel="icon">  
     @yield('styles')
 </head>
 <body>
@@ -73,13 +73,45 @@
                     <i class="fa-solid fa-bars"></i>
                 </button>
                 <div class="ms-auto d-flex align-items-center">
-                    <ul class="navbar-nav me-3">
-                        <!-- Ícone de Notificações na Navbar -->
-                        <li class="nav-item">
-                            <a class="nav-link" href="#">
-                                <i class="fa-solid fa-bell"></i>
-                            </a>
-                        </li>
+        <ul class="navbar-nav me-3">
+            <li class="nav-item dropdown">
+                <a
+                    class="nav-link dropdown-toggle"
+                    href="#"
+                    id="notifDropdown"
+                    role="button"
+                    data-bs-toggle="dropdown"
+                    aria-haspopup="true"
+                    aria-expanded="false"
+                >
+                    <i class="fa-solid fa-bell"></i>
+                    <span class="notification"></span>
+                </a>
+                <ul class="dropdown-menu notif-box animated fadeIn" aria-labelledby="notifDropdown">
+                    <li>
+                        <div class="dropdown-title">
+                            Você tem  nova notificação
+                        </div>
+                    </li>
+                    <li>
+                        <div class="notif-scroll scrollbar-outer">
+                            <div class="notif-center">
+                              
+                                    <a href="#">
+                                        <div class="notif-icon notif-primary">
+                                            <i class="fa fa-bell"></i> <!-- Ícone padrão, pode ser personalizado -->
+                                        </div>
+                                        <div class="notif-content">
+                                            <span class="block"></span>
+                                            <span class="time"></span>
+                                        </div>
+                                    </a>
+                               
+                            </div>
+                        </div>
+                    </li>
+                </ul>
+            </li>
                         <li class="nav-item dropdown">
                     <a class="nav-link" href="#" aria-expanded="false">
                     
@@ -109,8 +141,10 @@
 
     <!-- Bootstrap Bundle JS -->
     <script src="{{ url('assets/vendor/bootstrap/js/bootstrap.bundle.min.js') }}"></script>
+    <script src="{{ asset('assets/Centro/assets/js/plugin/bootstrap-notify/bootstrap-notify.min.js') }}"></script>
     <!-- Custom Script -->
     <script src="{{ asset('assets/js/script.js') }}"></script>
+    <script src="{{ asset('assets/Centro/assets/js/plugin/sweetalert/sweetalert.min.js') }}"></script>
     @yield('scripts')
 </body>
 </html>

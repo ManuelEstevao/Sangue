@@ -72,7 +72,7 @@
     <div class="card-header d-flex justify-content-between align-items-center">
     <h4 class="mb-0">Registo de Doações</h4>
     <div class="d-flex gap-2">
-        <a href="" class="btn btn-custom">
+        <a href="{{ route('centro.exportarPdf', request()->query()) }}" class="btn btn-custom">
             <i class="fas fa-file-pdf me-2"></i> Exportar PDF
         </a>
         <a href="" class="btn btn-custom">
@@ -83,37 +83,58 @@
         
         <div class="card-body">
         <form method="GET" action="" class="mb-3">
-            <div class="d-flex justify-content-between align-items-center gap-3">
-
-
-            <div class="d-flex align-items-center gap-2" style="max-width: 300px;">
-                    <div class="input-group">
-                        <input type="text" 
-                            name="search" 
-                            class="form-control" 
-                            placeholder="Nome do doador..." 
-                            value="{{ request('search') }}"
-                            aria-label="Buscar doador">
-                        <button type="submit" class="btn btn-custom">
-                            <i class="fas fa-search"></i>
-                        </button>
-                    </div>
-                </div>
-
-                <!-- Filtro de Status (Esquerda) -->
-                <div class="d-flex align-items-center gap-2">
-                    <label class="fw-bold">Filtrar por:</label>
-                    <select name="status" class="form-select w-auto" onchange="this.form.submit()">
-                        <option value="">Todos status</option>
-                        <option value="Aprovado" {{ request('status') == 'Aprovado' ? 'selected' : '' }}>Aprovado</option>
-                        <option value="Reprovado" {{ request('status') == 'Reprovado' ? 'selected' : '' }}>Reprovado</option>
-                    </select>
-                </div>
-
-                <!-- Barra de Pesquisa (Direita) -->
-               
+    <div class="d-flex flex-wrap justify-content-between align-items-center gap-3">
+        
+        <!-- Campo de Busca por Nome -->
+        <div class="d-flex align-items-center gap-2" style="max-width: 300px;">
+            <div class="input-group">
+                <input type="text" 
+                       name="search" 
+                       class="form-control" 
+                       placeholder="Nome do doador..." 
+                       value="{{ request('search') }}"
+                       aria-label="Buscar doador">
+                <button type="submit" class="btn btn-custom">
+                    <i class="fas fa-search"></i>
+                </button>
             </div>
-        </form>
+        </div>
+
+        <!-- Filtros por Data (Centralizado) -->
+        <div class="d-flex align-items-center gap-3 flex-wrap">
+            <!-- Data de Início com rótulo inline -->
+            <div class="d-flex align-items-center gap-1">
+                <span class="fw-bold small" style="white-space: nowrap;">De:</span>
+                <input type="date" id="data_inicio" name="data_inicio" class="form-control" style="max-width: 150px;"
+                       value="{{ request('data_inicio') }}">
+            </div>
+            <!-- Data de Fim com rótulo inline -->
+            <div class="d-flex align-items-center gap-1">
+                <span class="fw-bold small" style="white-space: nowrap;">Até:</span>
+                <input type="date" id="data_fim" name="data_fim" class="form-control" style="max-width: 150px;"
+                       value="{{ request('data_fim') }}">
+            </div>
+            <!-- Botão para aplicar os filtros -->
+            <div>
+                <button type="submit" class="btn btn-custom">
+                    <i class="fas fa-filter me-1"></i>
+                </button>
+            </div>
+        </div>
+
+        <!-- Filtro de Status -->
+        <div class="d-flex align-items-center gap-2">
+            <label class="fw-bold">Filtrar por:</label>
+            <select name="status" class="form-select w-auto" onchange="this.form.submit()">
+                <option value="">Todos status</option>
+                <option value="Aprovado" {{ request('status') == 'Aprovado' ? 'selected' : '' }}>Aprovado</option>
+                <option value="Reprovado" {{ request('status') == 'Reprovado' ? 'selected' : '' }}>Reprovado</option>
+            </select>
+        </div>
+    </div>
+</form>
+
+
 
  <!-- Tabela de Doações -->
  <div class="table-responsive">
