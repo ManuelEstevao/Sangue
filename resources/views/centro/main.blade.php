@@ -107,11 +107,19 @@
                   </a>
               </li>
 
+            <span class="sidebar-title">Gestão de Estoque</span>
+            <li class="nav-item {{ request()->routeIs('estoque.*') ? 'active' : '' }}">
+              <a href="{{ route('estoque.index') }}">
+                <i class="fas fa-tint"></i>
+                <p>Estoque</p>
+              </a>
+            </li>
+
               <br>
               <!-- Seção Emergências -->
               <span class="sidebar-title">Emergências</span>
-              <li class="nav-item {{ request()->routeIs('solicitacoes.*') ? 'active' : '' }}">
-                  <a href="{{ route('solicitacoes.index') }}" class="nav-link">
+              <li class="nav-item {{ request()->routeIs('solicitacao.*') ? 'active' : '' }}">
+                  <a href="{{ route('centro.solicitacao.index') }}" class="nav-link">
                   <i class="fas fa-ambulance"></i>
                   <span>Solicitações de Sangue</span>
                 </a>
@@ -226,13 +234,13 @@
                           <div class="u-text">
                             <h4>{{ Auth::user()->centro->nome }}</h4>
                             <p class="text-muted">{{ Auth::user()->email }}</p>
-                            <a href="" class="btn btn-xs btn-secondary btn-sm">Ver Perfil</a>
                           </div>
                         </div>
                       </li>
                       <li>
+                      
                       <div class="dropdown-divider"></div>
-                        <a class="dropdown-item" href="">Meu Perfil</a>
+                        <a class="dropdown-item" href="{{ route('centro.perfil') }}">Meu Perfil</a>
                         <a class="dropdown-item" href="">Configurações</a>
                         <div class="dropdown-divider"></div>
                         <form method="POST" action="{{ route('logout') }}">

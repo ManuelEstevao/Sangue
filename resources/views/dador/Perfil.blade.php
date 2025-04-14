@@ -1,16 +1,6 @@
 @extends('dador.DashbordDador')
 @section('title', 'Meu Perfil - ConectaDador')
-<head>
-    <!-- Bootstrap CSS -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    
-    <!-- Font Awesome -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    
-    <!-- Bootstrap JS e Popper.js (no final do body) -->
-    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.min.js"></script>
-</head>
+
 @section('styles')
 <style>
     :root {
@@ -27,79 +17,110 @@
     }
 
     .profile-header {
-        background: var(--primary);
+        background: linear-gradient(135deg, var(--primary), #c82333);
         padding: 2rem;
         color: white;
         position: relative;
     }
 
     .avatar-wrapper {
-        width: 120px;
-        height: 120px;
+        width: 140px;
+        height: 140px;
         border: 4px solid white;
         border-radius: 50%;
         overflow: hidden;
         margin: 0 auto;
         box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        transition: all 0.3s;
+    }
+
+    .avatar-wrapper:hover {
+        transform: scale(1.05);
     }
 
     .blood-type {
         position: absolute;
-        bottom: -20px;
+        bottom: -25px;
         left: 50%;
         transform: translateX(-50%);
         background: white;
         color: var(--primary);
-        padding: 0.5rem 1.5rem;
-        border-radius: 20px;
+        padding: 0.8rem 2rem;
+        border-radius: 25px;
         font-weight: 700;
-        box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+        box-shadow: 0 3px 15px rgba(0,0,0,0.1);
+        font-size: 1.2rem;
     }
 
     .profile-body {
         padding: 3rem 2rem 2rem;
+        background: #f8f9fa;
     }
 
-    .info-item {
-        display: flex;
-        align-items: center;
-        gap: 1rem;
-        padding: 1rem;
-        margin-bottom: 1rem;
-        background: var(--secondary);
-        border-radius: 10px;
+    .info-card {
+        background: white;
+        border-radius: 12px;
+        padding: 1.5rem;
+        margin-bottom: 1.5rem;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.08);
     }
 
     .info-icon {
-        font-size: 1.5rem;
+        font-size: 1.8rem;
         color: var(--primary);
-        width: 40px;
+        width: 50px;
+        text-align: center;
+    }
+
+    .donation-history {
+        border-left: 4px solid var(--primary);
+        padding-left: 1.5rem;
+    }
+
+    .eligibility-status {
+        background: var(--secondary);
+        padding: 1rem;
+        border-radius: 10px;
         text-align: center;
     }
 
     .qr-section {
         text-align: center;
         padding: 2rem;
-        background: #f8f9fa;
+        background: white;
         border-radius: 15px;
         margin-top: 2rem;
     }
 
     .edit-btn {
         position: absolute;
-        top: 1rem;
-        right: 1rem;
+        top: 1.5rem;
+        right: 1.5rem;
         background: rgba(255,255,255,0.2);
-        border: none;
+        border: 2px solid white;
         color: white;
-        padding: 0.5rem 1rem;
-        border-radius: 20px;
+        padding: 0.5rem 1.5rem;
+        border-radius: 25px;
         transition: all 0.3s;
     }
 
     .edit-btn:hover {
         background: rgba(255,255,255,0.3);
+        transform: translateY(-2px);
     }
+
+    .modal-header {
+        background: #dc3545;
+        color: white;
+    }
+    .avatar-preview {
+    width: 150px;
+    height: 150px;
+    object-fit: cover;
+    border-radius: 50%;
+    border: 4px solid white;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+}
 
     @media (max-width: 768px) {
         .profile-header {
@@ -107,30 +128,28 @@
         }
         
         .avatar-wrapper {
-            width: 100px;
-            height: 100px;
+            width: 120px;
+            height: 120px;
         }
     }
 </style>
 @endsection
-
 @section('conteudo')
 <div class="profile-card">
     <div class="profile-header">
-        <button class="edit-btn">
+      <!--  <button class="edit-btn" data-bs-toggle="modal" data-bs-target="#editModal">
             <i class="fas fa-edit me-2"></i>
             Editar
-        </button>
+        </button>-->
         
         <div class="avatar-wrapper">
             <img src="{{ $doador->foto ? asset('storage/fotos/' . $doador->foto) : asset('assets/img/profile.png') }}" 
                  class="img-fluid" 
                  alt="Foto do perfil">
         </div>
-    
         
         <div class="blood-type">
-        <i class="fas fa-tint"></i>
+            <i class="fas fa-tint"></i>
             {{ $doador->tipo_sanguineo }}
         </div>
     </div>
@@ -139,165 +158,177 @@
         <h2 class="text-center mb-4">{{ $doador->nome }}</h2>
         
         <div class="row">
-            <div class="col-md-6">
-                <div class="info-item">
-                    <i class="fas fa-calendar-alt info-icon"></i>
-                    @php
-                            $doador = Auth::user()->doador; // Obtendo dados do doador
-                            $dataNascimento = \Carbon\Carbon::parse($doador->data_nascimento)->format('d/m/Y');
-                            $genero = $doador->genero; // Supondo que "genero" é um campo no modelo Doador
-                        @endphp
-                    <div>
-                        <small class="text-muted d-block">Data de Nascimento</small>
-                       <strong>{{ $dataNascimento }}</strong>
+            <!-- Coluna Esquerda - Informações Pessoais -->
+            <div class="col-lg-6">
+                <div class="info-card">
+                    <div class="d-flex align-items-center mb-3">
+                        <i class="fas fa-id-card info-icon"></i>
+                        <h5 class="mb-0">Informações Pessoais</h5>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <small class="text-muted d-block">Data de Nascimento</small>
+                            <strong>{{ \Carbon\Carbon::parse($doador->data_nascimento)->format('d/m/Y') }}</strong>
+                        </div>
+                        
+                        <div class="col-md-6 mb-3">
+                            <small class="text-muted d-block">Gênero</small>
+                            <strong>{{ ucfirst($doador->genero) }}</strong>
+                        </div>
+                        
+                        <div class="col-md-6 mb-3">
+                            <small class="text-muted d-block">Documento de Identificação</small>
+                            <strong>{{ $doador->numero_bilhete }}</strong>
+                        </div>
+                        
+                        <div class="col-md-6 mb-3">
+                            <small class="text-muted d-block">Endereço</small>
+                            <strong>{{ $doador->endereco }}</strong>
+                        </div>
                     </div>
                 </div>
             </div>
 
-            <div class="col-md-6">
-                <div class="info-item">
-                    <i class="fas fa-phone info-icon"></i>
-                    <div>
-                        <small class="text-muted d-block">Telefone</small>
-                        <strong>{{ $doador->telefone }}</strong>
+            <!-- Coluna Direita - Ações Rápidas -->
+            <div class="col-lg-6">
+                <div class="info-card">
+                    <div class="d-flex align-items-center mb-3">
+                        <i class="fas fa-cogs text-danger me-2"></i>
+                        <h5 class="mb-0">Ações Rápidas</h5>
                     </div>
-                </div>
-            </div>
+                    
+                    <div class="list-group quick-actions">
+                        
+                        <button class="list-group-item list-group-item-action" data-bs-toggle="modal" data-bs-target="#editModal">
+                            <i class="fas fa-user-edit me-2"></i>
+                            Editar Perfil
+                        </button>
 
-            <div class="col-md-6">
-                <div class="info-item">
-                    <i class="fas fa-map-marker-alt info-icon"></i>
-                    <div>
-                        <small class="text-muted d-block">Localização</small>
-                       
-                    </div>
-                </div>
-            </div>
-
-            <div class="col-md-6">
-                <div class="info-item">
-                    <i class="fas fa-envelope info-icon"></i>
-                    <div>
-                        <small class="text-muted d-block">E-mail</small>
-                        <strong>{{ Auth::user()->email }}</strong>
+                        <a href="" class="list-group-item list-group-item-action">
+                            <i class="fas fa-lock me-2"></i>
+                            Alterar Senha
+                        </a>
+                        
+                        <a href="" class="list-group-item list-group-item-action">
+                            <i class="fas fa-bell me-2"></i>
+                            Gerenciar Notificações
+                        </a>
                     </div>
                 </div>
             </div>
         </div>
+
+
 <!--
         <div class="qr-section">
-            <h5 class="mb-3">Identificação do Doador</h5>
+            <h5 class="mb-3">Identificação Digital</h5>
             <div class="d-inline-block p-3 bg-white rounded">
-           
+               
             </div>
             <p class="text-muted mt-3 mb-0 small">Apresente este código nos postos de coleta</p>
         </div>
     </div>
 </div>-->
 
-
-<!-- Adicione no final da seção conteudo -->
-<div class="modal fade" id="editModal" tabindex="-1">
+<!-- Modal de Edição -->
+<div class="modal fade" id="editModal" tabindex="-1" aria-labelledby="editModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title">Editar Perfil</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                <h5 class="modal-title" id="editModalLabel">
+                    <i class="fas fa-edit me-2"></i>Editar Perfil
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <form method="POST" action="{{ route('perfil.update') }}" enctype="multipart/form-data">
                 @csrf
                 @method('PUT')
-                
                 <div class="modal-body">
                     <div class="row">
                         <!-- Upload de Foto -->
-                        <div class="col-md-4 text-center">
-                            <div class="avatar-wrapper mb-3">
+                        <div class="col-md-4 text-center mb-4">
+                            <div class="position-relative mb-3">
                                 <img id="avatarPreview" 
-                                     src="{{ $doador->foto ? asset('storage/'.$doador->foto) : asset('assets/img/profile.png') }}" 
-                                     class="img-fluid rounded-circle" 
-                                     style="width: 150px; height: 150px; object-fit: cover">
+                                     src="{{ $doador->foto ? asset('storage/fotos/' . $doador->foto) : asset('assets/img/profile.png') }}" 
+                                     class="avatar-preview mb-3" 
+                                     >
+                                <label class="btn btn-danger btn-sm position-absolute bottom-0 start-50 translate-middle-x">
+                                    <i class="fas fa-camera"></i>
+                                    <input type="file" 
+                                           name="foto" 
+                                           id="avatarUpload" 
+                                           class="d-none"
+                                           accept="image/*" 
+                                           onchange="previewImage(event)">
+                                </label>
                             </div>
-                            <div class="form-group">
-                                <input type="file" 
-                                       class="form-control" 
-                                       id="foto" 
-                                       name="foto" 
-                                       accept="image/*">
-                            </div>
+                            <small class="text-muted">Formatos: JPG, JPEG, PNG (Max. 2MB)</small>
                         </div>
 
-                        <!-- Campos Editáveis -->
+                        <!-- Demais Campos -->
                         <div class="col-md-8">
-                            <div class="form-group mb-3">
-                                <label>Telefone</label>
-                                <input type="tel" 
-                                       class="form-control" 
-                                       name="telefone" 
-                                       value="{{ $doador->telefone }}"
-                                       required>
-                            </div>
-
-                            <div class="form-group mb-3">
-                                <label>Endereço</label>
-                                <input type="text" 
-                                       class="form-control" 
-                                       name="endereco" 
-                                       value="{{ $doador->endereco }}">
-                            </div>
-
-                            <div class="row mb-3">
-                                <div class="col-md-6">
-                                    <label>Cidade</label>
-                                    <input type="text" 
-                                           class="form-control" 
-                                           name="cidade" 
-                                           value="{{ $doador->cidade }}">
+                            <div class="row">
+                                <div class="col-md-12">
+                                    <div class="mb-3">
+                                        <label>Telefone</label>
+                                        <input type="tel" class="form-control" 
+                                               name="telefone" 
+                                               value="{{ $doador->telefone }}"
+                                               required>
+                                    </div>
                                 </div>
-                                <div class="col-md-6">
-                                    <label>Província</label>
-                                    <select class="form-select" name="estado">
-                                        <option value="Luanda" {{ $doador->estado == 'Luando' ? 'selected' : '' }}>Luanda</option>
-                                        <!-- Adicione outros estados -->
-                                    </select>
+                                <div class="col-md-12">
+                                    <div class="mb-3">
+                                        <label>Endereço</label>
+                                        <input type="text" class="form-control" 
+                                               name="endereco" 
+                                               value="{{ $doador->endereco }}">
+                                    </div>
                                 </div>
-                            </div>
-
-                            <div class="form-group mb-3">
-                                <label>Contato de Emergência</label>
-                                <input type="text" 
-                                       class="form-control" 
-                                       name="contato_emergencia" 
-                                       value="{{ $doador->contato_emergencia }}">
                             </div>
                         </div>
                     </div>
                 </div>
-
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                    <button type="submit" class="btn btn-primary">Salvar Alterações</button>
+                    <button type="submit" class="btn btn-danger">Salvar Alterações</button>
                 </div>
             </form>
         </div>
     </div>
 </div>
 @endsection
+
 @section('scripts')
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    // Abrir modal
-    document.querySelector('.edit-btn').addEventListener('click', () => {
-        new bootstrap.Modal(document.getElementById('editModal')).show();
-    });
-
-    // Preview da imagem
-    document.getElementById('foto').addEventListener('change', function(e) {
-        const reader = new FileReader();
-        reader.onload = function(event) {
-            document.getElementById('avatarPreview').src = event.target.result;
+    // Função para pré-visualizar a imagem
+    function previewImage(event) {
+        const input = event.target;
+        if (input.files && input.files[0]) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                document.getElementById('avatarPreview').src = e.target.result;
+            };
+            reader.readAsDataURL(input.files[0]);
         }
-        reader.readAsDataURL(e.target.files[0]);
+    }
+
+    // Adiciona o listener ao input de arquivo
+    const avatarUpload = document.getElementById('avatarUpload');
+    if (avatarUpload) {
+        avatarUpload.addEventListener('change', previewImage);
+    }
+
+    // Validação em tempo real
+    const form = document.querySelector('form');
+    form.addEventListener('submit', function(e) {
+        const phone = document.querySelector('[name="telefone"]').value;
+        if (!/^\d{9}$/.test(phone)) {
+            e.preventDefault();
+            alert('Número de telefone inválido! Deve conter 9 dígitos.');
+        }
     });
 });
 </script>

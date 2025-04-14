@@ -11,18 +11,14 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('solicitacao', function (Blueprint $table) {
-            $table->id('id_sol');
-            $table->unsignedBigInteger('id_centro')->nullable(); 
+        Schema::create('ajuste_estoque', function (Blueprint $table) {
+            $table->id('id_ajuste');
+            $table->unsignedBigInteger('id_centro')->nullable();
             $table->foreign('id_centro')->references('id_centro')->on('centro')->onDelete('cascade');
             $table->enum('tipo_sanguineo', ['A+', 'A-', 'B+', 'B-', 'O+', 'O-', 'AB+', 'AB-']);
-            $table->unsignedInteger('quantidade');
-            $table->enum('status', ['Atendida', 'Pendente', 'Cancelada', 'Parcial', 'Expirada'])->default('Pendente');
-            $table->enum('urgencia', ['Normal', 'Emergencia'])->default('Normal');
-            $table->date('prazo');
-            $table->string('motivo')->nullable();
+            $table->integer('quantidade');
+            $table->enum('motivo', ['expiracao', 'perda', 'doacao', 'ajuste']);
             $table->timestamps();
-            
         });
     }
 
@@ -31,6 +27,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('solicitacao');
+        Schema::dropIfExists('ajuste_estoque');
     }
 };

@@ -78,6 +78,20 @@ class Centro extends Model
     {
         return $this->hasMany(Solicitacao::class, 'id_centro', 'id_centro');
     }
+    public function estoque()
+    {
+        return $this->hasMany(Estoque::class, 'id_centro', 'id_centro');
+    }
+
+    public function ajustesEstoque()
+    {
+        return $this->hasMany(AjusteEstoque::class, 'id_centro', 'id_centro');
+    }
+
+    public function respostasSolicitacoes()
+    {
+        return $this->hasMany(RespostaSolicitacao::class, 'id_centro', 'id_centro');
+    }
 
     /**
      * Relacionamento com campanha (1 para muitos).
@@ -86,5 +100,7 @@ class Centro extends Model
     {
         return $this->hasMany(Campanha::class, 'id_centro', 'id_centro');
     }
+
+    
 
 }

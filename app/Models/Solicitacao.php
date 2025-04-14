@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Solicitacao extends Model
 {
@@ -15,10 +16,14 @@ class Solicitacao extends Model
     public $timestamps = false;
 
     protected $fillable = [
+        'id_sol',
         'id_centro',
         'tipo_sanguineo',
         'quantidade',
-        'statu',
+        'urgencia',
+        'status',
+        'prazo',
+        'motivo'
     ];
 
     /**
@@ -28,5 +33,19 @@ class Solicitacao extends Model
     {
         return $this->belongsTo(centro::class, 'id_centro', 'id_centro');
     }
+
+    public function respostas()
+    {
+        return $this->hasMany(RespostaSolicitacao::class, 'id_sol', 'id_sol');
+    }
+    
+    public function centroSolicitante()
+{
+    return $this->belongsTo(Centro::class, 'id_centro', 'id_centro');
+}
+public function estoqueCompativel(): HasMany
+{
+    return $this->hasMany(Estoque::class, 'tipo_sanguineo', 'tipo_sanguineo');
+}
 
 }

@@ -32,6 +32,7 @@ class PerfilController extends Controller
     $validated = $request->validate([
         'foto' => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
         'telefone' => 'required|string|max:20',
+        'endereco'=> 'required',
     ]);
 
     $doador = Auth::user()->doador;

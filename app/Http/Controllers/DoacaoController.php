@@ -9,6 +9,8 @@ use App\Models\Doador;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
 use Barryvdh\DomPDF\Facade\Pdf;
+use App\Models\Estoque;
+
 
 
 class DoacaoController extends Controller
@@ -103,7 +105,7 @@ public function store(Request $request)
             $doador->update(['peso' => $request->peso]);
         }
 
-        Doacao::create([
+        $doacao = Doacao::create([
             'id_agendamento' => $request->id_agendamento,
             'hemoglobina' => $request->hemoglobina,
             'pressao_arterial' => $request->pressao_arterial,
@@ -115,6 +117,30 @@ public function store(Request $request)
             'id_centro' => $agendamento->id_centro,
             'data_doacao' => now()
         ]);
+
+        // Atualizar estoque apenas se a doação for APROVADA
+        if ($doacao->status === 'Aprovado') {
+            $doador = Doador::findOrFail($agendamento->id_doador);
+            
+            // Validação crítica: Tipo sanguíneo deve ser conhecido
+            if ($doador->tipo_sanguineo === 'Desconhecido') {
+                throw new \Exception("Não é possível atualizar estoque com tipo sanguíneo desconhecido.");
+            }
+
+            // Abordagem 1: 1 doação aprovada = 1 unidade, independente do volume
+            $unidades = 1;
+
+            // Atualizar estoque do centro
+            Estoque::updateOrCreate(
+                [
+                    'id_centro' => $agendamento->id_centro,
+                    'tipo_sanguineo' => $doador->tipo_sanguineo
+                ],
+                [
+                    'quantidade' => DB::raw("quantidade + $unidades")
+                ]
+            );
+        }
 
         $agendamento->update(['status' => 'Concluido']);
 

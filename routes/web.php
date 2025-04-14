@@ -9,10 +9,12 @@ use App\Http\Controllers\AgendamentoController;
 use App\Http\Controllers\HistoricoDoacaoController;
 use App\Http\Controllers\PerfilController;
 use App\Http\Controllers\CentroController;
+use App\Http\Controllers\PerfilCentroController;
 use App\Http\Controllers\AgendamentoCentroController;
 use App\Http\Controllers\CampanhaController;
 use App\Http\Controllers\DoacaoController;
 use App\Http\Controllers\SolicitacaoController;
+use App\Http\Controllers\EstoqueController;
 use App\Http\Controllers\Adm\DashboardController;
 
 /*
@@ -94,6 +96,12 @@ Route::middleware('auth')->group(function () {
         Route::get('/listar/doadores', [CentroController::class, 'listarDoadores'])->name('listar.doador');
         Route::get('/centro/doador/pdf', [CentroController::class, 'exportarPdf'])->name('centro.doador.pdf');
 
+        //Estoque do centro
+        Route::controller(EstoqueController::class)->group(function () {
+        Route::get('/estoque',  'index')->name('estoque.index');
+        Route::post('/estoque/ajustar', 'ajuste')->name('estoque.ajustar');
+        
+        });
 
         // Agendamentos do Centro
         Route::controller(AgendamentoCentroController::class)->group(function () {
@@ -103,6 +111,9 @@ Route::middleware('auth')->group(function () {
             Route::patch('/centro/agendamentos/{id}/cancelar', 'cancelar')->name('centro.agendamento.cancelar');
             Route::patch('/agendamentos/{id}/comparecido', 'marcarComparecido')->name('centro.agendamentos.comparecido');
         });
+        //Perfil centro
+        Route::get('/perfil', [PerfilCentroController::class, 'index'])->name('centro.perfil');
+        Route::put('/perfil', [PerfilCentroController::class, 'update'])->name('centro.profile.update');
 
         // Rotas para doações
         Route::controller(DoacaoController::class)->group(function () {
@@ -130,9 +141,18 @@ Route::middleware('auth')->group(function () {
     });
 
     // Rotas para Solicitações
-    Route::get('/solicitacoes', [SolicitacaoController::class, 'index'])->name('solicitacoes.index');
-    Route::get('/solicitacoes/criar', [SolicitacaoController::class, 'create'])->name('solicitacoes.create');
-    Route::post('/solicitacoes', [SolicitacaoController::class, 'store'])->name('solicitacoes.store');
+
+
+    Route::prefix('centro/solicitacao')->name('centro.solicitacao.')->group(function () {
+        Route::get('/', [SolicitacaoController::class, 'index'])->name('index');
+        Route::get('/create', [SolicitacaoController::class, 'create'])->name('create');
+        Route::post('/store', [SolicitacaoController::class, 'store'])->name('store');
+        Route::get('/{id}', [SolicitacaoController::class, 'show'])->name('show');
+        Route::get('/{id}/edit', [SolicitacaoController::class, 'edit'])->name('edit');
+        Route::put('/{id}', [SolicitacaoController::class, 'update'])->name('update');
+        Route::get('/exportar-pdf', [SolicitacaoController::class, 'exportarPdf'])->name('exportarPdf');
+    });
+
 
 });
 
@@ -144,25 +164,7 @@ Route::middleware('auth')->group(function () {
 Route::get('/registro-centro', [CentroController::class, 'showRegistrationForm'])->name('centro.register');
 Route::post('/registro-centro', [CentroController::class, 'register'])->name('centro.submit');
 
-// Rotas temporárias
-Route::get('/time', function() {
-    return now()->format('Y-m-d H:i:s (e)');
-});
-
 
 
 Route::get('admin/dashboard', [DashboardController::class, 'index'])->name('admin.dashboard');
 
-Route::prefix('admin')->middleware('auth')->name('admin.')->group(function () {
-    // Dashboard
-    
-    Route::resource('doadores', DoadoresController::class);
-    Route::resource('agendamentos', AgendamentosController::class);
-    Route::resource('campanhas', CampanhasController::class);
-    Route::resource('centros', CentrosController::class);
-    Route::resource('relatorios', RelatoriosController::class);
-    Route::resource('notificacoes', NotificacoesController::class);
-    Route::resource('emergencias', EmergenciasController::class);
-    Route::resource('usuarios', UsuariosController::class);
-    Route::resource('configuracoes', ConfiguracoesController::class);
-});

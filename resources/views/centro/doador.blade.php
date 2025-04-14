@@ -1,4 +1,3 @@
-{{-- resources/views/centro/doador.blade.php --}}
 @extends('centro.main')
 
 @section('title', 'Doadores - Centro de Coleta')
@@ -232,7 +231,6 @@
 
 @section('scripts')
 <script>
-    // Adicione no final da seção @section('scripts')
 document.querySelectorAll('select[name="tipo_sanguineo"]').forEach(select => {
     select.addEventListener('change', function() {
         this.form.submit();
