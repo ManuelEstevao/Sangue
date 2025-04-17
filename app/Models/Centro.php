@@ -78,9 +78,8 @@ class Centro extends Model
     {
         return $this->hasMany(Solicitacao::class, 'id_centro', 'id_centro');
     }
-    public function estoque()
-    {
-        return $this->hasMany(Estoque::class, 'id_centro', 'id_centro');
+    public function estoque() {
+        return $this->hasMany(Estoque::class, 'id_centro');
     }
 
     public function ajustesEstoque()
@@ -100,6 +99,8 @@ class Centro extends Model
     {
         return $this->hasMany(Campanha::class, 'id_centro', 'id_centro');
     }
+
+    
 
     
 

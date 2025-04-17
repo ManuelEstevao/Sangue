@@ -24,8 +24,8 @@
     }
 
     .avatar-wrapper {
-        width: 140px;
-        height: 140px;
+        width: 120px;
+        height: 120px;
         border: 4px solid white;
         border-radius: 50%;
         overflow: hidden;
@@ -121,6 +121,8 @@
     border: 4px solid white;
     box-shadow: 0 4px 15px rgba(0,0,0,0.1);
 }
+
+
 
     @media (max-width: 768px) {
         .profile-header {

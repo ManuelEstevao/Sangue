@@ -14,13 +14,16 @@ class RespostaSolicitacao extends Model
 
     protected $fillable = [
         'id_sol',
-        'id_centro_respondente',
+        'id_centro',
         'quantidade_aceita',
         'status'
     ];
 
-    public function solicitacao()
-    {
+    public function solicitacao() {
         return $this->belongsTo(Solicitacao::class, 'id_sol', 'id_sol');
+    }
+    
+    public function centroDoador() {
+        return $this->belongsTo(Centro::class, 'id_centro', 'id_centro');
     }
 }

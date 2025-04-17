@@ -24,8 +24,10 @@ class EstoqueController extends Controller
         ];
         
         $movimentacoes = DB::table('ajuste_estoque')
-        ->where('id_centro', auth()->user()->centro->id_centro)
-        ->orderByDesc('created_at')
+        ->join('estoque', 'ajuste_estoque.id_estoque', '=', 'estoque.id_estoque')
+        ->where('estoque.id_centro', $centroId)
+        ->orderByDesc('ajuste_estoque.created_at')
+        ->select('ajuste_estoque.*') 
         ->limit(5)
         ->get();
 
@@ -68,7 +70,7 @@ class EstoqueController extends Controller
                 } else {
                                 // Verifica se há estoque suficiente para remoção
                     if ($estoque->quantidade < $quantidade) {
-                         return redirect()->back()->withErrors('Estoque insuficiente para remoção.');
+                        return redirect()->back()->with('error', 'Estoque insuficiente para remoção.');
                     }
                         $estoque->quantidade -= $quantidade;
                         }
@@ -89,7 +91,7 @@ class EstoqueController extends Controller
     
             // Registrar a movimentação
             AjusteEstoque::create([
-                'id_centro'      => $centroId,
+                'id_estoque'     => $estoque->id_estoque,
                 'tipo_sanguineo' => $validated['tipo_sanguineo'],
                 'quantidade'     => ($operacao == '+') ? $quantidade : -$quantidade,
                 'operacao'       => $validated['operacao'],

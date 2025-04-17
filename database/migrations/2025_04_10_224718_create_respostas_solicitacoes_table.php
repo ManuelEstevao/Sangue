@@ -18,7 +18,7 @@ return new class extends Migration
             $table->foreign('id_sol')->references('id_sol')->on('solicitacao')->onDelete('cascade');  
             $table->foreign('id_centro')->references('id_centro')->on('centro')->onDelete('cascade');
             $table->unsignedInteger('quantidade_aceita');
-            $table->enum('status', ['Pendente', 'Aceita', 'Recusada'])->default('Pendente');
+            $table->enum('status', ['Aceito', 'Concluido'])->default('Aceito');
             $table->timestamps();
         });
     }

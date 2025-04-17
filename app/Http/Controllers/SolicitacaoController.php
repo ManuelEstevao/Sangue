@@ -3,11 +3,14 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use App\Models\RespostaSolicitacao;
 use App\Models\Solicitacao;
 use App\Models\Centro;
 use App\Models\Doacao;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
 use App\Models\Estoque;
+use Carbon\Carbon; 
 
 
 class SolicitacaoController extends Controller
@@ -18,48 +21,37 @@ class SolicitacaoController extends Controller
     public function index(Request $request)
     {
         $centroLogado = Auth::user()->centro;
+    
+            
+        // 1. Obter tipos sanguíneos em estoque do centro logado
+        $tiposEstoqueCentro = $centroLogado->estoque()
+        ->where('quantidade', '>', 0)
+        ->pluck('tipo_sanguineo');
 
-        // Solicitações do próprio centro
-        $solicitacoesProprias = Solicitacao::with(['centroSolicitante', 'respostas'])
-            ->where('id_centro', $centroLogado->id_centro);
+    // 2. Solicitações do próprio centro
+    $solicitacoesProprias = Solicitacao::with(['centroSolicitante', 'respostas'])
+        ->where('id_centro', $centroLogado->id_centro);
 
-        // Solicitações de outros centros com estoque compatível
-        $solicitacoesExternas = Solicitacao::with(['centroSolicitante', 'respostas'])
-            ->where('id_centro', '!=', $centroLogado->id_centro)
-            ->whereIn('status', ['pendente', 'parcial'])
-            ->whereHas('estoqueCompativel', function($query) use ($centroLogado) {
-                $query->where('id_centro', $centroLogado->id_centro)
-                    ->where('quantidade', '>', 0);
-            });
-
-        $solicitacoes = $solicitacoesProprias->union($solicitacoesExternas)
-            ->orderBy('urgencia', 'desc')
-            ->orderBy('prazo', 'asc')
-            ->paginate(10);
-
-        return view('centro.solicitacao', compact('solicitacoes'));
-    }
-
-    /**
-     * Aplica filtros às solicitações
-     */
-    private function aplicarFiltros($query, Request $request)
-    {
-        return $query->when($request->filled('tipo_sanguineo'), function ($q) use ($request) {
-                $q->where('tipo_sanguineo', $request->tipo_sanguineo);
+    // 3. Solicitações externas compatíveis
+    $solicitacoesExternas = Solicitacao::where('id_centro', '!=', $centroLogado->id_centro)
+        ->where('status', 'pendente')
+        ->whereIn('tipo_sanguineo', $tiposEstoqueCentro)
+        /*->whereHas('centroSolicitante', function($query) {
+            $query->whereHas('estoque', function($q) {
+                $q->where('quantidade', '>', 0);
             })
-            ->when($request->filled('status'), function ($q) use ($request) {
-                $q->where('status', $request->status);
-            })
-            ->when($request->filled('urgencia'), function ($q) use ($request) {
-                $q->where('urgencia', $request->urgencia);
-            })
-            ->when($request->filled('prazo'), function ($q) use ($request) {
-                $q->where('prazo', '<=', $request->prazo);
-            })
-            ->when($request->filled(['data_inicio', 'data_fim']), function ($q) use ($request) {
-                $q->whereBetween('created_at', [$request->data_inicio, $request->data_fim]);
-            });
+        })*/;
+
+    // 4. Unir e paginar
+    $solicitacoes = $solicitacoesProprias->union($solicitacoesExternas)
+        ->orderBy('created_at', 'desc')
+        ->paginate(6);
+
+        $respostas = RespostaSolicitacao::with(['solicitacao', 'centroDoador'])
+        ->whereIn('id_sol', $solicitacoes->pluck('id_sol'))
+        ->get();
+
+        return view('centro.solicitacao', compact('solicitacoes','respostas'));
     }
 
     /**
@@ -67,7 +59,7 @@ class SolicitacaoController extends Controller
      */
     public function create()
     {
-        return view('centro.createsolicitacao');
+        
     }
 
     /**
@@ -101,15 +93,210 @@ class SolicitacaoController extends Controller
     return redirect()->back()->with('success', 'Solicitação criada com sucesso!');
 }
 
+public function dadosOferta($id)
+{
+    $solicitacao = Solicitacao::findOrFail($id);
+    $centro = Auth::user()->centro;
 
-    /**
-     * Display the specified resource.
+    $estoque = Estoque::where('id_centro', $centro->id_centro)
+                ->where('tipo_sanguineo', $solicitacao->tipo_sanguineo)
+                ->first();
+
+    return response()->json([
+        'tipo_sanguineo' => $solicitacao->tipo_sanguineo,
+        'estoque_disponivel' => $estoque ? ($estoque->quantidade - $estoque->quantidade_reservada) : 0
+    ]);
+}
+
+public function responder(Request $request, $id)
+{
+    // Validação do input
+    $validated = $request->validate([
+        'quantidade' => 'required|integer|min:1'
+    ]);
+
+    $solicitacao = Solicitacao::findOrFail($id);
+    $centro = Auth::user()->centro;
+
+    // Recupera o estoque para o tipo sanguíneo solicitado
+    $estoque = Estoque::where('id_centro', $centro->id_centro)
+                ->where('tipo_sanguineo', $solicitacao->tipo_sanguineo)
+                ->first();
+
+    if (!$estoque) {
+        return redirect()->back()->withErrors(['msg' => 'Estoque não encontrado para esse tipo sanguíneo.']);
+    }
+    
+    // Calcula o estoque disponível: total menos reservado
+    $disponivel = $estoque->quantidade - $estoque->quantidade_reservada;
+    if ($validated['quantidade'] > $disponivel) {
+        return redirect()->back()->withErrors(['quantidade' => 'Quantidade ofertada excede o estoque disponível.']);
+    }
+
+    DB::transaction(function () use ($validated, $solicitacao, $centro, $estoque) {
+        // Registrar a resposta com status "Pendente"
+        RespostaSolicitacao::create([
+            'id_sol' => $solicitacao->id_sol,  
+            'id_centro' => $centro->id_centro,
+            'quantidade_aceita' => $validated['quantidade'],
+            'status' => 'Aceito'
+        ]);
+
+        // Reservar a quantidade no estoque: incrementa o campo "quantidade_reservada"
+        Estoque::where('id_centro', $centro->id_centro)
+            ->where('tipo_sanguineo', $solicitacao->tipo_sanguineo)
+            ->increment('quantidade_reservada', $validated['quantidade']);
+    });
+
+    return redirect()->route('centro.solicitacao.index')
+                    ->with('success', 'Oferta enviada com sucesso! A quantidade foi reservada até a confirmação.');
+}
+public function detalhesResposta($idResposta)
+{
+    try {
+        $resposta = RespostaSolicitacao::with([
+            'solicitacao.centroSolicitante:id_centro,nome,latitude,longitude',
+            'centroDoador:id_centro,nome,latitude,longitude,telefone,endereco',
+            'centroDoador.estoque:id_centro,tipo_sanguineo,quantidade,quantidade_reservada'
+        ])->findOrFail($idResposta);
+
+        if (!Auth::user()->centro) {
+            return response()->json([
+                'error' => 'Usuário não associado a um centro.'
+            ], 403);
+        }
+
+        $tipoSanguineo = $resposta->solicitacao->tipo_sanguineo;
+        $estoque = $resposta->centroDoador->estoque
+            ->where('tipo_sanguineo', $tipoSanguineo)
+            ->first();
+
+        return response()->json([
+            'id_resposta'          => $resposta->id_resposta,  
+            'tipo_sanguineo'       => $tipoSanguineo,
+            'quantidade_solicitada'=> $resposta->solicitacao->quantidade,
+            'quantidade_oferecida' => $resposta->quantidade_aceita,
+            'prazo'                => $resposta->solicitacao->prazo,
+            'status'               => strtolower($resposta->status),
+            'data_reserva'         => $resposta->created_at,
+            'centro_doador'        => [
+                'nome'      => $resposta->centroDoador->nome,
+                'latitude'  => $resposta->centroDoador->latitude,
+                'longitude' => $resposta->centroDoador->longitude,
+                'telefone'  => $resposta->centroDoador->telefone,
+                'endereco'  => $resposta->centroDoador->endereco,
+            ],
+            'centro_solicitante'   => [
+                'nome'      => $resposta->solicitacao->centroSolicitante->nome ?? 'Não disponível',
+                'latitude'  => $resposta->solicitacao->centroSolicitante->latitude ?? 0,
+                'longitude' => $resposta->solicitacao->centroSolicitante->longitude ?? 0,
+            ],
+            'estoque'              => [
+                'disponivel' => $estoque ? $estoque->quantidade : 0,
+                'reservado'  => $estoque ? $estoque->quantidade_reservada : 0,
+            ],
+            'eh_solicitante'       => Auth::user()->centro->id_centro === $resposta->solicitacao->id_centro,
+        ]);
+
+    } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
+        return response()->json([
+            'error' => 'Resposta não encontrada.',
+            'details' => "ID {$idResposta} não existe"
+        ], 404);
+    } catch (\Exception $e) {
+        return response()->json([
+            'error' => 'Erro interno ao carregar detalhes',
+            'details' => $e->getMessage()
+        ], 500);
+    }
+}
+
+
+public function confirmarRecebimento($idResposta)
+{
+    
+    try {
+        DB::transaction(function () use ($idResposta) {
+            // Carrega a resposta com os relacionamentos necessários
+            $resposta = RespostaSolicitacao::with(['solicitacao', 'centroDoador'])
+                ->findOrFail($idResposta);
+
+            // Verifica a permissão: somente o centro solicitante (criador da solicitação) pode confirmar
+            if (Auth::user()->centro->id_centro !== $resposta->solicitacao->id_centro) {
+                throw new \Exception('Sem permissão para confirmar esta transferência');
+            }
+
+            // Atualiza o status da resposta para "Concluido" e registra a data de confirmação
+            $resposta->update([
+                'status' => 'Concluido',
+                'data_confirmacao' => now()
+            ]);
+
+            // Atualiza o estoque do centro doador
+            $estoqueDoador = Estoque::where([
+                'id_centro' => $resposta->centroDoador->id_centro,
+                'tipo_sanguineo' => $resposta->solicitacao->tipo_sanguineo
+            ])->firstOrFail();
+
+            // Libera a reserva: decrementa a quantidade reservada
+            $estoqueDoador->quantidade_reservada -= $resposta->quantidade_aceita;
+            $estoqueDoador->quantidade -= $resposta->quantidade_aceita;
+            $estoqueDoador->save();
+
+            // Atualiza o estoque do centro solicitante (dono da solicitação)
+            // Primeiro, obtém o registro de estoque do centro solicitante para o mesmo tipo sanguíneo,
+            // ou cria um novo registro se não existir.
+            $estoqueSolicitante = Estoque::firstOrCreate(
+                [
+                    'id_centro' => $resposta->solicitacao->id_centro,
+                    'tipo_sanguineo' => $resposta->solicitacao->tipo_sanguineo
+                ],
+                [
+                    'quantidade' => 0,
+                    'quantidade_reservada' => 0
+                ]
+            );
+
+            // Incrementa a quantidade efetivamente recebida
+            $estoqueSolicitante->quantidade += $resposta->quantidade_aceita;
+            $estoqueSolicitante->save();
+
+            // Atualiza o status da solicitação com base na soma das respostas confirmadas
+            $this->atualizarStatusSolicitacao($resposta->solicitacao);
+        });
+
+        return response()->json(['success' => 'Recebimento confirmado!']);
+
+    } catch (\Exception $e) {
+        return response()->json([
+            'error' => 'Erro na confirmação',
+            'details' => $e->getMessage()
+        ], 500);
+    }
+}
+
+
+
+ /**
+     * Atualiza o status da solicitação com base na soma das respostas confirmadas.
+     * Se o total confirmado for igual ou maior que a quantidade solicitada → 'Atendida'
+     * Se for maior que zero → 'Parcial'
+     * Caso contrário → 'Pendente'
      */
-    public function show($id)
+    private function atualizarStatusSolicitacao(Solicitacao $solicitacao)
     {
-        // Retorna os detalhes (view parcial) para carregar na modal de detalhes
-        $solicitacao = Solicitacao::with(['respostas', 'centro'])->findOrFail($id);
-        return view('centro.solicitacao.partial_show', compact('solicitacao'));
+        $solicitacao->load('respostas');
+        $totalConfirmado = $solicitacao->respostas->where('status', 'Concluido')->sum('quantidade_aceita');
+    
+        if ($totalConfirmado >= $solicitacao->quantidade) {
+            $solicitacao->status = 'Atendida';
+        } elseif ($totalConfirmado > 0) {
+            $solicitacao->status = 'Parcial';
+        } else {
+            $solicitacao->status = 'Pendente';
+        }
+    
+        $solicitacao->save();
     }
 
 
@@ -117,39 +304,52 @@ class SolicitacaoController extends Controller
      * Show the form for editing the specified resource.
      */
     public function edit($id)
-    {
-        $solicitacao = Solicitacao::findOrFail($id);
-        // Verifica se o centro autenticado é o solicitante
-        if ($solicitacao->id_centro != Auth::user()->centro->id_centro) {
-            abort(403, 'Ação não autorizada.');
-        }
-        return view('centro.solicitacao.edit', compact('solicitacao'));
-    }
+{
+    $solicitacao = Solicitacao::findOrFail($id);
+    return response()->json($solicitacao);
+}
 
     /**
      * Update the specified resource in storage.
      */
     public function update(Request $request, $id)
-    {
-        $solicitacao = Solicitacao::findOrFail($id);
-        // Apenas o centro solicitante pode atualizar, se a solicitação estiver em status editável (por exemplo, "Pendente")
-        if ($solicitacao->id_centro != Auth::user()->centro->id_centro || $solicitacao->status != 'Pendente') {
-            abort(403, 'Ação não autorizada.');
-        }
+{
+    $solicitacao = Solicitacao::findOrFail($id);
+    $centroUsuario = Auth::user()->centro;
 
-        $validated = $request->validate([
-            'tipo_sanguineo' => 'required|in:A+,A-,B+,B-,O+,O-,AB+,AB-',
-            'quantidade'      => 'required|integer|min:1',
-            'urgencia'        => 'required|in:Normal,Emergencia',
-            'prazo'           => 'required|date_format:Y-m-d\TH:i',
-            'motivo'          => 'nullable|string|max:255',
-        ]);
-
-        $solicitacao->update($validated);
-
-        return redirect()->route('centro.solicitacao.index')
-                         ->with('success', 'Solicitação atualizada com sucesso!');
+    // Verificação reforçada de autorização
+    if ($solicitacao->id_centro != $centroUsuario->id_centro) {
+        abort(403, 'Você não é o solicitante desta requisição');
     }
+
+    $validated = $request->validate([
+        'tipo_sanguineo' => 'required|in:A+,A-,B+,B-,O+,O-,AB+,AB-',
+        'quantidade' => 'required|integer|min:1', 
+        'urgencia' => 'required', 
+        'prazo' => [
+            'required',
+            'date_format:Y-m-d\TH:i',
+            function ($attribute, $value, $fail) use ($solicitacao) {
+                $novaData = Carbon::parse($value);
+                if ($novaData->lt(now())) {
+                    $fail('O prazo não pode ser anterior à data atual');
+                }
+            }
+        ],
+        'motivo' => 'required|string|max:500',
+    ]);
+
+    // Converter formato de data para o MySQL
+    $validated['prazo'] = Carbon::parse($validated['prazo'])->format('Y-m-d H:i:s');
+
+    try {
+        $solicitacao->update($validated);
+        return redirect()->route('centro.solicitacao')
+                        ->with('success', 'Solicitação atualizada com sucesso!');
+    } catch (\Exception $e) {
+        return redirect()->back()->with('error', 'Erro ao atualizar a doação: ' . $e->getMessage());
+    }
+}
 
     /**
      * Remove the specified resource from storage.

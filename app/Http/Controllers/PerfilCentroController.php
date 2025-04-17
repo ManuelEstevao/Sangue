@@ -65,11 +65,14 @@ class PerfilCentroController extends Controller
             'nome' => 'required|string|max:100',
             'telefone' => 'required|string|max:20',
             'endereco' => 'required|string|max:255',
-            'horario_abertura' => 'required|date_format:H:i',
-            'horario_fechamento' => 'required|date_format:H:i|after:horario_abertura',
+            'horario_abertura' => 'required',
+            'horario_fechamento' => 'required',
+            'capacidade_maxima' => 'required',
+            'endereco' => 'required',
+            'telefone' => 'required',
             'foto' => 'nullable|image|mimes:jpeg,png,jpg|max:2048'
         ]);
-
+        
         $centro = Auth::user()->centro;
 
     if ($request->hasFile('foto')) {
@@ -88,9 +91,7 @@ class PerfilCentroController extends Controller
         
         $validated['foto'] = $fileName;
     }
-    dd(
-        $validated
-    );
+    
     $centro->update($validated);
 
         return redirect()->route('centro.perfil')->with([

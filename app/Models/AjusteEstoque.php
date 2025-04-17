@@ -14,7 +14,7 @@ class AjusteEstoque extends Model
     public $timestamps = true;
 
     protected $fillable = [
-        'id_centro',
+        'id_estoque',
         'tipo_sanguineo',
         'operacao',
         'quantidade',
@@ -22,8 +22,8 @@ class AjusteEstoque extends Model
         'observacao'
     ];
 
-    public function centro()
+    public function estoque()
     {
-        return $this->belongsTo(Centro::class, 'id_centro', 'id_centro');
+        return $this->belongsTo(Estoque::class, 'id_estoque');
     }
 }

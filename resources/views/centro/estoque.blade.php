@@ -200,7 +200,7 @@
 
 <!-- Modal de Últimas Movimentações -->
 <div class="modal fade" id="movimentacoesModal" tabindex="-1" aria-labelledby="movimentacoesModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-lg"> <!-- Tamanho médio/grande -->
+    <div class="modal-dialog modal-lg"> 
         <div class="modal-content">
             <div class="modal-header bg-light">
                 <h5 class="modal-title">
@@ -253,7 +253,17 @@
     </div>
 </div>
 
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
+@if (session('error'))
+<script>
+    Swal.fire({
+        icon: 'error',
+        title: 'Oops...',
+        text: '{{ session('error') }}'
+    });
+</script>
+@endif
 
 @endsection
 

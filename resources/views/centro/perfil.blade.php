@@ -34,13 +34,34 @@
         color: white;
     }
     .avatar-preview {
-    width: 150px;
-    height: 150px;
-    object-fit: cover;
-    border-radius: 50%;
-    border: 4px solid white;
-    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        width: 150px;
+        height: 150px;
+        object-fit: cover;
+        border-radius: 50%;
+        border: 4px solid white;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    }
+    /* Estilização para o calendário */
+    #calendar {
+        max-width: 100%;
+        margin: 0 auto;
+        
+    }
+
+    .cal{
+        margin-top: -28px;
+    }
+    
+.fc .fc-prev-button {
+    background-color: transparent !important;
+    border: none !important;                 
+    color: #000;                              
 }
+.fc .fc-prev-button:hover {
+    background-color: #e0e7ff !important; 
+}
+
+
 </style>
 @endsection
 
@@ -75,14 +96,21 @@
                                     {{ Auth::user()->email }}
                                 </li>
                                 <li>
+                                    <i class="fas fa-users me-2"></i>
+                                    Capacidade máxima por Horário: {{ Auth::user()->centro->capacidade_maxima ?? 'Não definido' }}
+                                </li>
+                                <li>
                                     <i class="fas fa-clock me-2"></i>
                                     Horário: {{ Auth::user()->centro->horario_abertura }} - {{ Auth::user()->centro->horario_fechamento }}
                                 </li>
+
                             </ul>
                         </div>
-                        <div class="col-md-6">
-                            <div class="map-container" style="height: 200px; background: #f5f5f5; border-radius: 10px;">
-                                <p class="text-center mt-4">Mapa de Localização</p>
+                        <div class="col-md-6 cal">
+                            <!-- Calendário -->
+                            <div class="map-container" style="height: 265px; background: #f5f5f5; border-radius: 10px; overflow: hidden;">
+
+                                <div id="calendar"></div>
                             </div>
                         </div>
                     </div>
@@ -128,21 +156,21 @@
                         <div class="row">
                             <!-- Upload de Foto -->
                             <div class="col-md-4 text-center mb-4">
-                             <div class="position-relative mb-3">
+                                <div class="position-relative mb-3">
                                     <img id="avatarPreview" 
-                                    src="{{ $centro->foto ? asset('storage/centros/' . $centro->foto) : asset('assets/img/profile.png') }}" 
-                                        class="avatar-preview mb-3">
+                                         src="{{ $centro->foto ? asset('storage/centros/' . $centro->foto) : asset('assets/img/profile.png') }}" 
+                                         class="avatar-preview mb-3">
                                     <label class="btn btn-danger btn-sm position-absolute bottom-0 start-50 translate-middle-x">
                                         <i class="fas fa-camera"></i>
                                         <input type="file" 
-                                            name="foto" 
-                                            id="avatarUpload" 
-                                            class="d-none"
-                                            accept="image/*" 
-                                            onchange="previewImage(event)">
+                                               name="foto" 
+                                               id="avatarUpload" 
+                                               class="d-none"
+                                               accept="image/*" 
+                                               onchange="previewImage(event)">
                                     </label>
                                 </div>
-                                <small class="text-muted">Formatos: JPG,JPEG, PNG (Max. 2MB)</small>
+                                <small class="text-muted">Formatos: JPG, JPEG, PNG (Max. 2MB)</small>
                             </div>
 
                             <!-- Demais Campos -->
@@ -180,6 +208,17 @@
                                                    name="horario_fechamento" required>
                                         </div>
                                     </div>
+                                    <div class="col-md-6">
+                                        <div class="mb-3">
+                                            <label>Capacidade Máxima por Horário</label>
+                                            <input type="number" class="form-control"
+                                                name="capacidade_maxima"
+                                                min="1"
+                                                value="{{ old('capacidade_maxima', Auth::user()->centro->capacidade_maxima) }}"
+                                                required>
+                                        </div>
+                                    </div>
+
                                     <div class="col-md-12">
                                         <div class="mb-3">
                                             <label>Endereço</label>
@@ -205,13 +244,10 @@
 @endsection
 
 @section('scripts')
+<!-- Script do FullCalendar via CDN -->
+<script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.6/index.global.min.js"></script>
 <script>
-    // Fechar modal após sucesso
-    @if(session('success'))
-        const modal = bootstrap.Modal.getInstance(document.getElementById('editModal'));
-        if(modal) modal.hide();
-    @endif
-
+    // Função para preview da imagem
     function previewImage(event) {
         const input = event.target;
         if (input.files && input.files[0]) {
@@ -222,5 +258,42 @@
             reader.readAsDataURL(input.files[0]);
         }
     }
+
+    // Fechar modal após sucesso
+    @if(session('success'))
+        const modal = bootstrap.Modal.getInstance(document.getElementById('editModal'));
+        if(modal) modal.hide();
+    @endif
+
+    // Inicializar o calendário com dados dinâmicos (caso haja dias bloqueados)
+    document.addEventListener('DOMContentLoaded', function() {
+    var calendarEl = document.getElementById('calendar');
+
+    var calendar = new FullCalendar.Calendar(calendarEl, {
+        initialView: 'dayGridMonth',
+        initialDate: new Date(), // inicia na data atual
+        validRange: {
+            start: new Date() // todas as datas antes da data atual ficam desabilitadas
+        },
+        locale: 'pt-br',
+        headerToolbar: {
+            left: 'prev,next',
+            center: 'title',
+            right: ''
+        },
+        events: [], // sem eventos inicialmente
+        dateClick: function(info) {
+            // Exemplo: mostra um alerta apenas quando a data estiver disponível (datas passadas não serão clicáveis)
+            alert('Data selecionada: ' + info.dateStr);
+        }
+    });
+    
+
+    calendar.render();
+    
+
+
+});
+
 </script>
 @endsection

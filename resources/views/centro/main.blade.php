@@ -4,6 +4,7 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <title>@yield('title')</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no" />
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     <link href="assets/img/flavicon.png" rel="icon">
     
 
@@ -28,6 +29,7 @@
     </script>
 
     <!-- CSS Files -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
     <link href="{{ url('assets/vendor/bootstrap/css/bootstrap.min.css') }}" rel="stylesheet">
     <link rel="stylesheet" href="{{ url('assets/Centro/assets/css/plugins.min.css') }}" />
     <link rel="stylesheet" href="{{ url('assets/Centro/assets/css/kaiadmin.min.css') }}" />
@@ -218,7 +220,7 @@
                               <li class="nav-item topbar-user dropdown hidden-caret">
                   <a class="dropdown-toggle profile-pic" data-bs-toggle="dropdown" href="#" aria-expanded="false">
                     <div class="avatar-sm">
-                      <img src="{{ asset('assets/img/profile.png') }}" alt="..." class="avatar-img rounded-circle" />
+                      <img src="{{ Auth::user()->centro->foto ? asset('storage/centros/' . Auth::user()->centro->foto) : asset('assets/img/profile.png') }}" alt="..." class="avatar-img rounded-circle" />
                     </div>
                     <span class="profile-username">
                       <span class="fw-bold">{{ Auth::user()->centro->nome }}</span>
@@ -229,7 +231,7 @@
                       <li>
                         <div class="user-box">
                           <div class="avatar-lg">
-                            <img src="{{ asset('assets/img/profile.png') }}" alt="perfil" class="avatar-img rounded" />
+                          <img src="{{ Auth::user()->centro->foto ? asset('storage/centros/' . Auth::user()->centro->foto) : asset('assets/img/profile.png') }}" alt="perfil" class="avatar-img rounded" />
                           </div>
                           <div class="u-text">
                             <h4>{{ Auth::user()->centro->nome }}</h4>
@@ -241,7 +243,6 @@
                       
                       <div class="dropdown-divider"></div>
                         <a class="dropdown-item" href="{{ route('centro.perfil') }}">Meu Perfil</a>
-                        <a class="dropdown-item" href="">Configurações</a>
                         <div class="dropdown-divider"></div>
                         <form method="POST" action="{{ route('logout') }}">
                           @csrf
@@ -290,6 +291,8 @@
     <script src="{{ asset('assets/Centro/assets/js/plugin/gmaps/gmaps.js') }}"></script>
     <script src="{{ asset('assets/Centro/assets/js/plugin/sweetalert/sweetalert.min.js') }}"></script>
     <script src="{{ asset('assets/Centro/assets/js/kaiadmin.min.js') }}"></script>
+    <script src="{{ asset('assets/Centro/assets/js/plugin/sweetalert/sweetalert2.min.js') }}"></script>
+
     @yield('scripts')
   </body>
 </html>

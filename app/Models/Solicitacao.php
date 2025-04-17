@@ -39,13 +39,8 @@ class Solicitacao extends Model
         return $this->hasMany(RespostaSolicitacao::class, 'id_sol', 'id_sol');
     }
     
-    public function centroSolicitante()
-{
-    return $this->belongsTo(Centro::class, 'id_centro', 'id_centro');
-}
-public function estoqueCompativel(): HasMany
-{
-    return $this->hasMany(Estoque::class, 'tipo_sanguineo', 'tipo_sanguineo');
-}
+    public function centroSolicitante() {
+        return $this->belongsTo(Centro::class, 'id_centro');
+    }
 
 }

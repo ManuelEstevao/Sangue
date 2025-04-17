@@ -137,6 +137,7 @@
 
 @section('scripts')
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="{{ asset('assets/Centro/assets/js/plugin/chart-circle/circles.min.js') }}"></script>
 <script>
 document.addEventListener('DOMContentLoaded', function() {
     // Gráfico 1: Distribuição de Tipos Sanguíneos

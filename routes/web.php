@@ -150,9 +150,15 @@ Route::middleware('auth')->group(function () {
         Route::get('/{id}', [SolicitacaoController::class, 'show'])->name('show');
         Route::get('/{id}/edit', [SolicitacaoController::class, 'edit'])->name('edit');
         Route::put('/{id}', [SolicitacaoController::class, 'update'])->name('update');
+        Route::delete('/{id}', [SolicitacaoController::class, 'destroy'])->name('destroy');
         Route::get('/exportar-pdf', [SolicitacaoController::class, 'exportarPdf'])->name('exportarPdf');
-    });
 
+        Route::post('/{id}/responder', [SolicitacaoController::class, 'responder'])->name('responder');
+        Route::get('/{id}/dados-oferta', [SolicitacaoController::class, 'dadosOferta'])->name('dados-oferta');
+        Route::get('respostas/{idResposta}/detalhes', [SolicitacaoController::class, 'detalhesResposta'])->name('detalhes');
+       
+        Route::post('/respostas/{idResposta}/confirmar-recebimento', [SolicitacaoController::class, 'confirmarRecebimento'])->name('confirmar.recebimento');
+    });
 
 });
 
