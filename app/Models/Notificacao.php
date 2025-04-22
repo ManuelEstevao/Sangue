@@ -19,7 +19,7 @@ class Notificacao extends Model
         'tipo',
         'data_envio',
         'id_user',
-        'id_agendamento',
+        'lida',
     ];
 
 
@@ -29,10 +29,10 @@ class Notificacao extends Model
         return $this->belongsTo(User::class, 'user_id', 'id_user');
     }
 
-    //Relacionamento com agendamento (opcional)
-    public function agendamento(): BelongsTo
-    {
-        return $this->belongsTo(Agendamento::class, 'id_agendamento', 'id_agendamento'); // Relacionamento com o modelo Agendamento
-    }
+    public function agendamento()
+{
+    return $this->belongsTo(Agendamento::class, 'id_agendamento');
+}
+
 
 }

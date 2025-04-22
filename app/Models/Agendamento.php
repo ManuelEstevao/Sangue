@@ -54,4 +54,10 @@ class Agendamento extends Model
         return $this->hasOne(Questionario::class, 'id_agendamento', 'id_agendamento');
     }
 
+    public function notificacoes()
+{
+    return $this->hasMany(Notificacao::class, 'id_agendamento');
+}
+
+
 }

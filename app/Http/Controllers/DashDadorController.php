@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\Auth;
 use App\Models\Doacao;
 use App\Models\Centro;
 use App\Models\Doador;
+use App\Models\Notificacao;
 use Carbon\Carbon; 
 
 class DashDadorController extends Controller
@@ -17,7 +18,16 @@ class DashDadorController extends Controller
         // Obtém o usuário autenticado
         $user = Auth::user();
         $doador = Doador::where('id_user', $user->id_user)->first();
+        $doadorId = Auth::id(); // ou Auth::guard('doador')->id() se usas um guard próprio
+
+        $notificacoes = Notificacao::whereHas('agendamento', function ($query) use ($doadorId) {
+            $query->where('id_doador', $doadorId);
+        })
+        ->orderBy('data_envio', 'desc')
+        ->get();
         
+
+    
         // Se o usuário ainda não é um doador, evita erro
         if (!$doador) {
             return redirect()->route('home')->with('error', 'Doador não encontrado.');
@@ -72,7 +82,7 @@ class DashDadorController extends Controller
             'proximaDataPermitida' => $proximaDataPermitida,
             'agendamentos' => $agendamentos,
             'centros' => $centros,
-            //'tempoRestante' => $tempoRestante,
+            'notificacoes' => $notificacoes,
         ]);
     }
 }

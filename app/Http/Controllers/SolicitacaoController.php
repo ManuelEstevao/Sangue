@@ -21,7 +21,7 @@ class SolicitacaoController extends Controller
     public function index(Request $request)
     {
         $centroLogado = Auth::user()->centro;
-    
+        $hoje = Carbon::today();
             
         // 1. Obter tipos sanguíneos em estoque do centro logado
         $tiposEstoqueCentro = $centroLogado->estoque()
@@ -34,14 +34,18 @@ class SolicitacaoController extends Controller
 
     // 3. Solicitações externas compatíveis
     $solicitacoesExternas = Solicitacao::where('id_centro', '!=', $centroLogado->id_centro)
-        ->where('status', 'pendente')
         ->whereIn('tipo_sanguineo', $tiposEstoqueCentro)
-        /*->whereHas('centroSolicitante', function($query) {
-            $query->whereHas('estoque', function($q) {
-                $q->where('quantidade', '>', 0);
-            })
-        })*/;
-
+        ->where(function($query) use ($hoje, $centroLogado) {
+            $query->where('status', 'Pendente') // Sem prazo para Pendentes
+                ->orWhere(function($q) use ($hoje, $centroLogado) {
+                    // Apenas para Atendidas: prazo válido + participação do centro
+                    $q->where('status', 'Atendida')
+                      ->whereDate('prazo', '>=', $hoje)
+                      ->whereHas('respostas', function($subQuery) use ($centroLogado) {
+                          $subQuery->where('id_centro', $centroLogado->id_centro);
+                      });
+                });
+        });
     // 4. Unir e paginar
     $solicitacoes = $solicitacoesProprias->union($solicitacoesExternas)
         ->orderBy('created_at', 'desc')
@@ -217,13 +221,18 @@ public function confirmarRecebimento($idResposta)
     
     try {
         DB::transaction(function () use ($idResposta) {
-            // Carrega a resposta com os relacionamentos necessários
             $resposta = RespostaSolicitacao::with(['solicitacao', 'centroDoador'])
                 ->findOrFail($idResposta);
 
-            // Verifica a permissão: somente o centro solicitante (criador da solicitação) pode confirmar
             if (Auth::user()->centro->id_centro !== $resposta->solicitacao->id_centro) {
-                throw new \Exception('Sem permissão para confirmar esta transferência');
+                abort(403, 'Sem permissão para confirmar esta transferência');
+            }
+            if ($resposta->status === 'Concluido') {
+                return response()->json([
+                    'success' => false,
+                    'code' => 'already_confirmed',
+                    'message' => 'Esta transferência já foi confirmada anteriormente'
+                ], 409);
             }
 
             // Atualiza o status da resposta para "Concluido" e registra a data de confirmação
@@ -265,7 +274,10 @@ public function confirmarRecebimento($idResposta)
             $this->atualizarStatusSolicitacao($resposta->solicitacao);
         });
 
-        return response()->json(['success' => 'Recebimento confirmado!']);
+        return response()->json(['success' => true])
+        ->header('Cache-Control', 'no-store, no-cache, must-revalidate')
+        ->header('Pragma', 'no-cache')
+        ->header('Expires', '0');
 
     } catch (\Exception $e) {
         return response()->json([
@@ -275,7 +287,40 @@ public function confirmarRecebimento($idResposta)
     }
 }
 
+public function verificarStatusResposta($id)
+{
+    try {
+        $resposta = RespostaSolicitacao::with('solicitacao')
+            ->findOrFail($id);
 
+        // Verificar permissão
+        if (Auth::user()->centro->id_centro !== $resposta->solicitacao->id_centro) {
+            return response()->json([
+                'error' => 'Acesso não autorizado'
+            ], 403);
+        }
+
+        return response()->json([
+            'confirmado' => $resposta->status === 'Concluido',
+            'data_confirmacao' => $resposta->data_confirmacao
+        ])->withHeaders([
+            'Cache-Control' => 'no-store, no-cache, must-revalidate',
+            'Pragma' => 'no-cache',
+            'Expires' => '0'
+        ]);
+
+    } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
+        return response()->json([
+            'error' => 'Resposta não encontrada'
+        ], 404);
+        
+    } catch (\Exception $e) {
+        return response()->json([
+            'error' => 'Erro interno do servidor',
+            'details' => $e->getMessage()
+        ], 500);
+    }
+}
 
  /**
      * Atualiza o status da solicitação com base na soma das respostas confirmadas.
@@ -298,6 +343,47 @@ public function confirmarRecebimento($idResposta)
     
         $solicitacao->save();
     }
+
+    public function listarRespostas($id)
+{
+    try {
+        $solicitacao = Solicitacao::with(['respostas.centroDoador', 'centroSolicitante'])
+            ->findOrFail($id);
+
+        return response()->json([
+            'success' => true,
+            'data' => $solicitacao->respostas->map(function($resposta) use ($solicitacao) {
+                return [
+                    'id_resposta' => $resposta->id_resposta,
+                    'quantidade_aceita' => $resposta->quantidade_aceita,
+                    'centro_doador' => [
+                        'nome' => $resposta->centroDoador->nome,
+                        'endereco' => $resposta->centroDoador->endereco,
+                        'telefone' => $resposta->centroDoador->telefone,
+                        'latitude' => $resposta->centroDoador->latitude,
+                        'longitude' => $resposta->centroDoador->longitude,
+                    ],
+                    'solicitacao' => [
+                        'tipo_sanguineo' => $solicitacao->tipo_sanguineo,
+                        'quantidade' => $solicitacao->quantidade,
+                        'prazo' => $solicitacao->prazo,
+                        'centro_solicitante' => [
+                            'nome' => $solicitacao->centroSolicitante->nome,
+                            'latitude' => $solicitacao->centroSolicitante->latitude,
+                            'longitude' => $solicitacao->centroSolicitante->longitude,
+                        ]
+                    ]
+                ];
+            })
+        ]);
+
+    } catch (\Exception $e) {
+        return response()->json([
+            'success' => false,
+            'message' => 'Erro ao carregar respostas: ' . $e->getMessage()
+        ], 500);
+    }
+}
 
 
     /**
@@ -328,7 +414,7 @@ public function confirmarRecebimento($idResposta)
         'urgencia' => 'required', 
         'prazo' => [
             'required',
-            'date_format:Y-m-d\TH:i',
+            'date',
             function ($attribute, $value, $fail) use ($solicitacao) {
                 $novaData = Carbon::parse($value);
                 if ($novaData->lt(now())) {
@@ -354,8 +440,31 @@ public function confirmarRecebimento($idResposta)
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(string $id)
-    {
-        //
+    public function destroy($idsol)
+{
+    try {
+        $solicitacao = Solicitacao::findOrFail($idsol);
+      
+        // Verificar permissões (exemplo)
+        if ($solicitacao->id_centro != auth()->user()->centro->id_centro) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Acesso não autorizado'
+            ], 403);
+        }
+
+        $solicitacao->delete();
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Solicitação excluída com sucesso'
+        ]);
+
+    } catch (\Exception $e) {
+        return response()->json([
+            'success' => false,
+            'message' => 'Erro ao excluir solicitação: ' . $e->getMessage()
+        ], 500);
     }
+}
 }

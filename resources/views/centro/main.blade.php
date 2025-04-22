@@ -38,6 +38,21 @@
     <!-- CSS Just for demo purpose -->
     <link rel="stylesheet" href="{{ url('assets/Centro/assets/css/demo.css') }}">
 
+    <style>
+      .notif-primary {
+    background-color: #007bff;
+    color: white;
+    border-radius: 50%;
+    padding: 10px;
+    }
+    .notif-danger {
+        background-color: #dc3545;
+        color: white;
+        border-radius: 50%;
+        padding: 10px;
+    }
+
+    </style>
     @yield('styles')
   </head>
   <body>
@@ -177,46 +192,41 @@
                   Mensagens, se necessário 
                 </li>-->
                 <li class="nav-item topbar-icon dropdown hidden-caret">
-                  <a
-                      class="nav-link dropdown-toggle"
-                      href="#"
-                      id="notifDropdown"
-                      role="button"
-                      data-bs-toggle="dropdown"
-                      aria-haspopup="true"
-                      aria-expanded="false"
-                  >
+                  <a class="nav-link dropdown-toggle" href="" id="notifDropdown" role="button"
+                      data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                       <i class="fa fa-bell"></i>
-                      <span class="notification"></span>
+                      @if($naoLidas > 0)
+                          <span class="notification">{{ $naoLidas }}</span>
+                      @endif
                   </a>
-                  <ul
-                      class="dropdown-menu notif-box animated fadeIn"
-                      aria-labelledby="notifDropdown"
-                  >
+                  <ul class="dropdown-menu notif-box animated fadeIn" aria-labelledby="notifDropdown">
                       <li>
                           <div class="dropdown-title">
-                              You have  
+                              Tens {{ $naoLidas }} notificações não lidas
                           </div>
                       </li>
                       <li>
                           <div class="notif-scroll scrollbar-outer">
                               <div class="notif-center">
-                                
+                                  @forelse($notificacoes as $notif)
                                       <a href="#">
-                                          <div class="notif-icon notif-primary">
-                                              <i class="fa fa-bell"></i> <!-- Pode ser alterado conforme o tipo -->
+                                          <div class="notif-icon notif-{{ $notif->tipo == 'urgente' ? 'danger' : 'primary' }}">
+                                              <i class="fa fa-bell"></i>
                                           </div>
                                           <div class="notif-content">
-                                              <span class="block"></span>
-                                              <span class="time"></span>
+                                              <span class="block">{{ $notif->mensagem }}</span>
+                                              <span class="time">{{ $notif->created_at->diffForHumans() }}</span>
                                           </div>
                                       </a>
-                                  
+                                  @empty
+                                      <div class="text-center p-2 text-muted">Sem notificações</div>
+                                  @endforelse
                               </div>
                           </div>
                       </li>
                   </ul>
               </li>
+
                               <li class="nav-item topbar-user dropdown hidden-caret">
                   <a class="dropdown-toggle profile-pic" data-bs-toggle="dropdown" href="#" aria-expanded="false">
                     <div class="avatar-sm">

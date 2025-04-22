@@ -1,0 +1,2 @@
+cd "C:\Users\Manuel Estevão\Documents\Minhas coisas\13ª-Turma A1\ConectaDad"
+"C:\xampp\php\php.exe" artisan schedule:run > NUL 2>&1

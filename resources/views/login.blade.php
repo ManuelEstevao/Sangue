@@ -46,12 +46,16 @@
                 <input type="password" id="senha" name="senha" placeholder="Senha" required>
             </div>
 
+           <!--   <div class="password-recovery">
+                <a href="">Esqueceu a senha?</a>
+            </div>-->
+
             <div class="btn">
                 <button type="submit">Entrar</button>
             </div>
 
             <div class="link">
-                <a href="{{route('cadastro')}}">Cadastre-se e ajude a fazer a diferença!</a>
+                <a href="{{route('cadastro')}}">Cadastre-se como Doador!</a>
             </div>
         </form>
     </div>

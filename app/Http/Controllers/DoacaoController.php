@@ -58,11 +58,15 @@ class DoacaoController extends Controller
 {
     $centro = Auth::user()->centro;
     $doacoes = $this->filtrarDoacoes($request)
-                    ->orderByDesc('data_doacao')
-                    ->get();
+    ->with(['agendamento.doador']) 
+    ->orderByDesc('data_doacao')
+    ->get();
+                  
+    $pdf = Pdf::loadView('centro.pdf.doacao', compact('doacoes', 'centro'))
+             ->setPaper('a4', 'portrait')
+             ->setOption('isPhpEnabled', true);
 
-    $pdf = Pdf::loadView('centro.pdf.doacao', compact('doacoes', 'centro'));
-    return $pdf->download('lista_doacoes.pdf');
+    return $pdf->download('Lista de doações.pdf');
 }
 
     

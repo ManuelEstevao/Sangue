@@ -3,6 +3,16 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use Barryvdh\DomPDF\Facade\Pdf;
+use App\Models\Solicitacao;
+use App\Models\RespostaSolicitacao;
+use App\Models\Centro;
+use App\Models\Doacao;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Auth;
+use App\Models\Estoque;
+use Carbon\Carbon; 
+
 
 class RespostasController extends Controller
 {
@@ -56,6 +66,58 @@ public function store(Request $request)
     ]);
 
     return redirect()->back()->with('success', 'Resposta enviada!');
+}
+
+
+
+
+public function gerarRelatorio($idResposta)
+{
+    try {
+        $resposta = RespostaSolicitacao::with([
+            'solicitacao.centroSolicitante',
+            'centroDoador'
+        ])->findOrFail($idResposta);
+        
+        // Verificar permissões
+        $usuarioCentroId = Auth::user()->centro->id_centro;
+        $permitido = $usuarioCentroId == $resposta->solicitacao->id_centro || // Solicitante
+                     $usuarioCentroId == $resposta->id_centro; // Doador
+            
+        if(!$permitido) {
+            abort(403, 'Acesso não autorizado');
+        }
+
+        return PDF::loadView('centro.pdf.solicitante', compact('resposta'))
+         ->stream("Relatorio-Centro-Solicitante-{$idResposta}.pdf");
+         
+
+
+    } catch (\Exception $e) {
+        
+        return redirect()->back()
+            ->withErrors('Erro ao gerar relatório: ' . $e->getMessage());
+
+    }
+}
+
+public function gerarRelatorioDoador($idResposta)
+{
+    
+    $resposta = RespostaSolicitacao::with([
+        'solicitacao.centroSolicitante',
+        'centroDoador'
+    ])->findOrFail($idResposta);
+
+    // Só o próprio doador (ou o solicitante) pode gerar
+    $usuarioCentroId = Auth::user()->centro->id_centro;
+    if ($usuarioCentroId !== $resposta->id_centro) {
+        abort(403, 'Acesso não autorizado');
+    }
+
+    // Gera o PDF usando a view pdf.doador
+    return Pdf::loadView('centro.pdf.relatorio-doador', compact('resposta'))
+              ->download("Relatorio_Centro_Doador_{$idResposta}.pdf");
 }
 
     /**

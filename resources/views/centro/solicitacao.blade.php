@@ -32,7 +32,85 @@
     .border-start {
         border-left-width: 4px !important;
     }
-    
+    .btn-action {
+    width: 36px;
+    height: 36px;
+    border: none;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease;
+}
+
+.bg-edit {
+    background: rgba(99, 102, 241, 0.1);
+    color: #6366f1;
+}
+
+.bg-delete {
+    background: rgba(239, 68, 68, 0.1);
+    color: #ef4444;
+}
+
+.btn-action:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 3px 8px rgba(0,0,0,0.12);
+}
+
+.bg-edit:hover {
+    background: #6366f1;
+    color: white;
+}
+
+.bg-delete:hover {
+    background: #ef4444;
+    color: white;
+}
+
+.actions-container {
+    border-top: 1px solid rgba(0,0,0,0.05);
+    padding-top: 1rem;
+}
+
+.btn-navigation {
+    width: 40px;
+    height: 40px;
+    border-radius: 10px;
+    background: rgba(13, 110, 253, 0.05);
+    border: 1px solid rgba(13, 110, 253, 0.15);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    color: rgba(13, 110, 253, 0.8);
+}
+
+.btn-navigation:hover {
+    background: rgba(13, 110, 253, 0.1);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(13, 110, 253, 0.1);
+    color: #0d6efd;
+}
+
+.btn-navigation:active {
+    transform: translateY(0);
+    box-shadow: none;
+}
+.btn-link.text-white:hover {
+        opacity: 0.8;
+        transform: scale(1.1);
+        transition: all 0.2s;
+    }
+
+    .btn-status {
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+.btn-status:disabled {
+    opacity: 0.8;
+    cursor: not-allowed;
+}
+
 
 </style>
 @endsection
@@ -49,14 +127,6 @@
             <i class="fas fa-plus me-2"></i>Nova Solicitação
         </button>
     </div>
-
-    <!-- Botão Exportar PDF 
-    <div class="mb-3">
-        <a href="{{ route('centro.solicitacao.exportarPdf', request()->query()) }}" target="_blank" class="btn btn-danger">
-            <i class="fas fa-file-pdf me-2"></i>Exportar PDF
-        </a>
-    </div>-->
-
     <!-- Lista de Solicitações Dinâmicas -->
     <div class="card border-0 shadow">
         <div class="card-header bg-white border-0">
@@ -67,15 +137,19 @@
                 @forelse($solicitacoes as $solicitacao)
                 @php
                     $isSolicitante = $solicitacao->id_centro == auth()->user()->centro->id_centro;
-                    $respostasAceitas = $solicitacao->respostas->where('status', 'Aceito');
+                    $respostasAceitas = $solicitacao->respostas->whereIn('status', ['Aceito', 'Concluido']);
                     $totalAtendido = $respostasAceitas->sum('quantidade_aceita');
                     $progresso = $solicitacao->quantidade > 0 ? ($totalAtendido / $solicitacao->quantidade) * 100 : 0;
+                    
+                    $corProgresso = $progresso >= 100 ? 'bg-success' : 'bg-danger';
+                    
                     $estoqueCentro = !$isSolicitante 
                         ? Estoque::where('id_centro', auth()->user()->centro->id_centro)
                             ->where('tipo_sanguineo', $solicitacao->tipo_sanguineo)
                             ->first()
                         : null;
                     $respostaAtual = $solicitacao->respostas->where('id_centro', auth()->user()->centro->id_centro)->first();
+                
                 @endphp
 
 
@@ -100,7 +174,7 @@
                             </div>
 
                             <div class="progress thin-progress mb-2">
-                                <div class="progress-bar bg-danger" style="width: {{ $progresso }}%;"></div>
+                                <div class="progress-bar {{ $corProgresso }}" style="width: {{ $progresso }}%;"></div>
                             </div>
                             <div class="d-flex justify-content-between small text-muted mb-3">
                                 <span>Solicitado: {{ $solicitacao->quantidade }}</span>
@@ -114,7 +188,7 @@
                                 </li>
                                 <li class="mb-2">
                                     <i class="fas fa-clock me-2 text-muted"></i>
-                                    Prazo: {{ \Carbon\Carbon::parse($solicitacao->prazo)->format('d/m/Y H:i') }}
+                                    Prazo: {{ \Carbon\Carbon::parse($solicitacao->prazo)->format('d/m/Y') }}
                                 </li>
                                 <li>
                                     <i class="fas fa-comment me-2 text-muted"></i>
@@ -125,19 +199,48 @@
                             <div class="d-grid">
                                 @if($isSolicitante)
                                     {{-- Botões para o Centro Solicitante --}}
-                                    @if($respostasAceitas->count() > 0)
-                                        <button class="btn btn-outline-success" onclick="mostrarResposta({{  $solicitacao->respostas->first()->id_resposta }})">
-                                            <i class="fas fa-eye me-2"></i>Ver Respostas
+                                    @if($respostasAceitas->count() > 0 )
+                                        <button class="btn btn-outline-success" 
+                                                onclick="carregarRespostas({{ $solicitacao->id_sol }})">
+                                            <i class="fas fa-eye me-2"></i>Ver Respostas ({{ $respostasAceitas->count() }}</span>)
                                         </button>
-                                    @else
-                                        <button class="btn btn-outline-warning" onclick="editarSolicitacao({{ $solicitacao->id_sol }})">
-                                            <i class="fas fa-edit me-2"></i>Editar
+                                        @else
+                                    <div class="d-flex justify-content-end gap-1">
+                                        <button class="btn btn-action bg-edit" 
+                                                onclick="editarSolicitacao({{ $solicitacao->id_sol }})"
+                                                data-bs-toggle="tooltip" 
+                                                title="Editar Solicitação">
+                                            <i class="fas fa-pen"></i>
                                         </button>
+                                        
+                                        <button class="btn btn-action bg-delete" 
+                                                onclick="excluirSolicitacao({{ $solicitacao->id_sol }})"
+                                                data-bs-toggle="tooltip"
+                                                title="Excluir Solicitação">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </div>
                                     @endif
                                 @else
-                                        <button class="btn btn-outline-primary"  onclick="abrirModalResposta({{ $solicitacao->id_sol }})">
+                                    @if($respostaAtual)
+                                        @if($respostaAtual->status == 'Aceito')
+                                            <button class="btn btn-outline-secondary w-100" disabled>
+                                                <i class="fas fa-clock me-2"></i>Aguardando confirmação...
+                                            </button>
+                                        @elseif($respostaAtual->status == 'Concluido')
+                                            
+                                            <a href="/respostas/{{ $respostaAtual->id_resposta }}/relatorio-doador" 
+                                            class="btn btn-outline-success w-100"
+                                            target="_blank">
+                                            <i class="fas fa-file-pdf me-2"></i>Relatório
+                                            </a>
+                                        @endif
+                                    @else
+                                        <button class="btn btn-outline-primary w-100" 
+                                                onclick="abrirModalResposta({{ $solicitacao->id_sol }})">
                                             <i class="fas fa-hand-holding-medical me-2"></i>Responder
                                         </button>
+                                    @endif
                                 @endif
                             </div>
                         </div>
@@ -187,7 +290,7 @@
                         </div>
                         <div class="col-md-6">
                             <label class="form-label">Prazo</label>
-                            <input type="datetime-local" name="prazo" class="form-control" required>
+                            <input type="date" name="prazo" class="form-control" required>
                         </div>
                         <div class="col-12">
                             <label class="form-label">Motivo da Solicitação</label>
@@ -220,7 +323,7 @@
                     <!-- Cabeçalho Informativo -->
                     <div class="alert alert-info py-2 mb-4">
                         <small class="d-block mb-1"><i class="fas fa-info-circle me-2"></i>A quantidade oferecida será reservada temporariamente</small>
-                        <small class="d-block"><i class="fas fa-clock me-2"></i>Reserva válida por 24 horas</small>
+                        <!--<small class="d-block"><i class="fas fa-clock me-2"></i>Reserva válida por 24 horas</small>-->
                     </div>
 
                     <!-- Dados da Solicitação -->
@@ -275,14 +378,29 @@
 <div class="modal fade" id="modalVerRespostas" tabindex="-1" aria-labelledby="modalVerRespostasLabel" aria-hidden="true">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
-            <div class="modal-header bg-info text-white py-2">
+            <div class="modal-header bg-info text-white py-2 position-relative">
                 <h6 class="modal-title fs-6" id="modalVerRespostasLabel">Detalhes da Resposta</h6>
+                
+                
+                <div class="position-absolute end-0 top-50 translate-middle-y me-5">
+                    <button type="button" 
+                            class="btn btn-link text-white p-0" 
+                            title="Gerar Relatório PDF"
+                            id="btnPdf"
+                            
+                            data-bs-toggle="tooltip">
+                        <i class="fas fa-file-pdf fa-fw"></i>
+                    </button>
+                </div>
+                
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Fechar"></button>
             </div>
             
+                   
             <div class="modal-body p-3">
+                <input type="hidden" id="respostaIdAtual" value="">
                 <div class="row g-3">
-                    <!-- Coluna Esquerda - Dados Principais -->
+                    
                     <div class="col-md-6">
                         <div class="card border-0 shadow-sm mb-3">
                             <div class="card-body p-3">
@@ -310,11 +428,6 @@
                                     <dt class="col-6">Oferecido:</dt>
                                     <dd class="col-6" id="respostaQuantidadeOferecida">-</dd>
                                     
-                                    <!--<dt class="col-6">Status:</dt>
-                                    <dd class="col-6">
-                                        <span id="respostaStatus" class="badge">-</span>
-                                    </dd>-->
-                                    
                                     <dt class="col-6">Endereço:</dt>
                                     <dd class="col-6" id="respostaEnderecoCentro">-</dd>
 
@@ -324,18 +437,15 @@
                             </div>
                         </div>
 
-                        <!-- Botão de Confirmação -->
-                                                
-                        <button class="btn btn-primary w-100 mt-3" onclick="confirmarTransferencia()" id="btnConfirmar">
+                        <button class="btn btn-primary w-100 mt-3" 
+                                onclick="confirmarTransferencia()" 
+                                id="btnConfirmar"
+                                data-status-url="{{ route('centro.solicitacao.respostas.status', ['id' => 'REPLACE_ID']) }}">
                             <i class="fas fa-check-circle me-2"></i>Confirmar Recebimento
                         </button>
-                        <button class="btn btn-danger" onclick="gerarPDF()" id="btnPDF">
-                            <i class="fas fa-file-pdf me-2"></i>Gerar Relatório
-                        </button>
-
                     </div>
 
-                    <!-- Coluna Direita - Mapa -->
+                    <!-- Coluna Direita - Mantida Integralmente -->
                     <div class="col-md-6">
                         <div class="card border-0 shadow-sm h-100">
                             <div class="card-body p-2 position-relative">
@@ -355,10 +465,22 @@
                     </div>
                 </div>
             </div>
+            <div class="modal-footer " id="footerNavegacao" style="display: none;">
+                <div class="me-auto">
+                    <span id="respostaContador" class="badge bg-primary"></span>
+                </div>
+                <button class="btn btn-navigation shadow-sm" id="btnAnterior" 
+                        onclick="respostaAnterior()"> 
+                    <i class="fas fa-chevron-left"></i>
+                </button>
+                <button class="btn btn-navigation shadow-sm" id="btnProximo" 
+                        onclick="proximaResposta()"> 
+                    <i class="fas fa-chevron-right"></i>
+                </button>
+            </div>
         </div>
     </div>
 </div>
-
 
 
 <!-- Modal de Edição de Solicitação -->
@@ -396,7 +518,7 @@
                         </div>
                         <div class="col-md-6">
                             <label class="form-label">Prazo</label>
-                            <input type="datetime-local" name="prazo" id="edit_prazo" class="form-control" required>
+                            <input type="date" name="prazo" id="edit_prazo" class="form-control" required>
                         </div>
                         <div class="col-12">
                             <label class="form-label">Motivo da Solicitação</label>
@@ -417,7 +539,6 @@
 
 
 @endsection
-
 @section('scripts')
 <script src="https://api-maps.yandex.ru/2.1/?lang=pt_PT&apikey=db51d640-6b39-495c-b35b-c2ec8a719fc9" type="text/javascript"></script>
 <script>
@@ -459,7 +580,7 @@ function inicializarMapa(centroSolicitante, centroDoador) {
 
         mapaResposta = new ymaps.Map('mapaResposta', {
             center: [centroSolicitante.latitude, centroSolicitante.longitude],
-            zoom: 10,
+            zoom: 11,
             controls: ['zoomControl', 'typeSelector']
         });
 
@@ -473,7 +594,7 @@ function inicializarMapa(centroSolicitante, centroDoador) {
         const rota = new ymaps.multiRouter.MultiRoute({
             referencePoints: pontosRota,
             params: {
-                routingMode: 'auto' // Pode ser 'auto', 'pedestrian', 'masstransit'
+                routingMode: 'auto' 
             }
         }, {
             boundsAutoApply: true
@@ -489,13 +610,9 @@ function inicializarMapa(centroSolicitante, centroDoador) {
                 const distancia = rotaAtiva.properties.get('distance').text;
                 const duracao = rotaAtiva.properties.get('duration').text;
 
-                // Exibir informações no console ou em elementos HTML
-                console.log(`Distância: ${distancia}`);
-                console.log(`Duração estimada: ${duracao}`);
-
                 // Exemplo: exibir no modal
                 document.getElementById('respostaDistancia').textContent = distancia;
-                document.getElementById('respostaDuracao').textContent = duracao;
+               
             }
         });
     });
@@ -504,6 +621,7 @@ function inicializarMapa(centroSolicitante, centroDoador) {
 // Função mostrarResposta atualizada
 document.addEventListener('DOMContentLoaded', function() {
     window.mostrarResposta = function(idResposta) {
+        
         // Exibe o spinner
         const spinner = document.querySelector('.mapa-spinner');
         if (spinner) spinner.style.display = 'block';
@@ -514,8 +632,8 @@ document.addEventListener('DOMContentLoaded', function() {
                 return response.json();
             })
             .then(data => {
-                // Armazena o ID da resposta globalmente para uso posterior
-                window.respostaIdAtual = data.id_resposta;
+                
+                
                 
                 // Preenche os campos do modal com os dados retornados
                 document.getElementById('respostaTipoSanguineo').textContent = data.tipo_sanguineo || '-';
@@ -526,8 +644,9 @@ document.addEventListener('DOMContentLoaded', function() {
                 document.getElementById('respostaEnderecoCentro').textContent = data.centro_doador.endereco || '-';
                 document.getElementById('respostaTelefoneCentro').textContent = data.centro_doador.telefone || '-';
 
-                // (Status: se desejado, inclua aqui o tratamento)
+                   
 
+                
                 // Inicializa o mapa com os dados dos centros (solicitante e doador)
                 inicializarMapa(data.centro_solicitante, data.centro_doador);
 
@@ -545,6 +664,8 @@ function abrirModalResposta(idSolicitacao) {
     // Restaurar o action do formulário com a URL base (incluindo o placeholder)
     const form = document.getElementById('formResponder');
     form.action = form.getAttribute('data-base-action');
+   
+    
 
     fetch(`/centro/solicitacao/${idSolicitacao}/dados-oferta`)
         .then(response => response.json())
@@ -598,18 +719,22 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 });
-
 function confirmarTransferencia() {
-    if (!window.respostaIdAtual) {
-        alert("ID da resposta não encontrado.");
+    const idResposta = document.getElementById('respostaIdAtual').value;
+
+    if (!idResposta) {
+        Swal.fire('Erro!', 'ID da resposta não identificado.', 'error');
         return;
     }
 
     const btn = document.getElementById("btnConfirmar");
+    const btnPdf = document.getElementById('btnPdf');
+    
+
     btn.disabled = true;
     btn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Confirmando...';
 
-    fetch(`/centro/solicitacao/respostas/${window.respostaIdAtual}/confirmar-recebimento`, {
+    fetch(`/centro/solicitacao/respostas/${idResposta}/confirmar-recebimento`, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
@@ -618,44 +743,234 @@ function confirmarTransferencia() {
     })
     .then(async (response) => {
         const data = await response.json();
+        
+        // Tratar conflito de confirmação duplicada
+        if (response.status === 409) {
+            throw new Error(data.message || 'Recebimento já confirmado anteriormente');
+        }
         if (!response.ok) {
             throw new Error(data.details || "Erro na confirmação");
         }
-        return data;
-    })
-    .then(data => {
+
+        // SweetAlert de sucesso
         Swal.fire({
-            title: 'Recebimento Confirmado!',
-            text: data.success,
             icon: 'success',
-            showCancelButton: true,
-            confirmButtonText: 'Gerar Relatório',
-            cancelButtonText: 'Fechar',
-            reverseButtons: true
-        }).then((result) => {
-            if (result.isConfirmed) {
-                window.location.href = `/centro/solicitacao/respostas/${window.respostaIdAtual}/relatorio`;
-            } else if (result.dismiss === Swal.DismissReason.cancel) {
-                
-                const modal = bootstrap.Modal.getInstance(document.getElementById('modalVerRespostas'));
-                modal.hide();
+            title: 'Recebimento Confirmado!',
+            text: 'Recebimento registrado com sucesso',
+            showConfirmButton: true,
+            willClose: () => {
+                // Atualizar o botão do PDF e recarregar
+                btnPdf.removeAttribute('disabled');
+                btnPdf.onclick = () => {
+                    window.open(`/respostas/${idResposta}/relatorio`, '_blank');
+                };
+                window.location.reload(true);
             }
         });
 
-        btn.disabled = true;
-        btn.innerHTML = '<i class="fas fa-check-circle me-2"></i>Recebimento Confirmado';
-        btn.classList.replace("btn-primary", "btn-success");
+        
     })
     .catch(error => {
         console.error("Erro completo:", error);
-        alert(`ERRO: ${error.message}`);
-        btn.disabled = false;
-        btn.innerHTML = '<i class="fas fa-check-circle me-2"></i>Confirmar Recebimento';
+        Swal.fire({
+            icon: 'error',
+            title: 'Erro na confirmação',
+            text: error.message,
+            willClose: () => {
+                window.location.reload();
+            }
+        });
     });
+}
+
+function mostrarRespostaAtual() {
+    if (!window.respostasData?.length || window.currentRespostaIndex < 0) return;
+
+    const resposta = window.respostasData[window.currentRespostaIndex];
+    const btnConfirmar = document.getElementById("btnConfirmar");
+    
+    // Estado inicial de loading
+    btnConfirmar.disabled = true;
+    btnConfirmar.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Carregando...';
+    btnConfirmar.classList.remove("btn-success", "btn-danger");
+    btnConfirmar.classList.add("btn-primary");
+
+    // Verificação de status no servidor
+    fetch(`/centro/solicitacao/${resposta.id_resposta}/status`)
+    .then(response => {
+        if (!response.ok) throw new Error('Falha ao verificar status');
+        return response.json();
+    })
+    .then(status => {
+        if (status.confirmado) {
+            btnConfirmar.disabled = true;
+            btnConfirmar.classList.replace("btn-primary", "btn-success");
+            btnConfirmar.innerHTML = '<i class="fas fa-check-circle me-2"></i>Confirmado';
+            
+                    btnPdf.removeAttribute('disabled');
+                    btnPdf.onclick = () => {
+                        window.open(`/respostas/${resposta.id_resposta}/relatorio`, '_blank');
+                    };
+               
+        } else {
+            btnConfirmar.disabled = false;
+            btnConfirmar.classList.replace("btn-success", "btn-primary");
+            btnConfirmar.innerHTML = '<i class="fas fa-check-circle me-2"></i>Confirmar Recebimento';
+            btnPdf.setAttribute('disabled', true);
+            btnPdf.onclick = null;
+        }
+    })
+    .catch(error => {
+        console.error("Erro ao verificar status:", error);
+        btnConfirmar.disabled = true;
+        btnConfirmar.innerHTML = '<i class="fas fa-times-circle me-2"></i>Erro ao verificar status';
+    });
+
+    // Restante da lógica de exibição
+    document.getElementById('respostaIdAtual').value = resposta.id_resposta;
+    const footer = document.getElementById('footerNavegacao');
+    footer.style.display = window.respostasData.length > 1 ? 'flex' : 'none';
+
+    // Atualizar dados da resposta
+    document.getElementById('respostaTipoSanguineo').textContent = resposta.solicitacao.tipo_sanguineo || '-';
+    document.getElementById('respostaQuantidade').textContent = resposta.solicitacao.quantidade || '0';
+    document.getElementById('respostaPrazo').textContent = resposta.solicitacao.prazo ? 
+        new Date(resposta.solicitacao.prazo).toLocaleDateString('pt-BR') : '-';
+    
+    const centroDoador = resposta?.centro_doador || {};
+    document.getElementById('respostaCentroDoador').textContent = centroDoador.nome || 'Centro desconhecido';
+    document.getElementById('respostaEnderecoCentro').textContent = centroDoador.endereco || 'Endereço não cadastrado';
+    document.getElementById('respostaTelefoneCentro').textContent = centroDoador.telefone || 'N/D';
+    document.getElementById('respostaQuantidadeOferecida').textContent = resposta?.quantidade_aceita || '0';
+
+    // Controles de navegação
+    document.getElementById('respostaContador').textContent = 
+        `${window.currentRespostaIndex + 1} de ${window.respostasData.length}`;
+    
+    document.getElementById('btnAnterior').disabled = window.currentRespostaIndex === 0;
+    document.getElementById('btnProximo').disabled = 
+        window.currentRespostaIndex === window.respostasData.length - 1;
+
+    // Mapa
+    if (resposta.solicitacao.centro_solicitante && resposta.centro_doador) {
+        inicializarMapa(
+            resposta.solicitacao.centro_solicitante,
+            resposta.centro_doador
+        );
+    }
 }
 
 
 
+
+function excluirSolicitacao(idSol) {
+    Swal.fire({
+        title: 'Confirmar exclusão?',
+        text: "Esta ação não poderá ser desfeita!",
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#3085d6',
+        cancelButtonColor: '#d33',
+        confirmButtonText: 'Sim, excluir!',
+        cancelButtonText: 'Cancelar'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            // AJAX para exclusão
+            fetch(`/centro/solicitacao/${idSol}`, {
+                method: 'DELETE',
+                headers: {
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json'
+                }
+            })
+            .then(response => {
+                if (!response.ok) throw new Error(response.statusText);
+                return response.json();
+            })
+            .then(data => {
+                if (data.success) {
+                    Toast.fire({
+                        icon: 'success',
+                        title: 'Solicitação excluída com sucesso!'
+                    });
+                    // Atualizar a lista ou recarregar a página
+                    setTimeout(() => window.location.reload(), 1500);
+                }
+            })
+            .catch(error => {
+                Swal.fire('Erro!', 'Não foi possível excluir a solicitação', 'error');
+                console.error('Error:', error);
+            });
+        }
+    });
+}
+
+// Inicializar o SweetAlert
+const Toast = Swal.mixin({
+    toast: true,
+    position: 'top-end',
+    showConfirmButton: false,
+    timer: 3000,
+    timerProgressBar: true
+});
+
+
+
+window.respostasData = [];
+window.currentRespostaIndex = 0;
+
+window.carregarRespostas = function(idSol) {
+    fetch(`/centro/solicitacao/${idSol}/respostas`, {
+        headers: {
+            'X-Requested-With': 'XMLHttpRequest',
+            'Accept': 'application/json'
+        }
+    })
+    .then(async response => {
+        const contentType = response.headers.get('content-type');
+        if (!contentType?.includes('application/json')) {
+            const text = await response.text();
+            throw new Error(`Resposta inválida: ${text.slice(0, 100)}...`);
+        }
+        return response.json();
+    })
+    .then(data => {
+        if (!data?.success || !data.data?.length) {
+            throw new Error(data?.message || 'Nenhuma resposta encontrada');
+        }
+        
+        // Atualize as variáveis GLOBAIS
+        window.respostasData = data.data;
+        window.currentRespostaIndex = 0;
+
+        const footer = document.getElementById('footerNavegacao');
+        footer.style.display = (window.respostasData.length > 1) ? 'flex' : 'none';
+        
+        mostrarRespostaAtual();
+        new bootstrap.Modal(document.getElementById('modalVerRespostas')).show();
+    })
+    .catch(error => {
+        console.error('Erro:', error);
+        Swal.fire('Erro!', error.message, 'error');
+    });
+};
+
+
+// 4. Controles de navegação corrigidos
+window.proximaResposta = function() {
+    if (window.currentRespostaIndex < window.respostasData.length - 1) {
+        window.currentRespostaIndex++;
+        mostrarRespostaAtual();
+    }
+};
+
+window.respostaAnterior = function() {
+    if (window.currentRespostaIndex > 0) {
+        window.currentRespostaIndex--;
+        mostrarRespostaAtual();
+    }
+};
 
 </script>
 @endsection

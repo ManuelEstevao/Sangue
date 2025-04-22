@@ -176,7 +176,7 @@ public function exportarPdf(Request $request)
     $doadores = $this->filtrarDoadores($request)->get();
 
     $pdf = Pdf::loadView('centro.pdf.doador', compact('doadores', 'centro'));
-    return $pdf->download('lista_doadores.pdf');
+    return $pdf->download('Lista de doadores.pdf');
 }
 
 

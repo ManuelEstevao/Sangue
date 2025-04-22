@@ -1,6 +1,7 @@
 <?php
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\navController;
+use App\Http\Controllers\NotificacaoController;
 use App\Http\Controllers\loginController;
 use App\Http\Controllers\CadastroController;
 use App\Http\Controllers\dadorController;
@@ -14,6 +15,7 @@ use App\Http\Controllers\AgendamentoCentroController;
 use App\Http\Controllers\CampanhaController;
 use App\Http\Controllers\DoacaoController;
 use App\Http\Controllers\SolicitacaoController;
+use App\Http\Controllers\RespostasController;
 use App\Http\Controllers\EstoqueController;
 use App\Http\Controllers\Adm\DashboardController;
 
@@ -96,6 +98,8 @@ Route::middleware('auth')->group(function () {
         Route::get('/listar/doadores', [CentroController::class, 'listarDoadores'])->name('listar.doador');
         Route::get('/centro/doador/pdf', [CentroController::class, 'exportarPdf'])->name('centro.doador.pdf');
 
+        Route::get('/centro/notificacao', [NotificacaoController::class, 'index'])->name('centro.notify');
+
         //Estoque do centro
         Route::controller(EstoqueController::class)->group(function () {
         Route::get('/estoque',  'index')->name('estoque.index');
@@ -151,14 +155,21 @@ Route::middleware('auth')->group(function () {
         Route::get('/{id}/edit', [SolicitacaoController::class, 'edit'])->name('edit');
         Route::put('/{id}', [SolicitacaoController::class, 'update'])->name('update');
         Route::delete('/{id}', [SolicitacaoController::class, 'destroy'])->name('destroy');
-        Route::get('/exportar-pdf', [SolicitacaoController::class, 'exportarPdf'])->name('exportarPdf');
-
         Route::post('/{id}/responder', [SolicitacaoController::class, 'responder'])->name('responder');
         Route::get('/{id}/dados-oferta', [SolicitacaoController::class, 'dadosOferta'])->name('dados-oferta');
         Route::get('respostas/{idResposta}/detalhes', [SolicitacaoController::class, 'detalhesResposta'])->name('detalhes');
-       
         Route::post('/respostas/{idResposta}/confirmar-recebimento', [SolicitacaoController::class, 'confirmarRecebimento'])->name('confirmar.recebimento');
+        Route::get('{id}/status', [SolicitacaoController::class, 'verificarStatusResposta'])->name('respostas.status');
+        Route::get('/{id}/respostas', [SolicitacaoController::class, 'listarRespostas']) ->name('solicitacao.respostas');
+        Route::delete('/{id}', [SolicitacaoController::class, 'destroy']) ->name('destroy');
     });
+
+    Route::get('/respostas/{id}/relatorio', [RespostasController::class, 'gerarRelatorio'])
+     ->name('solicitante.relatorio');
+     
+    Route::get('/respostas/{id}/relatorio-doador', [RespostasController::class, 'gerarRelatorioDoador'])
+    ->name('doador.relatorio');
+
 
 });
 

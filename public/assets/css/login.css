@@ -213,3 +213,31 @@ h2::after {
     margin: 0;
     font-size: 0.9rem;
 }
+/*
+
+.password-recovery {
+    text-align: right;
+    margin: -10px 0 15px;
+}
+
+.password-recovery a {
+    color: var(--primary-red);
+    font-size: 0.85em;
+    text-decoration: none;
+    position: relative;
+}
+
+.password-recovery a::after {
+    content: '';
+    position: absolute;
+    bottom: -2px;
+    left: 0;
+    width: 0;
+    height: 1px;
+    background: var(--secondary-red);
+    transition: width 0.3s ease;
+}
+
+.password-recovery a:hover::after {
+    width: 100%;
+}*/
