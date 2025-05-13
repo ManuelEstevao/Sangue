@@ -93,7 +93,7 @@
 @endsection
 
 @section('conteudo')
-   
+
     <div class="container-fluid">
         <div class="p-4">
             <!-- Linha de Cards -->
@@ -416,6 +416,8 @@
     }
 }
 </style>
+
+
 @foreach ($agendamentos as $agendamento)
 <div class="modal fade" id="editModal{{ $agendamento->id_agendamento }}" tabindex="-1" aria-labelledby="editModalLabel{{ $agendamento->id_agendamento }}" aria-hidden="true">
      <div class="modal-dialog">
@@ -456,16 +458,30 @@
 </div>
 @endforeach
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    // 1) ler a mensagem, se existir
+    const msg = localStorage.getItem('success_questionario');
+    if (msg) {
+      Swal.fire({
+        icon: 'success',
+        title: 'Pré Triagem concluída!',
+        text: msg,
+        confirmButtonText: 'Óptimo'
+      });
+      // 2) remover para não repetir no próximo carregamento
+      localStorage.removeItem('success_questionario');
+    }
 
-<!-- Exibir mensagem de erro -->
-@if(session('error'))
-    <script>
-        Swal.fire({
-            icon: 'error',
-            title: 'Atenção!',
-            text: "{{ session('error') }}",
-            confirmButtonText: 'OK'
-        });
-    </script>
-@endif
+    // Também exibimos quaisquer erros de elegibilidade vindos do controller->create()
+    @if(session('error'))
+      Swal.fire({
+        icon: 'error',
+        title: 'Atenção',
+        text: "{{ session('error') }}",
+        confirmButtonText: 'OK'
+      });
+    @endif
+  });
+</script>
 @endsection

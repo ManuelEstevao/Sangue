@@ -7,6 +7,7 @@ use App\Models\Doacao;
 use App\Models\Doador;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Support\Facades\Auth;
+use App\Models\Notificacao;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Storage;
 use Carbon\Carbon; 
@@ -29,7 +30,13 @@ class HistoricoDoacaoController extends Controller
         ->orderBy('data_doacao', 'desc')
         ->paginate(10);
 
-        return view('dador.historico', compact('doacoes'));
+        $notificacoes = Auth::user()->notificacoes()
+        ->where('lida', false)
+        ->with(['agendamento.centro'])
+        ->orderBy('data_envio', 'desc')
+        ->get();
+
+        return view('dador.historico', compact('doacoes','notificacoes'));
     }
 
     

@@ -59,10 +59,14 @@
                                             <h3 class="h4 mb-0">{{ $campanha->centro->nome }}</h3>
                                         </div>
                                         <ul class="list-unstyled">
-                                            <li class="mb-2">
-                                                <i class="bi bi-geo-alt-fill me-2"></i>
+                                        <li class="mb-2">
+                                            <i class="bi bi-geo-alt-fill me-2"></i>
+                                            @if(!empty($campanha->endereco))
+                                                {{ $campanha->endereco }}
+                                            @else
                                                 {{ $campanha->centro->endereco }}
-                                            </li>
+                                            @endif
+                                        </li>
                                             <li class="mb-2">
                                                 <i class="bi bi-clock-fill me-2"></i>
                                                 {{ $campanha->hora_inicio }} - {{ $campanha->hora_fim }}
@@ -86,9 +90,6 @@
                                     <!-- Botões de Ação -->
                                     <div class="mt-auto" data-aos="fade-up">
                                         <div class="d-grid gap-3 d-md-flex">
-                                            <a href="#" class="btn btn-danger btn-lg px-4 py-3">
-                                                <i class="bi bi-heart-pulse-fill me-2"></i>Participar
-                                            </a>
                                             <a href="javascript:void(0);" 
                                                 class="btn btn-outline-secondary btn-lg px-4 py-3" 
                                                 onclick="window.history.back();">

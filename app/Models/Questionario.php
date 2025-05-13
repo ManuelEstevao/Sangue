@@ -9,6 +9,8 @@ class Questionario extends Model
 {
     use HasFactory;
 
+    public $timestamps = false;    
+    protected $table = 'questionario';
     protected $primaryKey = 'id_questionario';
 
     protected $fillable = [

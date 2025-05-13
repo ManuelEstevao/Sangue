@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>@yield('title', 'ConectaDador')</title>
     <!-- Bootstrap CSS -->
@@ -116,32 +117,87 @@
         <div class="main flex-grow-1">
             <!-- Navbar Superior -->
             <nav class="navbar navbar-expand-lg navbar-light bg-white border-bottom px-3 align-items-center gap-2">
-                
+                 @php
+                  use Carbon\Carbon;
+                @endphp
                 <button class="btn" id="sidebar-toggle" type="button">
                     <i class="fa-solid fa-bars"></i>
                 </button>
                 <div class="ms-auto d-flex align-items-center">
                 <ul class="navbar-nav me-3">
-                <li class="nav-item dropdown">
-                    <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
-                        <i class="fa fa-bell"></i>
-                        @if($notificacoes->count() > 0)
-                        <span class="badge bg-danger">{{ $notificacoes->count() }}</span>
-                        @endif
-                    </a>
-                    <ul class="dropdown-menu dropdown-menu-end">
-                        @forelse($notificacoes as $notificacao)
-                        <li>
-                            <a class="dropdown-item" href="#">
-                            {{ $notificacao->titulo }} <br>
-                            <small class="text-muted">{{ $notificacao->data_envio->diffForHumans() }}</small>
-                            </a>
-                        </li>
-                        @empty
-                        <li><span class="dropdown-item text-muted">Sem notificações</span></li>
-                        @endforelse
-                    </ul>
-                </li>
+          <li class="nav-item topbar-icon dropdown hidden-caret">
+    <a class="nav-link dropdown-toggle" href="#" id="notifDropdown" role="button"
+       data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+        <i class="fa fa-bell"></i>
+        @if($naoLidas > 0)
+            <span class="notification pulse">{{ $naoLidas }}</span>
+        @endif
+    </a>
+    <ul class="dropdown-menu dropdown-menu-end notif-box animated fadeIn py-0" 
+        aria-labelledby="notifDropdown"
+        style="width: 350px; max-height: 70vh; overflow-y: auto;">
+        
+        <li class="dropdown-header bg-light py-3">
+            <div class="d-flex justify-content-between align-items-center">
+                <h6 class="mb-0">
+                    <i class="fas fa-bell me-2"></i>
+                    Notificações ({{ $naoLidas }})
+                </h6>
+                @if($naoLidas > 0)
+                    <button id="mark-all-read-btn" 
+                        class="btn btn-sm btn-link text-danger"
+                        onclick="markAllAsRead()">
+                    Marcar  como lidas
+                </button>
+                @endif
+            </div>
+        </li>
+
+        <li>
+            <div class="notif-scroll scrollbar-outer">
+                <div class="list-group list-group-flush">
+                    @forelse($notificacoes as $notif)
+                        <a href="{{ $notif->link }}" 
+                           class="list-group-item list-group-item-action border-bottom py-3"
+                           onclick="markNotificationAsRead({{ $notif->id_notificacao }})">
+                            <div class="d-flex align-items-start">
+                                <div class="me-3">
+                                    <div class="icon-circle bg-{{ $notif->tipo === 'urgente' ? 'danger' : 'primary' }}">
+                                        <i class="fas fa-{{ $notif->tipo === 'agendamento' ? 'calendar' : 'exclamation' }} text-white"></i>
+                                    </div>
+                                </div>
+                                <div class="flex-grow-1">
+                                    <div class="mb-1">
+                                        <span class="fw-bold">{{ $notif->titulo }}</span>
+                                        <span class="text-muted float-end small">
+                                            {{ Carbon::parse($notif->data_envio)->diffForHumans() }}
+                                        </span>
+                                    </div>
+                                    <p class="small mb-0 text-muted">
+                                        {{ $notif->mensagem }}
+                                    </p>
+                                </div>
+                            </div>
+                        </a>
+                    @empty
+                        <div class="text-center py-4">
+                            <i class="fas fa-bell-slash fa-2x text-muted mb-3"></i>
+                            <p class="text-muted small mb-0">Nenhuma nova notificação</p>
+                        </div>
+                    @endforelse
+                </div>
+            </div>
+        </li>
+
+        <li class="dropdown-footer bg-light py-2">
+            <a href="#" 
+               class="text-center d-block small text-decoration-none">
+                Ver histórico completo
+            </a>
+        </li>
+    </ul>
+</li>
+
                     @php
                             $doador=Auth::user()->doador;
                             $nomeCompleto = Auth::user()->doador->nome;
@@ -184,7 +240,17 @@
                     </ul>
                 </div>
             </nav>
-
+<!-- Adicione isto antes do fechamento do body -->
+<div id="toast-container" class="toast-container position-fixed bottom-0 end-0 p-3">
+    <div id="liveToast" class="toast" role="alert" aria-live="assertive" aria-atomic="true">
+        <div class="toast-header">
+            <strong class="me-auto">Sistema</strong>
+            <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+        </div>
+        <div class="toast-body" id="toast-message"></div>
+    </div>
+</div>
+    
             <!-- Conteúdo Principal -->
             <main class="content p-3">
                 @yield('conteudo')
@@ -193,11 +259,77 @@
     </div>
 
     <!-- Bootstrap Bundle JS -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="{{ url('assets/vendor/bootstrap/js/bootstrap.bundle.min.js') }}"></script>
-    <script src="{{ asset('assets/Centro/assets/js/plugin/bootstrap-notify/bootstrap-notify.min.js') }}"></script>
     <!-- Custom Script -->
     <script src="{{ asset('assets/js/script.js') }}"></script>
     <script src="{{ asset('assets/Centro/assets/js/plugin/sweetalert/sweetalert.min.js') }}"></script>
+   <script>
+   function markAllAsRead() {
+    const counter = document.querySelector('.notification');
+    const notificationList = document.querySelector('.notif-scroll');
+    const button = document.getElementById('mark-all-read-btn');
+
+    if (!counter || !notificationList || !button) {
+        console.error('Elementos necessários não encontrados');
+        return;
+    }
+
+    // Bloqueia e mostra loading
+    const originalContent = button.innerHTML;
+    button.disabled = true;
+    button.innerHTML = '<i class="fas fa-spinner fa-pulse"></i> Processando...';
+
+    fetch('/notificacoes/marcar-todas-lidas', {
+        method: 'POST',
+        headers: {
+            'X-CSRF-TOKEN': '{{ csrf_token() }}',
+            'Accept': 'application/json'
+        }
+    })
+    .then(response => {
+        if (!response.ok) throw new Error('Falha na requisição');
+        
+        // Atualizações visuais
+        counter.remove();
+        
+        // Remove todas as notificações
+        notificationList.querySelectorAll('.list-group-item').forEach(item => {
+            item.style.opacity = '0';
+            setTimeout(() => item.remove(), 300);
+        });
+
+        // Atualiza o botão
+        button.outerHTML = '<small class="text-muted">Todas marcadas como lidas</small>';
+        
+        // Mostra feedback
+        showToast('Todas as notificações foram marcadas como lidas!', 'success');
+    })
+    .catch(error => {
+        console.error('Erro:', error);
+        showToast('Erro ao marcar notificações: ' + error.message, 'danger');
+        button.disabled = false;
+        button.innerHTML = originalContent;
+    });
+}
+
+// Função de toast corrigida
+function showToast(message, type = 'success') {
+    const toastElement = document.getElementById('liveToast');
+    const toastBody = document.getElementById('toast-message');
+    
+    // Remove classes anteriores
+    toastElement.classList.remove('text-bg-success', 'text-bg-danger');
+    
+    // Adiciona classes conforme o tipo
+    toastElement.classList.add(`text-bg-${type}`);
+    toastBody.textContent = message;
+    
+    // Inicializa e mostra o toast
+    const toast = new bootstrap.Toast(toastElement);
+    toast.show();
+}
+    </script>
     @yield('scripts')
 </body>
 </html>

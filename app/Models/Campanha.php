@@ -24,6 +24,7 @@ class Campanha extends Model
         'data_fim',
         'hora_inicio',
         'hora_fim',
+        'endereco',
         'foto',
         'id_centro'
     ];

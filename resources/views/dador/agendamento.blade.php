@@ -39,9 +39,25 @@
         box-shadow: 0 2px 4px rgba(0,0,0,0.1);
     }
     .btn-confirm {
-        padding: 0.5rem 1rem; /* Ajuste conforme necessário */
-        font-size: 1rem;      /* Tamanho da fonte */
+        padding: 0.5rem 1rem; 
+        font-size: 1rem;      
     }
+
+    .invalid-feedback {
+    display: block;
+    margin-top: 0.25rem;
+    font-size: 0.875em;
+    color: #dc3545;
+}
+
+.is-invalid {
+    border-color: #dc3545;
+    padding-right: calc(1.5em + 0.75rem);
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12' width='12' height='12' fill='none' stroke='%23dc3545'%3e%3ccircle cx='6' cy='6' r='4.5'/%3e%3cpath stroke-linejoin='round' d='M5.8 3.6h.4L6 6.5z'/%3e%3ccircle cx='6' cy='8.2' r='.6' fill='%23dc3545' stroke='none'/%3e%3c/svg%3e");
+    background-repeat: no-repeat;
+    background-position: right calc(0.375em + 0.1875rem) center;
+    background-size: calc(0.75em + 0.375rem) calc(0.75em + 0.375rem);
+}
 </style>
 @endsection
 
@@ -133,11 +149,32 @@
         </div>
     </div>
 </div>
+
+<!-- Modal do Questionário -->
+<div class="modal fade" id="questionarioModal" data-bs-backdrop="static">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header bg-danger text-white">
+                    <h5 class="modal-title">Questionário de Triagem</h5>
+                </div>
+                <form id="questionarioForm" method="POST">
+                    @csrf
+                    <div class="modal-body">
+                        @include('dador.partials.questionario')
+                    </div>
+                    <div class="modal-footer">
+                        <button type="submit" class="btn btn-danger">Enviar Respostas</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+</div>
 @endsection
 
 @section('scripts')
 <script src="https://api-maps.yandex.ru/2.1/?lang=pt_PT&apikey=db51d640-6b39-495c-b35b-c2ec8a719fc9" type="text/javascript"></script>
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
 <script>
     ymaps.ready(init);
@@ -242,14 +279,46 @@
             <p class="small"><i class="fas fa-phone"></i> ${centro[centroId].telefone}</p>
         `;
     }
+//data
+    document.querySelector('input[name="data_agendada"]').addEventListener('change', checkBlockedDate);
+document.getElementById('id_centro').addEventListener('change', checkBlockedDate);
+
+async function checkBlockedDate() {
+    const dataInput = document.querySelector('input[name="data_agendada"]');
+    const centroSelect = document.getElementById('id_centro');
+    const submitBtn = document.querySelector('button[type="submit"]');
+
+    if (dataInput.value && centroSelect.value) {
+        try {
+            const response = await fetch(`/centro/verificar-data-bloqueada?centro=${centroSelect.value}&data=${dataInput.value}`);
+            const result = await response.json();
+            
+            if (result.bloqueado) {
+                dataInput.classList.add('is-invalid');
+                submitBtn.disabled = true;
+                
+                // Cria elemento de erro se não existir
+                if (!document.getElementById('data-error')) {
+                    const errorDiv = document.createElement('div');
+                    errorDiv.id = 'data-error';
+                    errorDiv.className = 'invalid-feedback';
+                    errorDiv.textContent = result.motivo || 'Data bloqueada para agendamentos';
+                    dataInput.parentElement.appendChild(errorDiv);
+                }
+                
+                Swal.fire('Data Indisponível', result.motivo || 'Este dia está bloqueado', 'warning');
+            } else {
+                dataInput.classList.remove('is-invalid');
+                submitBtn.disabled = false;
+                const errorDiv = document.getElementById('data-error');
+                if (errorDiv) errorDiv.remove();
+            }
+        } catch (error) {
+            console.error('Erro na verificação:', error);
+        }
+    }
+}
     document.addEventListener("DOMContentLoaded", function () {
-        @if(session('error'))
-            Swal.fire({
-                icon: 'error',
-                title: 'Erro!',
-                text: "{{ session('error') }}",
-            });
-        @endif
 
         @if(session('success'))
             Swal.fire({
@@ -259,19 +328,106 @@
             });
         @endif
 
-        @if ($errors->any())
-            let errorMessages = "";
-            @foreach ($errors->all() as $error)
-                errorMessages += "{{ $error }}<br>";
-            @endforeach
-
-            Swal.fire({
-                icon: 'error',
-                title: 'Erro no Agendamento',
-                html: errorMessages,
-                confirmButtonColor: '#d33'
-            });
-        @endif
     });
+//questionario e comprovativo
+    document.addEventListener('DOMContentLoaded', () => {
+  const csrfToken        = document.querySelector('meta[name="csrf-token"]').content;
+  const agForm           = document.querySelector('form[action="{{ route('agendamento.store') }}"]');
+  const questionarioForm = document.getElementById('questionarioForm');
+  const questionarioModal= new bootstrap.Modal(document.getElementById('questionarioModal'));
+  let   agendamentoId    = null;
+
+  // 1️⃣ Submeter Agendamento
+  if (agForm) {
+      agForm.addEventListener('submit', async e => {
+      e.preventDefault();
+      const btn = agForm.querySelector('button[type="submit"]');
+      btn.disabled   = true;
+      btn.innerHTML  = '<i class="fas fa-spinner fa-spin"></i> Processando...';
+
+      const resp = await fetch(agForm.action, {
+        method: 'POST',
+        headers: {
+          'X-CSRF-TOKEN':     csrfToken,
+          'X-Requested-With': 'XMLHttpRequest',
+          'Accept':           'application/json'
+        },
+        body: new FormData(agForm)
+      });
+     
+
+      // 422 = erros de validação
+      if (resp.status === 422) {
+        const json     = await resp.json();
+        // Se houver key "global", exibe essa mensagem primeiro
+        const global   = (json.errors.global || []).join('<br>');
+        const fields   = Object.entries(json.errors)
+                               .filter(([k]) => k !== 'global')
+                               .map(([,msgs]) => msgs.join('<br>'))
+                               .join('<br>');
+        Swal.fire({
+          icon: 'error',
+          title: 'Erro no formulário',
+          html: [global, fields].filter(Boolean).join('<br>')
+        });
+        btn.disabled  = false;
+        btn.innerHTML = '<i class="fas fa-calendar-check me-2"></i> Confirmar Agendamento';
+        return;
+      }
+
+      // outros erros HTTP (inclui o global lançado como ValidationException não tratado)
+      if (!resp.ok) {
+        let msg = 'Não foi possível agendar.';
+        try {
+          const json = await resp.json();
+          // se tiver "message" no JSON, use-o
+          msg = json.message || msg;
+        } catch {}
+        Swal.fire('Erro', msg, 'error');
+        btn.disabled  = false;
+        btn.innerHTML = '<i class="fas fa-calendar-check me-2"></i> Confirmar Agendamento';
+        return;
+      }
+
+
+      // sucesso: abre modal de questionário
+      const data = await resp.json();
+      agendamentoId = data.agendamento_id;
+      questionarioForm.action = `/doador/agendamento/${agendamentoId}/questionario`;
+      btn.disabled   = false;
+      btn.innerHTML  = '<i class="fas fa-calendar-check me-2"></i> Confirmar Agendamento';
+      questionarioModal.show();
+    });
+  }
+
+  // 2️⃣ Submeter Questionário e baixar PDF
+  if (questionarioForm) {
+    questionarioForm.addEventListener('submit', async e => {
+      e.preventDefault();
+      const btn = questionarioForm.querySelector('button[type="submit"]');
+      btn.disabled   = true;
+      btn.innerHTML  = '<i class="fas fa-spinner fa-spin"></i> Enviando...';
+
+      const resp = await fetch(questionarioForm.action, {
+        method: 'POST',
+        headers: {
+          'X-CSRF-TOKEN':     csrfToken,
+          'X-Requested-With': 'XMLHttpRequest',
+          'Accept':           'application/json'
+        },
+        body: new FormData(questionarioForm)
+      });
+
+      
+    
+      const data = await resp.json();
+
+      // 1) Abre o PDF em nova aba
+      window.open(data.pdf_url, '_blank');
+      localStorage.setItem('success_questionario', data.message);
+      window.location.href = data.redirect_url;
+    });
+  }
+});
 </script>
 @endsection

@@ -3,12 +3,13 @@
   <head>
     <meta charset="UTF-8" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>@yield('title', 'ConectaDador Admin')</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no" />
     <link href="assets/img/flavicon.png" rel="icon">
 
     <!-- Fonts e Ícones -->
-    <script src="{{ asset('assets/js/plugin/webfont/webfont.min.js') }}"></script>
+    <script src="{{ asset('assets/Centro/assets/js/plugin/webfont/webfont.min.js') }}"></script>
     <script>
       WebFont.load({
         google: { families: ["Public Sans:300,400,500,600,700"] },
@@ -19,7 +20,7 @@
             "Font Awesome 5 Brands",
             "simple-line-icons"
           ],
-          urls: ["{{ asset('assets/css/fonts.min.css') }}"]
+          urls: ["{{ asset('assets/Centro/assets/css/fonts.min.css') }}"]
         },
         active: function () {
           sessionStorage.fonts = true;
@@ -28,6 +29,7 @@
     </script>
 
     <!-- CSS Files -->
+     
     <link href="{{ url('assets/vendor/bootstrap/css/bootstrap.min.css') }}" rel="stylesheet">
     <link rel="stylesheet" href="{{ url('assets/Centro/assets/css/plugins.min.css') }}" />
     <link rel="stylesheet" href="{{ url('assets/Centro/assets/css/kaiadmin.min.css') }}" />
@@ -35,6 +37,7 @@
     <!--<link rel="stylesheet" href="{{ asset('assets/css/responsive.css') }}">-->
     <!-- CSS Just for demo purpose -->
     <link rel="stylesheet" href="{{ url('assets/Centro/assets/css/demo.css') }}">
+    <link href="assets/img/flavicon.png" rel="icon">
 
     @stack('styles')
   </head>
@@ -44,8 +47,9 @@
       <div class="sidebar" data-background-color="dark">
         <div class="sidebar-logo">
           <div class="logo-header" data-background-color="dark">
-            <a href="" class="logo">
-              ConectaDador Admin
+          <i class="fas fa-tint  logo text-white h3" style="margin-right: 10px;"></i> 
+            <a href="" class="logo text-white h3">
+              ConectaDador
             </a>
             <div class="nav-toggle">
               <button class="btn btn-toggle toggle-sidebar">
@@ -72,32 +76,39 @@
               </li>
 
               <span class="sidebar-title">Doadores</span>
-              <li class="nav-item {{ request()->routeIs('doadores.lista') ? 'active' : '' }}">
-                  <a href="">
+              <li class="nav-item {{ request()->routeIs('listaD') ? 'active' : '' }}">
+                  <a href="{{ route('listaD') }}">
                       <i class="fas fa-user-check"></i>
                       <p>Lista de Doadores</p>
                   </a>
               </li>
+              <span class="sidebar-title">centro</span>
+              <li class="nav-item {{ request()->routeIs('centros.lista') ? 'active' : '' }}">
+                <a href="{{ route('centros.lista') }}">
+                    <i class="fas fa-building"></i>
+                    <p>Lista de Centros</p>
+                </a>
+            </li>
+            <li class="nav-item {{ request()->routeIs('centro.mapa') ? 'active' : '' }}">
+                <a href="{{ route('centro.mapa') }}">
+                    <i class="fas fa-map-marker-alt"></i>
+                    <p>Mapa de Centros</p>
+                </a>
+            </li>
 
               <span class="sidebar-title">Agendamentos</span>
               <li class="nav-item {{ request()->routeIs('agendamentos.todos') ? 'active' : '' }}">
-                  <a href="">
+                  <a href="{{ route('agendamentos.todos') }}">
                       <i class="fas fa-calendar-check"></i>
                       <p>Todos os Agendamentos</p>
                   </a>
               </li>
 
-              <span class="sidebar-title">Campanhas e Centros</span>
+              <span class="sidebar-title">Campanhas </span>
               <li class="nav-item {{ request()->routeIs('campanhas.gerenciar') ? 'active' : '' }}">
                   <a href="">
                       <i class="fas fa-bullhorn"></i>
                       <p>Gerenciar Campanhas</p>
-                  </a>
-              </li>
-              <li class="nav-item {{ request()->routeIs('centros.doacao') ? 'active' : '' }}">
-                  <a href="">
-                      <i class="fas fa-map-marker-alt"></i>
-                      <p>Centros de Doação</p>
                   </a>
               </li>
 
@@ -111,7 +122,7 @@
                   <div class="collapse" id="relatorios">
                       <ul class="nav nav-collapse">
                           <li><a href=""><span class="sub-item">Diário</span></a></li>
-                          <li><a href=""><span class="sub-item">Sazonal</span></a></li>
+                          <li><a href=""><span class="sub-item">Mensal</span></a></li>
                           <li><a href=""><span class="sub-item">Por Centro</span></a></li>
                       </ul>
                   </div>
@@ -133,8 +144,8 @@
               </li>
 
               <span class="sidebar-title">Usuários</span>
-              <li class="nav-item {{ request()->routeIs('usuarios.gerenciar') ? 'active' : '' }}">
-                  <a href="">
+              <li class="nav-item {{ request()->routeIs('admin.usuarios.index') ? 'active' : '' }}">
+                  <a href="{{ route('admin.usuarios.index') }}">
                       <i class="fas fa-users-cog"></i>
                       <p>Gerenciar Usuários</p>
                   </a>
@@ -159,7 +170,7 @@
           <div class="main-header-logo">
             <div class="logo-header" data-background-color="dark">
               <a href="" class="logo">
-                <img src="{{ asset('assets/img/kaiadmin/logo_light.svg') }}" alt="Logo" class="navbar-brand" height="20" />
+                <img src="{{ asset('assets/img/profile.png')}}" alt="Logo" class="navbar-brand" height="20" />
               </a>
               <div class="nav-toggle">
                 <button class="btn btn-toggle toggle-sidebar">
@@ -191,11 +202,10 @@
                 <li class="nav-item topbar-user dropdown hidden-caret">
                   <a class="dropdown-toggle profile-pic" data-bs-toggle="dropdown" href="#" aria-expanded="false">
                     <div class="avatar-sm">
-                      <img src="{{ asset('assets/img/profile.jpg') }}" alt="avatar" class="avatar-img rounded-circle" />
+                      <img src="{{ asset('assets/img/profile.png') }}" alt="avatar" class="avatar-img rounded-circle" />
                     </div>
                     <span class="profile-username">
-                      <span class="op-7">Olá,</span>
-                      <span class="fw-bold">Admin</span>
+                    <span class="fw-bold">Admin</span>
                     </span>
                   </a>
                   <ul class="dropdown-menu dropdown-user animated fadeIn">
@@ -216,7 +226,11 @@
                         <div class="dropdown-divider"></div>
                         <a class="dropdown-item" href="">Meu Perfil</a>
                         <a class="dropdown-item" href="">Configurações</a>
-                        <a class="dropdown-item" href="{{ route('logout') }}">Sair</a>
+                        
+                        <form method="POST" action="{{ route('logout') }}">
+                          @csrf
+                          <button class="dropdown-item" type="submit">Sair</button>
+                        </form>
                       </li>
                     </div>
                   </ul>
@@ -241,7 +255,7 @@
           <div class="container-fluid d-flex justify-content-between">
             <div class="copyright">
               © {{ date('Y') }} ConectaDador, feito com <i class="fa fa-heart heart text-danger"></i> por
-              <a href="#">manuelestev </a>
+              <a href="#">ManuelEstevao & CatiaDiogo</a> 
             </div>
           </div>
         </footer>
@@ -263,7 +277,8 @@
     <script src="{{ asset('assets/Centro/assets/js/plugin/gmaps/gmaps.js') }}"></script>
     <script src="{{ asset('assets/Centro/assets/js/plugin/sweetalert/sweetalert.min.js') }}"></script>
     <script src="{{ asset('assets/Centro/assets/js/kaiadmin.min.js') }}"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
-    @stack('scripts')
+    @yield('scripts')
   </body>
 </html>

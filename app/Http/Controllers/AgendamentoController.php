@@ -3,12 +3,17 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use App\Models\Notificacao;
 use App\Models\Agendamento;
 use App\Models\Centro;
+use App\Models\User;
 use App\Models\Campanha;
 use App\Models\Doador;
 use Illuminate\Support\Facades\Auth;
+use App\Notifications\AgendamentoNotification;
+use Illuminate\Validation\ValidationException;
 use Illuminate\Support\Facades\Session;
+use App\Models\DiaBloqueado;
 use Carbon\Carbon; 
 
 
@@ -104,32 +109,45 @@ class AgendamentoController extends Controller
     $centro = Centro::findOrFail($request->id_centro);
     $capacidadeMaxima = $centro->capacidade_maxima;
 
-    // Impedir escolha de horários passados no dia atual
-    if ($request->data_agendada == now()->toDateString() && strtotime($request->horario) < strtotime(now()->format('H:i'))) {
-        return redirect()->back()->withErrors(['horario' => 'Você não pode selecionar um horário que já passou.']);
-    }
-    // Verificar capacidade máxima no horário
-    $agendamentosNoHorario = Agendamento::where('id_centro', $request->id_centro)
-        ->where('data_agendada', $request->data_agendada)
-        ->where('horario', $request->horario)
-        ->count();
+    $diaBloqueado = DiaBloqueado::where('id_centro', $request->id_centro)
+    ->whereDate('data', $request->data_agendada)
+    ->first();
 
-    // Se a capacidade foi atingida, bloquear o agendamento
-    if ($agendamentosNoHorario >= $capacidadeMaxima) {
-        return redirect()->back()->withErrors([
-            'horario' => 'Este horário já atingiu a capacidade máxima de doadores.',
+    if ($diaBloqueado) {
+        throw ValidationException::withMessages([
+            'data_agendada' => $diaBloqueado->motivo ?? 'Esta data está bloqueada para agendamentos'
         ]);
     }
+        if ($request->data_agendada == now()->toDateString()
+            && strtotime($request->horario) < strtotime(now()->format('H:i'))
+        ) {
+            throw ValidationException::withMessages([
+                'horario' => ['Você não pode selecionar um horário que já passou.']
+            ]);
+        }
 
-    // Verificar se o doador já tem um agendamento pendente
-    $agendamentoPendente = Agendamento::where('id_doador', $doador->id_doador)
-        ->where('status', 'agendado')
-        ->exists();
+        // 2.2 — Capacidade máxima atingida
+        $count = Agendamento::where('id_centro', $centro->id_centro)
+            ->where('data_agendada', $request->data_agendada)
+            ->where('horario', $request->horario)
+            ->count();
 
-    if ($agendamentoPendente) {
-        return redirect()->back()->with('error', 'Você já tem um agendamento ativo. Conclua ou cancele antes de agendar outro.');
-    }
+        if ($count >= $centro->capacidade_maxima) {
+            throw ValidationException::withMessages([
+                'horario' => ['Este horário já atingiu a capacidade máxima de doadores.']
+            ]);
+        }
 
+        // 2.3 — Já tem agendamento ativo
+        $existe = Agendamento::where('id_doador', $doador->id_doador)
+            ->where('status', 'Agendado')
+            ->exists();
+
+        if ($existe) {
+            throw ValidationException::withMessages([
+                'global' => ['Você já tem um agendamento ativo. Conclua ou cancele antes de agendar outro.']
+            ]);
+        }
     // 🔹 Recuperar o último agendamento do doador (se houver)
     $ultimoAgendamento = Agendamento::where('id_doador', $doador->id_doador)
         ->where('status', 'Concluido')
@@ -151,7 +169,7 @@ class AgendamentoController extends Controller
 
     
     // Criar o agendamento se tudo estiver OK
-    Agendamento::create([
+    $agendamento = Agendamento::create([
         'id_doador' => $doador->id_doador,
         'id_centro' => $request->id_centro,
         'data_agendada' => $request->data_agendada,
@@ -159,7 +177,19 @@ class AgendamentoController extends Controller
         'status' => 'Agendado'
     ]);
 
-    return redirect()->route('doador.Dashbord')->with('success', 'Agendamento realizado com sucesso!');
+    
+        \Log::info("Chamando AgendamentoNotification para centro {$centro->id_user}");
+
+            
+        $centroUser = User::find($agendamento->centro->id_user); 
+        $centroUser->notify(new AgendamentoNotification($agendamento)); 
+
+    
+
+    return response()->json([
+        'success' => true,
+        'agendamento_id' => $agendamento->id_agendamento
+    ]);
 }
 
 

@@ -75,9 +75,9 @@
         <a href="{{ route('centro.exportarPdf', request()->query()) }}" class="btn btn-custom">
             <i class="fas fa-file-pdf me-2"></i> Exportar PDF
         </a>
-        <a href="" class="btn btn-custom">
+       <!--  <a href="" class="btn btn-custom">
             <i class="fas fa-plus me-2"></i> Nova Doação
-        </a>
+         </a>-->
     </div>
 </div>
         
@@ -196,7 +196,7 @@
                                                 </a>
                                             </form>
                                         </li>
-                                        <li><a class="dropdown-item" href="#"><i class="fas fa-file-alt me-2"></i>Relatório</a></li>
+                                        <li><a class="dropdown-item"  href="{{ route('relatorio.doador.pdf', $doacao->agendamento->doador->id_doador) }}"><i class="fas fa-file-alt me-2"></i>Relatório</a></li>
                                     </ul>
                                 </div>
                             </td>
@@ -254,56 +254,67 @@
         </div>
     </div>
 </div>
-
-
 <!-- Modal de Edição de Doação -->
 <div class="modal fade" id="editarDoacaoModal" tabindex="-1" aria-labelledby="editarDoacaoModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content border-0 rounded-4 shadow">
             <form id="editarDoacaoForm" method="POST" action="">
                 @csrf
                 @method('PUT')
-                <div class="modal-header">
+                <div class="modal-header bg-danger text-white rounded-top-4">
                     <h5 class="modal-title" id="editarDoacaoModalLabel">Editar Doação</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Fechar"></button>
                 </div>
-                <div class="modal-body">
-                    <!-- Exemplo de campos para edição -->
-                    <div class="mb-3">
-                        <label>Hemoglobina (g/dL)</label>
-                        <input type="number" step="0.1" name="hemoglobina" id="editHemoglobina" class="form-control" required>
-                    </div>
-                    <div class="mb-3">
-                        <label>Pressão Arterial</label>
-                        <input type="text" name="pressao_arterial" id="editPressao" class="form-control" placeholder="Ex: 120/80" pattern="\d{2,3}/\d{2,3}" required>
-                    </div>
-                    <div class="mb-3">
-                        <label>Volume Coletado (ml)</label>
-                        <input type="number" name="volume_coletado" id="editVolume" class="form-control" required>
-                    </div>
-                    <div class="mb-3">
-                        <label>Peso (kg)</label>
-                        <input type="number" step="0.1" name="peso" id="editPeso" class="form-control" required>
-                    </div>
-                    <div class="mb-3">
-                        <label>Profissional Responsável</label>
-                        <input type="text" name="nome_profissional" id="editProfissional" class="form-control" required>
-                    </div>
-                    <div class="mb-3">
-                        <label>Status da Doação</label>
-                        <select name="status" id="editStatus" class="form-select" required>
-                            <option value="Aprovado">Aprovado</option>
-                            <option value="Reprovado">Reprovado</option>
-                        </select>
-                    </div>
-                    <div class="mb-3">
-                        <label>Observações</label>
-                        <textarea name="observacoes" id="editObservacoes" class="form-control" rows="2"></textarea>
+                <div class="modal-body p-4">
+                    <div class="row g-4">
+                        <!-- Coluna Esquerda -->
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label">Hemoglobina (g/dL)</label>
+                                <input type="number" step="0.1" name="hemoglobina" id="editHemoglobina" class="form-control" required>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label class="form-label">Pressão Arterial</label>
+                                <input type="text" name="pressao_arterial" id="editPressao" class="form-control" placeholder="Ex: 120/80" pattern="\d{2,3}/\d{2,3}" required>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label class="form-label">Profissional Responsável</label>
+                                <input type="text" name="nome_profissional" id="editProfissional" class="form-control" required>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label class="form-label">Status da Doação</label>
+                                <select name="status" id="editStatus" class="form-select" required>
+                                    <option value="Aprovado">Aprovado</option>
+                                    <option value="Reprovado">Reprovado</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <!-- Coluna Direita -->
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label">Volume Coletado (ml)</label>
+                                <input type="number" name="volume_coletado" id="editVolume" class="form-control" required>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label class="form-label">Peso (kg)</label>
+                                <input type="number" step="0.1" name="peso" id="editPeso" class="form-control" required>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label class="form-label">Observações</label>
+                                <textarea name="observacoes" id="editObservacoes" class="form-control" rows="4"></textarea>
+                            </div>
+                        </div>
                     </div>
                 </div>
-                <div class="modal-footer">
+                <div class="modal-footer bg-light">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                    <button type="submit" class="btn btn-custom">Salvar Alterações</button>
+                    <button type="submit"  class="btn btn-danger">Salvar Alterações</button>
                 </div>
             </form>
         </div>
@@ -361,49 +372,114 @@ function abrirModalEdicao(element) {
         const modal = new bootstrap.Modal(document.getElementById('editarDoacaoModal'));
         modal.show();
     }
+    //validação
     $(document).ready(function() {
     $('#editarDoacaoForm').on('submit', function(e) {
-        let valid = true;
-        let errorMessage = '';
+        e.preventDefault();
+        let isValid = true;
+        const errorMessages = [];
+        const $form = $(this);
 
-        // Validação da Hemoglobina: deve ser um número positivo
-        const hemoglobina = $('#editHemoglobina').val();
-        if (!hemoglobina || isNaN(hemoglobina) || parseFloat(hemoglobina) <= 0) {
-            valid = false;
-            errorMessage = 'Informe uma hemoglobina válida.';
-        }
+        // Resetar erros
+        $('.is-invalid').removeClass('is-invalid');
+        $('.invalid-feedback').remove();
 
-        // Validação da Pressão Arterial: deve seguir o padrão 120/80
-        const pressao = $('#editPressao').val();
-        const regexPressao = /^\d{2,3}\/\d{2,3}$/;
-        if (!regexPressao.test(pressao)) {
-            valid = false;
-            errorMessage = 'Informe uma pressão arterial válida (ex: 120/80).';
-        }
+        // Validações atualizadas
+        const validations = [
+            {
+                id: '#editHemoglobina',
+                test: (v) => v >= 12.5 && v <= 18.0,
+                msg: 'Hemoglobina deve ser entre 12.5-18.0 g/dL'
+            },
+            {
+                id: '#editPressao',
+                test: (v) => {
+                    const partes = v.split('/');
+                    if (partes.length !== 2) return false;
+                    const sistolica = parseInt(partes[0]);
+                    const diastolica = parseInt(partes[1]);
+                    return (sistolica >= 90 && sistolica <= 200) && 
+                           (diastolica >= 60 && diastolica <= 120);
+                },
+                msg: 'Pressão arterial inválida (ex: 120/80)'
+            },
+            {
+                id: '#editVolume',
+                test: (v) => v >= 300 && v <= 500,
+                msg: 'Volume deve ser 300-500 ml'
+            },
+            {
+                id: '#editPeso',
+                test: (v) => v >= 45 && v <= 200,
+                msg: 'Peso deve ser 45-200 kg'
+            },
+            {
+                id: '#editProfissional',
+                test: (v) => v.trim().length >= 5 && /^[a-zA-Z\u00C0-\u017F\s]+$/.test(v),
+                msg: 'Nome profissional inválido (mín. 5 letras)'
+            },
+            {
+                id: '#editStatus',
+                test: (v) => ['Aprovado', 'Reprovado'].includes(v),
+                msg: 'Selecione um status válido'
+            }
+        ];
 
-        // Validação do Volume Coletado: deve estar entre 300 e 500 ml
-        const volume = $('#editVolume').val();
-        if (parseInt(volume) < 300 || parseInt(volume) > 500) {
-            valid = false;
-            errorMessage = 'O volume coletado deve estar entre 300 e 500 ml.';
-        }
+        // Executar validações
+        validations.forEach(({id, test, msg}) => {
+            const $element = $(id);
+            const value = $element.val();
+            
+            if (!test(value)) {
+                isValid = false;
+                errorMessages.push(msg);
+                $element.addClass('is-invalid')
+                       .parent().append(`<div class="invalid-feedback">${msg}</div>`);
+            }
+        });
 
-        // Validação do Peso: deve ser um número positivo
-        const peso = $('#editPeso').val();
-        if (!peso || isNaN(peso) || parseFloat(peso) <= 0) {
-            valid = false;
-            errorMessage = 'Informe um peso válido.';
-        }
-
-        // Se houver erro, exibe o alerta e impede o envio do formulário
-        if (!valid) {
-            e.preventDefault();
+        // Tratar resultado
+        if (!isValid) {
             Swal.fire({
                 icon: 'error',
-                title: 'Erro de Validação',
-                text: errorMessage
+                title: 'Corrija os seguintes erros:',
+                html: `<ul class="text-start">${errorMessages.map(m => `<li>${m}</li>`).join('')}</ul>`
+            });
+        } else {
+            // Enviar dados
+            fetch($form.attr('action'), {
+                method: 'POST',
+                body: new FormData($form[0]),
+                headers: {
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                    'Accept': 'application/json'
+                }
+            })
+            .then(async response => {
+                const data = await response.json();
+                if (!response.ok) throw { ...data, status: response.status };
+                
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Alterações salvas!',
+                    text: data.message,
+                    willClose: () => window.location.reload()
+                });
+            })
+            .catch(error => {
+                const msg = error.status === 422 
+                    ? Object.values(error.errors).join('\n')
+                    : error.message || 'Erro no servidor';
+                
+                Swal.fire('Erro!', msg, 'error');
             });
         }
+    });
+
+    // Resetar validações ao abrir modal
+    $('#editarDoacaoModal').on('show.bs.modal', function() {
+        $('.is-invalid').removeClass('is-invalid');
+        $('.invalid-feedback').remove();
     });
 });
 </script>

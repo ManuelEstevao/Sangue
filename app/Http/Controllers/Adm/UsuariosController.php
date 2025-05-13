@@ -3,63 +3,74 @@
 namespace App\Http\Controllers\Adm;
 
 use App\Http\Controllers\Controller;
+use App\Models\User;
 use Illuminate\Http\Request;
 
 class UsuariosController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
+   
+
+    // Lista de usuários
     public function index()
     {
-        //
+        $users = User::orderBy('created_at', 'desc')->paginate(15);
+        return view('ADM.usuario', compact('users'));
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
+    // Formulário de criação
     public function create()
     {
-        //
+        return view('ADM.usuarios.create');
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
+    // Armazena novo usuário
     public function store(Request $request)
     {
-        //
+        $data = $request->validate([
+            'email'         => 'required|email|unique:users,email',
+            'password'      => 'required|confirmed|min:8',
+            'tipo_usuario'  => 'required|in:doador,centro,admin',
+        ]);
+
+        User::create([
+            'email'         => $data['email'],
+            'password'      => bcrypt($data['password']),
+            'tipo_usuario'  => $data['tipo_usuario'],
+        ]);
+
+        return redirect()->route('admin.usuarios.index')
+                         ->with('success', 'Usuário criado com sucesso.');
     }
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(string $id)
+    // Formulário de edição
+    public function edit(User $user)
     {
-        //
+        return view('admin.usuarios.edit', compact('user'));
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(string $id)
+    // Atualiza usuário existente
+    public function update(Request $request, User $user)
     {
-        //
+        $data = $request->validate([
+            'email'         => 'required|email|unique:users,email,'.$user->id_user.',id_user',
+            'password'      => 'nullable|confirmed|min:8',
+            'tipo_usuario'  => 'required|in:doador,centro,admin',
+        ]);
+
+        $user->email = $data['email'];
+        $user->tipo_usuario = $data['tipo_usuario'];
+        if (!empty($data['password'])) {
+            $user->password = bcrypt($data['password']);
+        }
+        $user->save();
+
+        return back()->with('success', 'Usuário atualizado com sucesso.');
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, string $id)
+    // Remove usuário
+    public function destroy(User $user)
     {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(string $id)
-    {
-        //
+        $user->delete();
+        return back()->with('success', 'Usuário excluído com sucesso.');
     }
 }

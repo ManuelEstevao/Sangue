@@ -56,8 +56,7 @@ class Agendamento extends Model
 
     public function notificacoes()
 {
-    return $this->hasMany(Notificacao::class, 'id_agendamento');
+    return $this->hasMany(\App\Models\Notificacao::class, 'meta->id_agendamento', 'id_agendamento');
 }
-
 
 }

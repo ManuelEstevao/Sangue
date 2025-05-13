@@ -101,7 +101,10 @@ class Centro extends Model
     }
 
     
-
+    public function diasBloqueados()
+    {
+        return $this->hasMany(DiaBloqueado::class, 'id_centro');
+    }
     
 
 }

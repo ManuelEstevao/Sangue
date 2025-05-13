@@ -79,7 +79,7 @@
                 </div>
             </div>
 
-            <div class="col-md-4 mb-3">
+           <!--  <div class="col-md-4 mb-3">
                 <div class="stock-card p-3">
                     <div class="d-flex justify-content-between align-items-center">
                         <div>
@@ -89,7 +89,7 @@
                         <i class="fas fa-clock text-danger fs-4"></i>
                     </div>
                 </div>
-            </div>
+            </div>-->
         </div>
     </div>
 

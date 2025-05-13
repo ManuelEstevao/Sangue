@@ -30,6 +30,7 @@ class loginController extends Controller
         $user = Auth::user();
         
         return match($user->tipo_usuario) {
+            'admin' => redirect()->route('admin.dashboard'),
             'centro' => redirect()->route('centro.Dashbord'),
             'doador' => redirect()->route('doador.Dashbord'),
             default => redirect()->intended('/')

@@ -56,7 +56,18 @@ class User extends Authenticatable
         return $this->hasOne(Doador::class, 'id_user', 'id_user');
     }
 
-    
+    public function notificacoes()
+{
+    return $this->hasMany(\App\Models\Notificacao::class, 'id_user');
+}
+    public function agendamentos() {
+        return $this->hasManyThrough(
+            Agendamento::class,
+            Doador::class,
+            'id_user', 
+            'id_doador' 
+        );
+    }
  
     public function centro(): HasOne
     {

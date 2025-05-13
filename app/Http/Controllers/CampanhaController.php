@@ -37,6 +37,7 @@ class CampanhaController extends Controller
             'data_fim' => 'required|date_format:d/m/Y|after_or_equal:data_inicio',
             'hora_inicio' => 'required|date_format:H:i',
             'hora_fim' => 'required|date_format:H:i|after:hora_inicio',
+            'endereco' => 'nullable|string|max:200',
             'foto' => 'nullable|image|mimes:jpeg,png,jpg|max:2048'
         ]);
 
@@ -57,6 +58,7 @@ class CampanhaController extends Controller
             'data_fim' => $dataFim,
             'hora_inicio' => $request->hora_inicio,
             'hora_fim' => $request->hora_fim,
+            'endereco' => $request->endereco,
             'foto' => $caminhoFoto,
             'id_centro' => Auth::user()->centro->id_centro
         ]);

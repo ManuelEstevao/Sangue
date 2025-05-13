@@ -5,7 +5,13 @@ namespace App\Providers;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Facades\View;
 use App\Models\Notificacao;
+use Illuminate\Notifications\ChannelManager;
+use Illuminate\Support\Facades\Notification;
 use Illuminate\Support\Facades\Auth;
+use App\Models\Agendamento;
+use App\Observers\AgendamentoObserver;
+use App\Notifications\Channels\CustomDatabaseChannel;
+
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -28,6 +34,7 @@ class AppServiceProvider extends ServiceProvider
                 $centro = $user->centro;
     
                 $notificacoes = Notificacao::where('id_user', $user->id_user)
+                    ->where('lida', false)
                     ->orderBy('data_envio', 'desc') 
                     ->take(5)
                     ->get();
@@ -39,5 +46,11 @@ class AppServiceProvider extends ServiceProvider
                 $view->with(compact('notificacoes', 'naoLidas'));
             }
         });
+       $this->app->make(ChannelManager::class)
+        ->extend('custom_database', function ($app) {
+            return $app->make(CustomDatabaseChannel::class);
+        });
+
+        Agendamento::observe(AgendamentoObserver::class);
     }
 }

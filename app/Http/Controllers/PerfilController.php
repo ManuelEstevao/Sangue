@@ -3,9 +3,12 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
 use App\Models\Doacao;
 use SimpleSoftwareIO\QrCode\Facades\QrCode;
+use App\Models\Notificacao;
 use Illuminate\Support\Facades\Storage;
 
 class PerfilController extends Controller
@@ -57,5 +60,32 @@ class PerfilController extends Controller
     $doador->update($validated);
 
     return redirect()->back()->with('success', 'Perfil atualizado com sucesso!');
+}
+
+public function showChangePasswordForm()
+{
+    return view('dador.Perfil');
+}
+
+public function updatePassword(Request $request)
+{
+    $request->validate([
+        'current_password' => 'required',
+        'new_password' => 'required|string|min:8|confirmed',
+    ]);
+
+    if (!Hash::check($request->current_password, Auth::user()->password)) {
+        return response()->json([
+            'errors' => [
+                'current_password' => ['A senha atual está incorreta']
+            ]
+        ], 422);
+    }
+
+    Auth::user()->update([
+        'password' => Hash::make($request->new_password)
+    ]);
+
+    return response()->json(['success' => true]);
 }
 }

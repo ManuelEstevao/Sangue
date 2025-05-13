@@ -487,7 +487,7 @@
 <div class="modal fade" id="modalEditar" tabindex="-1" aria-labelledby="modalEditarLabel" aria-hidden="true">
     <div class="modal-dialog modal-lg modal-dialog-centered">
         <div class="modal-content border-0 rounded-4 shadow">
-            <form id="formEditarSolicitacao" method="POST" action="">
+            <form id="formEditarSolicitacao" method="POST" action="" novalidate>
                 @csrf
                 @method('PUT')
                 <div class="modal-header bg-danger text-white rounded-top-4">
@@ -972,5 +972,105 @@ window.respostaAnterior = function() {
     }
 };
 
+
+//Validação do modal
+document.addEventListener('DOMContentLoaded', function() {
+    // Função de validação reutilizável
+    function validarSolicitacao(form) {
+        let isValid = true;
+        const errors = {};
+        const campos = {
+            tipoSanguineo: form.querySelector('[name="tipo_sanguineo"]'),
+            quantidade: form.querySelector('[name="quantidade"]'),
+            prazo: form.querySelector('[name="prazo"]'),
+            motivo: form.querySelector('[name="motivo"]')
+        };
+
+        // Validação Tipo Sanguíneo
+        if (!campos.tipoSanguineo.value) {
+            errors.tipoSanguineo = 'Selecione um tipo sanguíneo';
+            isValid = false;
+        }
+
+        // Validação Quantidade
+        if (!campos.quantidade.value || campos.quantidade.value < 1 || campos.quantidade.value > 15) {
+            errors.quantidade = 'Quantidade válida (1-15 bolsas)';
+            isValid = false;
+        }
+
+        // Validação Prazo
+        const hoje = new Date().toISOString().split('T')[0];
+        if (!campos.prazo.value || campos.prazo.value < hoje) {
+            errors.prazo = 'Selecione uma data futura';
+            isValid = false;
+        }
+
+        // Validação Motivo
+        if (!campos.motivo.value.trim() || campos.motivo.value.trim().length < 10) {
+            errors.motivo = 'Descreva o motivo com pelo menos 10 caracteres';
+            isValid = false;
+        }
+
+        // Aplicar estados de erro
+        Object.keys(campos).forEach(key => {
+            const feedback = campos[key].nextElementSibling;
+            if (errors[key]) {
+                campos[key].classList.add('is-invalid');
+                feedback.textContent = errors[key];
+            } else {
+                campos[key].classList.remove('is-invalid');
+                feedback.textContent = '';
+            }
+        });
+
+        return isValid;
+    }
+
+    // Configurar validação para o modal de nova solicitação
+    const formNova = document.querySelector('#modalNovaSolicitacao form');
+    if (formNova) {
+        formNova.addEventListener('submit', function(e) {
+            e.preventDefault();
+            if (validarSolicitacao(this)) {
+                this.submit();
+            }
+        });
+    }
+
+    // Configurar validação para o modal de edição
+    const formEditar = document.querySelector('#formEditarSolicitacao');
+    if (formEditar) {
+        formEditar.addEventListener('submit', function(e) {
+            e.preventDefault();
+            if (validarSolicitacao(this)) {
+                this.submit();
+            }
+        });
+    }
+
+    // Resetar validações em ambos modais
+    const resetarValidacao = (modalId) => {
+        const modal = document.getElementById(modalId);
+        const form = modal.querySelector('form');
+        form.querySelectorAll('.is-invalid').forEach(el => el.classList.remove('is-invalid'));
+        form.querySelectorAll('.invalid-feedback').forEach(el => el.textContent = '');
+    };
+
+    // Eventos para resetar ao fechar modais
+    ['modalNovaSolicitacao', 'modalEditar'].forEach(modalId => {
+        document.getElementById(modalId)?.addEventListener('hidden.bs.modal', () => {
+            resetarValidacao(modalId);
+        });
+    });
+
+    // Adicionar feedbacks de invalidez dinamicamente
+    document.querySelectorAll('.modal [name]').forEach(campo => {
+        if (!campo.nextElementSibling?.classList.contains('invalid-feedback')) {
+            const erroDiv = document.createElement('div');
+            erroDiv.className = 'invalid-feedback';
+            campo.parentNode.appendChild(erroDiv);
+        }
+    });
+});
 </script>
 @endsection

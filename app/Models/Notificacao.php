@@ -14,25 +14,44 @@ class Notificacao extends Model
     public $timestamps = false;
 
     // Campos preenchíveis
+    protected $casts = [
+        'meta' => 'array',
+        'email_enviado' => 'boolean',
+        'lida' => 'boolean'
+    ];
     protected $fillable = [
         'mensagem',
         'tipo',
-        'data_envio',
-        'id_user',
+        'status',
         'lida',
+        'email_enviado',
+        'id_user'
     ];
 
 
     // Relacionamento com usuário
-    public function user(): BelongsTo
+    public function user() {
+        return $this->belongsTo(User::class);
+    }
+
+    public function scopeNaoLidas($query)
     {
-        return $this->belongsTo(User::class, 'user_id', 'id_user');
+        return $query->where('lida', false);
+    }
+
+    public function marcarComoLida()
+    {
+        $this->update(['lida' => true]);
     }
 
     public function agendamento()
-{
-    return $this->belongsTo(Agendamento::class, 'id_agendamento');
-}
+    {
+        return $this->belongsTo(Agendamento::class, 'id_agendamento');
+    }
 
+    public function centro()
+    {
+        return $this->belongsTo(Centro::class, 'id_centro');
+    }
 
 }

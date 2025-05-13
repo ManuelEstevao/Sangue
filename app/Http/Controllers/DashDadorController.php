@@ -20,13 +20,6 @@ class DashDadorController extends Controller
         $doador = Doador::where('id_user', $user->id_user)->first();
         $doadorId = Auth::id(); // ou Auth::guard('doador')->id() se usas um guard próprio
 
-        $notificacoes = Notificacao::whereHas('agendamento', function ($query) use ($doadorId) {
-            $query->where('id_doador', $doadorId);
-        })
-        ->orderBy('data_envio', 'desc')
-        ->get();
-        
-
     
         // Se o usuário ainda não é um doador, evita erro
         if (!$doador) {
@@ -73,7 +66,11 @@ class DashDadorController extends Controller
             ->latest('data_agendada') 
             ->paginate(2);
             
-
+            $notificacoes = Auth::user()->notificacoes()
+        ->where('lida', false)
+        ->with(['agendamento.centro'])
+        ->orderBy('data_envio', 'desc')
+        ->get();
         // Retorna a view com os dados
         return view('dador.dashbord', [
             'proximaDoacao' => $proximaDoacao,
@@ -82,7 +79,7 @@ class DashDadorController extends Controller
             'proximaDataPermitida' => $proximaDataPermitida,
             'agendamentos' => $agendamentos,
             'centros' => $centros,
-            'notificacoes' => $notificacoes,
+            'notificacoes'=> $notificacoes
         ]);
     }
 }

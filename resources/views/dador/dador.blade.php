@@ -269,7 +269,13 @@
                             <li><strong>Data:</strong>  {{ \Carbon\Carbon::parse($campanha->data_inicio)->format('d/m/Y') }}</li>
                             <li><strong>Hora:</strong> {{ $campanha->hora_inicio }} - {{ $campanha->hora_fim }}</li>
                             <li><strong>Local:</strong> {{ $campanha->centro->nome }}</li>
-                            <li><strong>Endereço:</strong> {{ $campanha->centro->endereco }}</li>
+                            <li><strong>Endereço:</strong>
+                                @if(!empty($campanha->endereco))
+                                    {{ $campanha->endereco }}
+                                @else
+                                    {{ $campanha->centro->endereco }}
+                                @endif
+                            </li>
                         </ul>
                         <p class="mb-2">{{ Str::limit($campanha->descricao, 100) }}</p>
                         <a href="{{ route('campanha.detalhe', $campanha->id_campanha) }}" 

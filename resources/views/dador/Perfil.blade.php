@@ -1,6 +1,6 @@
 @extends('dador.DashbordDador')
 @section('title', 'Meu Perfil - ConectaDador')
-
+<meta name="csrf-token" content="{{ csrf_token() }}">
 @section('styles')
 <style>
     :root {
@@ -121,6 +121,37 @@
     border: 4px solid white;
     box-shadow: 0 4px 15px rgba(0,0,0,0.1);
 }
+.is-invalid {
+        border-color: #dc3545 !important;
+        background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12' width='12' height='12' fill='none' stroke='%23dc3545'%3e%3ccircle cx='6' cy='6' r='4.5'/%3e%3cpath stroke-linejoin='round' d='M5.8 3.6h.4L6 6.5z'/%3e%3ccircle cx='6' cy='8.2' r='.6' fill='%23dc3545' stroke='none'/%3e%3c/svg%3e");
+        background-repeat: no-repeat;
+        background-position: right calc(0.375em + 0.1875rem) center;
+        background-size: calc(0.75em + 0.375rem) calc(0.75em + 0.375rem);
+    }
+    
+    .invalid-feedback {
+        color: #dc3545;
+        font-size: 0.875em;
+        margin-top: 0.25rem;
+    }
+
+.password-strength {
+    height: 4px;
+    margin-top: 5px;
+    background: #eee;
+    border-radius: 2px;
+    overflow: hidden;
+}
+
+.password-strength span {
+    display: block;
+    height: 100%;
+    transition: all 0.3s;
+}
+
+.weak-password { background: #dc3545; }
+.medium-password { background: #ffc107; }
+.strong-password { background: #28a745; }
 
 
 
@@ -195,24 +226,24 @@
             <!-- Coluna Direita - Ações Rápidas -->
             <div class="col-lg-6">
                 <div class="info-card">
-                    <div class="d-flex align-items-center mb-3">
+                    <div class="d-flex align-items-center mb-2">
                         <i class="fas fa-cogs text-danger me-2"></i>
                         <h5 class="mb-0">Ações Rápidas</h5>
                     </div>
                     
                     <div class="list-group quick-actions">
                         
-                        <button class="list-group-item list-group-item-action" data-bs-toggle="modal" data-bs-target="#editModal">
+                        <button class="list-group-item list-group-item-action p-2" data-bs-toggle="modal" data-bs-target="#editModal">
                             <i class="fas fa-user-edit me-2"></i>
                             Editar Perfil
                         </button>
 
-                        <a href="" class="list-group-item list-group-item-action">
+                        <a href="" class="list-group-item list-group-item-action p-2 " data-bs-toggle="modal" data-bs-target="#changePasswordModal">
                             <i class="fas fa-lock me-2"></i>
                             Alterar Senha
                         </a>
                         
-                        <a href="" class="list-group-item list-group-item-action">
+                        <a href="" class="list-group-item list-group-item-action p-2 ">
                             <i class="fas fa-bell me-2"></i>
                             Gerenciar Notificações
                         </a>
@@ -220,10 +251,11 @@
                 </div>
             </div>
         </div>
+    </div>
 
 
 <!--
-        <div class="qr-section">
+        <div class="qr-section ">
             <h5 class="mb-3">Identificação Digital</h5>
             <div class="d-inline-block p-3 bg-white rounded">
                
@@ -274,10 +306,15 @@
                                 <div class="col-md-12">
                                     <div class="mb-3">
                                         <label>Telefone</label>
-                                        <input type="tel" class="form-control" 
-                                               name="telefone" 
-                                               value="{{ $doador->telefone }}"
-                                               required>
+                                         <input
+                                            type="tel"
+                                            class="form-control"
+                                            name="telefone"
+                                            value="{{ old('telefone', $doador->telefone) }}"
+                                            required
+                                            pattern="^(?:\+244)?9[1-7]\d{7}$"
+                                            title="Digite um número válido: 9xxxxxxxx ou +2449xxxxxxxxx"
+                                        >
                                     </div>
                                 </div>
                                 <div class="col-md-12">
@@ -300,9 +337,53 @@
         </div>
     </div>
 </div>
+
+
+<!-- Modal de Alteração de Senha -->
+<div class="modal fade" id="changePasswordModal" tabindex="-1" aria-labelledby="changePasswordModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="changePasswordModalLabel">
+                    <i class="fas fa-lock me-2"></i>Alterar Senha
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form method="POST" action="{{ route('password.update') }}" id="passwordForm">
+                @csrf
+                @method('PUT')
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label>Senha Atual</label>
+                        <input type="password" class="form-control" name="current_password" required>
+                        <div class="invalid-feedback"></div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label>Nova Senha</label>
+                        <input type="password" class="form-control" name="new_password" required>
+                        <div class="invalid-feedback"></div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label>Confirmar Nova Senha</label>
+                        <input type="password" class="form-control" name="new_password_confirmation" required>
+                        <div class="invalid-feedback"></div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn btn-danger">Atualizar Senha</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
 @endsection
 
 @section('scripts')
+<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
 document.addEventListener('DOMContentLoaded', function() {
     // Função para pré-visualizar a imagem
@@ -331,6 +412,117 @@ document.addEventListener('DOMContentLoaded', function() {
             e.preventDefault();
             alert('Número de telefone inválido! Deve conter 9 dígitos.');
         }
+    });
+});
+
+document.addEventListener('DOMContentLoaded', function() {
+    const form = document.getElementById('passwordForm');
+    const currentPasswordInput = document.querySelector('input[name="current_password"]');
+    const newPasswordInput = document.querySelector('input[name="new_password"]');
+    const confirmPasswordInput = document.querySelector('input[name="new_password_confirmation"]');
+
+    // Funções de manipulação de erros
+    function showError(input, message) {
+        input.classList.add('is-invalid');
+        const errorField = input.nextElementSibling;
+        errorField.textContent = message;
+        errorField.style.display = 'block';
+    }
+
+    function clearErrors() {
+        [currentPasswordInput, newPasswordInput, confirmPasswordInput].forEach(input => {
+            input.classList.remove('is-invalid');
+            input.nextElementSibling.textContent = '';
+            input.nextElementSibling.style.display = 'none';
+        });
+    }
+
+    // Validação do formulário
+    function validateForm() {
+        clearErrors();
+        let isValid = true;
+
+        if (currentPasswordInput.value.trim() === '') {
+            showError(currentPasswordInput, 'Por favor insira a senha atual');
+            isValid = false;
+        }
+
+        if (newPasswordInput.value.length < 8) {
+            showError(newPasswordInput, 'A senha deve ter pelo menos 8 caracteres');
+            isValid = false;
+        }
+
+        if (newPasswordInput.value !== confirmPasswordInput.value) {
+            showError(confirmPasswordInput, 'As senhas não coincidem');
+            isValid = false;
+        }
+
+        return isValid;
+    }
+
+    // Submissão do formulário
+    form.addEventListener('submit', async function(e) {
+        e.preventDefault();
+
+        if (!validateForm()) return;
+
+        const swalInstance = Swal.fire({
+            title: 'Verificando credenciais...',
+            allowOutsideClick: false,
+            didOpen: () => Swal.showLoading()
+        });
+
+        try {
+            const formData = new FormData(form);
+            const response = await fetch(form.action, {
+                method: 'POST',
+                body: formData,
+                headers: {
+                    'Accept': 'application/json'
+                }
+            });
+
+            const data = await response.json();
+
+            if (response.ok) {
+                swalInstance.close();
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Senha alterada!',
+                    text: 'Sua senha foi atualizada com sucesso',
+                    confirmButtonColor: '#28a745'
+                }).then(() => {
+                    form.reset();
+                    bootstrap.Modal.getInstance(document.getElementById('changePasswordModal')).hide();
+                });
+            } else {
+                let errorMessage = 'Ocorreu um erro';
+                if (data.errors) {
+                    if (data.errors.current_password) {
+                        showError(currentPasswordInput, data.errors.current_password[0]);
+                        errorMessage = data.errors.current_password[0];
+                    }
+                    if (data.errors.new_password) {
+                        showError(newPasswordInput, data.errors.new_password[0]);
+                    }
+                }
+                throw new Error(errorMessage);
+            }
+        } catch (error) {
+            swalInstance.close();
+            Swal.fire({
+                icon: 'error',
+                title: 'Erro na alteração',
+                text: error.message,
+                confirmButtonColor: '#dc3545'
+            });
+        }
+    });
+
+    // Reset ao fechar o modal
+    document.getElementById('changePasswordModal').addEventListener('hidden.bs.modal', () => {
+        form.reset();
+        clearErrors();
     });
 });
 </script>

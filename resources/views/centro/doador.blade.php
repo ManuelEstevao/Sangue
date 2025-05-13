@@ -81,9 +81,9 @@
                 <a href="{{ route('centro.doador.pdf', request()->query()) }}" class="btn btn-custom">
                     <i class="fas fa-file-pdf me-2"></i> Exportar PDF
                 </a>
-                <a href="#" class="btn btn-custom">
+               <!--  <a href="#" class="btn btn-custom">
                     <i class="fas fa-plus me-2"></i> Novo Doador
-                </a>
+                </a>-->
             </div>
         </div>
         

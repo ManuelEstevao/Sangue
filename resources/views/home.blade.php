@@ -285,7 +285,7 @@
   </div>
 </section>
 
-<!-- Stats Section -->
+<!-- Stats Section 
 <section id="stats" class="stats section">
 
   <div class="container" data-aos="fade-up" data-aos-delay="100">
@@ -297,14 +297,14 @@
           <span data-purecounter-start="0" data-purecounter-end="232" data-purecounter-duration="1" class="purecounter"></span>
           <p>Clients</p>
         </div>
-      </div><!-- End Stats Item -->
+      </div>
 
       <div class="col-lg-3 col-md-6">
         <div class="stats-item text-center w-100 h-100">
           <span data-purecounter-start="0" data-purecounter-end="521" data-purecounter-duration="1" class="purecounter"></span>
           <p>Projects</p>
         </div>
-      </div><!-- End Stats Item -->
+      </div>
 
       <div class="col-lg-3 col-md-6">
         <div class="stats-item text-center w-100 h-100">
@@ -320,7 +320,7 @@
       </div>
     </div>
   </div>
-</section>
+</section>-->
 
 
 <!-- Campanha Section -->
@@ -351,7 +351,13 @@
                             <li><strong>Data:</strong>  {{ \Carbon\Carbon::parse($campanha->data_inicio)->format('d/m/Y') }}</li>
                             <li><strong>Hora:</strong> {{ $campanha->hora_inicio }} - {{ $campanha->hora_fim }}</li>
                             <li><strong>Local:</strong> {{ $campanha->centro->nome }}</li>
-                            <li><strong>Endereço:</strong> {{ $campanha->centro->endereco }}</li>
+                            <li><strong>Endereço:</strong> 
+                                @if(!empty($campanha->endereco))
+                                    {{ $campanha->endereco }}
+                                @else
+                                    {{ $campanha->centro->endereco }}
+                                @endif
+                            </li>
                         </ul>
                         <p class="mb-2">{{ Str::limit($campanha->descricao, 100) }}</p>
                         <a href="{{ route('campanha.detalhe', $campanha->id_campanha) }}" 

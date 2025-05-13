@@ -148,76 +148,146 @@ body {
     justify-content: center;
     line-height: 1;
 }
-
-/* Caixa de notificações */
-.notif-box {
-    background: #fff;
-    border-radius: 8px;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-    min-width: 280px;
-    padding: 0;
-}
-
-/* Título */
-.notif-box .dropdown-title {
-    padding: 0.75rem 1rem;
-    font-weight: 600;
-    border-bottom: 1px solid #eee;
-}
-
-/* Scroll interno */
-.notif-scroll {
-    max-height: 240px;
-    overflow-y: auto;
-}
-
-/* Cada item */
-.notif-center a {
-    display: flex;
-    align-items: center;
-    padding: 0.75rem 1rem;
-    border-bottom: 1px solid #f5f5f5;
-    text-decoration: none;
-}
-.notif-center a:last-child {
-    border-bottom: none;
-}
-
-/* Ícone dentro do item */
-.notif-icon {
-    flex-shrink: 0;
-    width: 40px;
-    height: 40px;
+/* Ícone de Notificação na Navbar */
+.nav-link .fa-bell {
+    font-size: 1.3rem;
+    color: #6c757d;
+    transition: all 0.3s ease;
+    position: relative;
+    padding: 8px;
     border-radius: 50%;
-    background: var(--primary-color);
-    color: #fff;
+}
+
+/* Container Principal */
+.notif-box {
+    overflow-x: hidden !important; /* Impede scroll horizontal */
+    width: 350px !important; /* Largura fixa */
+}
+
+/* Cabeçalho */
+.dropdown-header {
+    background: linear-gradient(135deg, #f8f9fa 0%, #f1f3f5 100%) !important;
+    border-bottom: 1px solid #e9ecef !important;
+    padding: 1rem 1.25rem !important;
+}
+
+.dropdown-header h6 {
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: #2b2d42;
+}
+
+.dropdown-header i {
+    color: #0d6efd !important;
+    font-size: 1.1rem;
+}
+
+/* Botão Marcar Todas */
+#mark-all-read-btn {
+    font-size: 0.8rem !important;
+    padding: 0.25rem 0.75rem !important;
+    border-radius: 6px !important;
+    transition: all 0.2s ease;
+    border: 1px solid transparent !important;
+}
+/* Lista de Notificações */
+.list-group-flush {
+    min-width: 100% !important;
+}
+
+.list-group-item {
+    margin: 0.25rem 0 !important; /* Remove margens laterais */
+    padding: 1rem 1.25rem !important;
+    width: calc(100% - 1.5rem) !important; /* Ajuste preciso de largura */
+}
+
+.list-group-item:hover {
+    background: #f8f9fa !important;
+    border-color: #e9ecef !important;
+    transform: translateX(4px);
+}
+
+/* Ícone da Notificação */
+.icon-circle {
+    width: 2.6rem;
+    height: 2.6rem;
+    border-radius: 10px !important;
     display: flex;
     align-items: center;
     justify-content: center;
-    margin-right: 0.75rem;
+    box-shadow: 0 3px 8px rgba(0, 0, 0, 0.08);
 }
 
-/* Conteúdo de texto */
-.notif-content .block {
-    display: block;
-    color: #333;
-    font-size: 0.9rem;
+
+/* Conteúdo da Notificação */
+
+.d-flex.align-items-start {
+    flex-wrap: nowrap !important; /* Impede quebra de linha */
+    min-width: 0 !important; /* Permite compressão de elementos */
 }
-.notif-content .time {
-    display: block;
-    font-size: 0.75rem;
-    margin-top: 0.25rem;
+.flex-grow-1 {
+    min-width: 0 !important; /* Corrige overflow em flex children */
+}
+.small.text-muted,
+.fw-bold {
+    white-space: normal !important; /* Quebra de texto normal */
+    word-break: break-word !important; /* Quebra palavras longas */
+    overflow-wrap: anywhere !important; /* Força quebra em qualquer caractere */
 }
 
-/* Ajuste extra para o ícone de notificações */
-.nav-link .fa-bell {
-    margin-left: 10px;
-    box-shadow: rgba(0, 0, 0, 0.05) 0px 0.1rem 0.2rem;
-    font-size: 1.2rem;
-    position: relative;
-    top: 10px;
-    transition: top 0.1s ease-out;
+/* Timestamp */
+.float-end.small {
+    flex-shrink: 0 !important; /* Impede redução */
+    margin-left: 0.5rem !important; /* Espaçamento seguro */
 }
+
+/* Estado Vazio */
+.text-center.py-4 {
+    padding: 2rem 1.5rem !important;
+    width: 100% !important;
+}
+
+.fa-bell-slash {
+    color: #ced4da !important;
+    font-size: 2.2rem !important;
+    margin-bottom: 1rem !important;
+    opacity: 0.7;
+}
+
+/* Footer */
+.dropdown-footer {
+    background: linear-gradient(180deg, #f8f9fa 0%, #f1f3f5 100%) !important;
+    border-top: 1px solid #e9ecef !important;
+}
+
+.dropdown-footer a {
+    color: #6c757d !important;
+    font-weight: 500;
+    transition: all 0.2s ease;
+}
+
+.dropdown-footer a:hover {
+    color: #0d6efd !important;
+    letter-spacing: 0.3px;
+}
+/* Scrollbar Vertical */
+.notif-scroll::-webkit-scrollbar-track {
+    margin: 2px 0 !important; /* Espaço vertical para scrollbar */
+}
+
+/* Responsividade Mobile */
+@media (max-width: 400px) {
+    .notif-box {
+        width: 100vw !important; /* Ocupa largura total da tela */
+        margin: 0 -0.5rem !important;
+    }
+    
+    .list-group-item {
+        width: calc(100% - 1rem) !important;
+        padding: 1rem !important;
+    }
+}
+
 
 /* Remove o caret do dropdown */
 .nav-link.dropdown-toggle::after {
@@ -236,6 +306,8 @@ body {
     border-left: 4px solid var(--primary-color);
     padding-left: calc(1rem - 4px) !important;
 }
+
+
 
 /* Scroll suave na sidebar */
 #sidebar nav {

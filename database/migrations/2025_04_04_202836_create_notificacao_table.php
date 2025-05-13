@@ -23,8 +23,11 @@ return new class extends Migration
                         'nao_compareceu' 
                     ])->default('lembrete');
                 $table->timestamp('data_envio')->useCurrent();
+                $table->enum('status', ['pendente', 'enviada', 'falha'])->default('pendente');
+                $table->boolean('lida')->default(false);
+                $table->boolean('email_enviado')->default(false);
                 $table->unsignedBigInteger('id_user');
-                $table->unsignedBigInteger('id_agendamento')->nullable(); 
+                
                 
                 // Chaves estrangeiras
                 $table->foreign('id_user')
@@ -32,10 +35,7 @@ return new class extends Migration
                       ->on('users')
                       ->onDelete('cascade');
                       
-                $table->foreign('id_agendamento')
-                      ->references('id_agendamento')
-                      ->on('agendamento')
-                      ->onDelete('set null');
+              
         });
     }
 

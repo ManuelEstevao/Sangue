@@ -10,7 +10,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
 use Barryvdh\DomPDF\Facade\Pdf;
 use App\Models\Estoque;
-
+use Carbon\Carbon; 
 
 
 class DoacaoController extends Controller
@@ -209,14 +209,48 @@ public function edit($id)
                 'observacoes'       => $request->observacoes,
             ]);
     
-            DB::commit();
-    
-            return redirect()->route('centro.doacao')->with('success', 'Doação atualizada com sucesso!');
-        } catch (\Exception $e) {
-            DB::rollBack();
-            return redirect()->back()->with('error', 'Erro ao atualizar a doação: ' . $e->getMessage());
+            
+        DB::commit();
+
+        // Resposta para AJAX
+        if ($request->wantsJson()) {
+            return response()->json([
+                'success' => true,
+                'message' => 'Doação atualizada com sucesso!',
+                'data' => $doacao
+            ]);
         }
+
+        // Resposta para navegador tradicional
+        return redirect()->route('centro.doacao')->with('success', 'Doação atualizada!');
+
+    } catch (\Illuminate\Validation\ValidationException $e) {
+        DB::rollBack();
+        
+        // Resposta JSON para erros de validação
+        if ($request->wantsJson()) {
+            return response()->json([
+                'success' => false,
+                'errors' => $e->errors()
+            ], 422);
+        }
+
+        return redirect()->back()->withErrors($e->errors());
+
+    } catch (\Exception $e) {
+        DB::rollBack();
+        
+        // Resposta JSON para outros erros
+        if ($request->wantsJson()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Erro interno: ' . $e->getMessage()
+            ], 500);
+        }
+
+        return redirect()->back()->with('error', 'Erro: ' . $e->getMessage());
     }
+}
 
     // Exclui a doação
     public function destroy($id)
@@ -233,6 +267,38 @@ public function edit($id)
             return redirect()->back()->with('error', 'Erro ao excluir a doação: ' . $e->getMessage());
         }
     }
+
+    public function relatorio(Doador $doador)
+{
+    dd($doador);
+    try {
+        // Carregar relacionamentos com ordenação
+        $doador->load(['agendamentos' => function($query) {
+            $query->with(['doacao', 'questionario', 'centro'])
+                  ->orderBy('data_agendada', 'desc')
+                  ->withTrashed(); // Caso use soft delete
+        }]);
+        
+        // Dados adicionais
+        $data = [
+            'doador' => $doador,
+            'total_doacoes' => $doador->agendamentos->count(),
+            'volume_total' => $doador->agendamentos->sum('doacao.volume_coletado'),
+            'data_emissao' => now()->format('d/m/Y H:i'),
+        ];
+
+        $pdf = PDF::loadView('centro.pdf.relatorioDador', $data)
+                  ->setPaper('a4', 'portrait')
+                  ->setOption('isPhpEnabled', true)
+                  ->setOption('defaultFont', 'Helvetica');
+
+        return $pdf->download("relatorio-doador-{$doador->id_doador}.pdf");
+
+    } catch (\Exception $e) {
+        return redirect()->back()
+            ->with('error', 'Erro ao gerar relatório: '.$e->getMessage());
+    }
+}
 
 
 }

@@ -12,7 +12,7 @@ use App\Models\Campanha;
 use App\Models\Solicitacao;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Auth;
-
+use Carbon\Carbon; 
 class PerfilCentroController extends Controller
 {
     /**
@@ -106,4 +106,26 @@ class PerfilCentroController extends Controller
     {
         //
     }
+
+    public function updatePassword(Request $request)
+{
+    $request->validate([
+        'current_password' => 'required',
+        'new_password' => 'required|string|min:8|confirmed',
+    ]);
+
+    if (!Hash::check($request->current_password, Auth::user()->password)) {
+        return response()->json([
+            'errors' => [
+                'current_password' => ['Senha atual incorreta']
+            ]
+        ], 422);
+    }
+
+    Auth::user()->update([
+        'password' => Hash::make($request->new_password)
+    ]);
+
+    return response()->json(['success' => true]);
+}
 }

@@ -10,6 +10,7 @@ use App\Models\Doador;
 use App\Models\Agendamento;
 use App\Models\Campanha;
 use App\Models\Solicitacao;
+use App\Models\Questionario;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -34,6 +35,10 @@ class CentroController extends Controller
             'totalDoacoes' => $centro->doacoes()->count(),
     
             'totalCampanhas' => $centro->campanhas()->count(),
+            'totalSolicitacoesAtendidas' => $centro->solicitacoes()
+            ->where('status', 'Atendida')
+            ->count(),
+
     
             'distribuicaoTipos' => $centro->agendamentos()
                 ->with('doador') 
@@ -63,7 +68,10 @@ class CentroController extends Controller
             'statusAgendamentos' => $centro->agendamentos()
                 ->selectRaw('status, count(*) as total')
                 ->groupBy('status')
-                ->get()
+                ->get(),
+            'diasBloqueados' => $centro->diasBloqueados()
+            ->orderBy('data', 'desc')
+            ->get()
         ];
     
         return view('centro.Dashbord', $data);
@@ -73,48 +81,6 @@ class CentroController extends Controller
         return view('centro.registo');
     }
 
-    public function register(Request $request)
-{
-    $validatedData = $request->validate([
-        'nome' => 'required',
-        'email' => 'required',
-        'password' => 'required',
-        'endereco' => 'required',
-        'latitude' => 'required',
-        'longitude' => 'required',
-        'capacidade_maxima' => 'required',
-        'telefone' => 'required',
-        'horario_abertura' => 'required',
-        'horario_fechamento' => 'required'
-    ]);
-
-    // Cria usuário
-    $user = User::create([
-        'tipo_usuario' => 'centro', 
-        'email' => $validatedData['email'],
-        'password' => Hash::make($validatedData['password'])
-    ]);
-
-
-    // Cria centro com relacionamento
-    $centro = new Centro([
-        'nome' => $validatedData['nome'],
-        'endereco' => $validatedData['endereco'],
-        'latitude' => $validatedData['latitude'],
-        'longitude' => $validatedData['longitude'],
-        'capacidade_maxima' => $validatedData['capacidade_maxima'],
-        'telefone' => $validatedData['telefone'],
-        'horario_abertura' => $validatedData['horario_abertura'],
-        'horario_fechamento' => $validatedData['horario_fechamento'],
-        'id_user' => $user->id_user
-    ]);
-
-    $centro->save();
-
-    Auth::login($user);
-    return redirect()->route('centro.Dashbord')
-        ->with('success', 'Centro registrado com sucesso!');
-}
 public function relatorio()
 {
     $centro = Auth::user()->centro;
@@ -177,6 +143,36 @@ public function exportarPdf(Request $request)
 
     $pdf = Pdf::loadView('centro.pdf.doador', compact('doadores', 'centro'));
     return $pdf->download('Lista de doadores.pdf');
+}
+
+public function getQuestionario($agendamentoId)
+{
+    $questionario = Questionario::with(['agendamento.doador'])
+        ->where('id_agendamento', $agendamentoId)
+        ->firstOrFail();
+
+    return response()->json([
+        'data_resposta' => $questionario->data_resposta,
+        'doador' => $questionario->agendamento->doador,
+        ...$questionario->toArray()
+    ]);
+}
+
+public function generateQuestionarioPDF($id)
+{
+    $questionario = Questionario::with([
+            'agendamento.doador',
+            'agendamento.centro'
+        ])
+        ->findOrFail($id);
+
+    $pdf = PDF::loadView('centro.pdf.questionario-pdf', [
+        'questionario' => $questionario,
+        'doador' => $questionario->agendamento->doador,
+        'centro' => $questionario->agendamento->centro
+    ]);
+
+    return $pdf->download("questionario-{$questionario->id}.pdf");
 }
 
 

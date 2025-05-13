@@ -104,6 +104,87 @@
     color: #dc3545;
 }
 
+/* Modal horizontal */
+.modal-horizontal .modal-dialog {
+    max-width: 95%;
+    height: 85vh;
+}
+
+.modal-horizontal .modal-content {
+    height: 100%;
+}
+
+.modal-horizontal .modal-body {
+    overflow-y: auto;
+    padding: 20px;
+}
+
+.question-badge {
+    min-width: 70px;
+    text-align: center;
+}
+
+.sticky-section-header {
+    position: sticky;
+    top: 0;
+    background: white;
+    z-index: 1;
+    padding-top: 1rem;
+    padding-bottom: 1rem;
+    margin-bottom: 1rem;
+    border-bottom: 2px solid #dee2e6;
+}
+.question-item {
+    padding: 12px;
+    margin-bottom: 10px;
+    background: #f8f9fa;
+    border-radius: 8px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.question-text {
+    flex: 1;
+    margin-right: 15px;
+    font-size: 0.95em;
+    line-height: 1.4;
+}
+
+.answer-badge {
+    flex-shrink: 0;
+    width: 70px;
+    text-align: center;
+    font-size: 0.9em;
+    padding: 5px 10px;
+}
+
+#btnExportPDF {
+    width: 36px;
+    height: 36px;
+    transition: all 0.3s ease;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+#btnExportPDF:hover {
+    background-color: #fff !important;
+    color: #c64242 !important;
+    transform: scale(1.1);
+    box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+}
+
+/* Tooltip custom */
+.tooltip-inner {
+    background-color: #c64242;
+    font-size: 0.85em;
+    padding: 5px 10px;
+}
+
+.bs-tooltip-end .tooltip-arrow::before {
+    border-right-color: #c64242 !important;
+}
 </style>
 @endsection
 
@@ -111,79 +192,87 @@
 <div class="container">
     <!-- Modal para Registro de Doação -->
 <div class="modal fade" id="registrarDoacaoModal" tabindex="-1">
-    <div class="modal-dialog">
+    <div class="modal-dialog modal-lg">
         <div class="modal-content">
             <form id="registrarDoacaoForm" method="POST" action="{{ route('doacoes.store') }}">
                 @csrf
                 <input type="hidden" name="id_agendamento" id="id_agendamento">
                 <input type="hidden" name="doador_id" id="doador_id">
                 
-                <div class="modal-header">
+                <div class="modal-header bg-danger text-white">
                     <h5 class="modal-title">Registro de Doação</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
                 </div>
                 
                 <div class="modal-body">
-                    <!-- Tipo Sanguíneo -->
-                    <div class="mb-3" id="bloodTypeField" style="display: none;">
-                        <label>Tipo Sanguíneo</label>
-                        <select name="tipo_sanguineo" id="tipo_sanguineo" class="form-select">
-                            <option value="" disabled selected>Selecione o tipo</option>
-                            @foreach(['A+', 'A-', 'B+', 'B-', 'O+', 'O-', 'AB+', 'AB-'] as $tipo)
-                                <option value="{{ $tipo }}">{{ $tipo }}</option>
-                            @endforeach
-                        </select>
-                    </div>
+                    <div class="row g-4">
+                        <!-- Coluna Esquerda -->
+                        <div class="col-md-6">
+                            <!-- Tipo Sanguíneo -->
+                            <div class="mb-3" id="bloodTypeField" style="display: none;">
+                                <label class="form-label">Tipo Sanguíneo</label>
+                                <select name="tipo_sanguineo" id="tipo_sanguineo" class="form-select">
+                                    <option value="" disabled selected>Selecione o tipo</option>
+                                    @foreach(['A+', 'A-', 'B+', 'B-', 'O+', 'O-', 'AB+', 'AB-'] as $tipo)
+                                        <option value="{{ $tipo }}">{{ $tipo }}</option>
+                                    @endforeach
+                                </select>
+                            </div>
 
-                    <!-- Campo Peso -->
-                    <div class="mb-3">
-                        <label>Peso (kg)</label>
-                        <input type="number" step="0.1" id="peso" name="peso" class="form-control" placeholder="Ex: 70.5" required>
-                    </div>
+                            <!-- Campo Peso -->
+                            <div class="mb-3">
+                                <label class="form-label">Peso (kg)</label>
+                                <input type="number" step="0.1" id="peso" name="peso" class="form-control" placeholder="Ex: 70.5" required>
+                            </div>
 
-                    <!-- Campo Hemoglobina -->
-                    <div class="mb-3">
-                        <label>Hemoglobina (g/dL)</label>
-                        <input type="number" step="0.1" id="hemoglobina" name="hemoglobina" class="form-control" placeholder="Ex: 13.5" required>
-                    </div>
-                    
-                    <!-- Campo Pressão Arterial -->
-                    <div class="mb-3">
-                        <label>Pressão Arterial</label>
-                        <input type="text" name="pressao_arterial" id="pressao_arterial" class="form-control" placeholder="Ex: 120/80" pattern="\d{2,3}/\d{2,3}" required>
-                    </div>
-                    
-                    <!-- Volume Coletado -->
-                    <div class="mb-3">
-                        <label>Volume Coletado (ml)</label>
-                        <input type="number" name="volume_coletado" id="volume_coletado" class="form-control" min="300" max="500" value="450" required>
-                    </div>
+                            <!-- Campo Hemoglobina -->
+                            <div class="mb-3">
+                                <label class="form-label">Hemoglobina (g/dL)</label>
+                                <input type="number" step="0.1" id="hemoglobina" name="hemoglobina" class="form-control" placeholder="Ex: 13.5" required>
+                            </div>
+                            
+                            <!-- Campo Pressão Arterial -->
+                            <div class="mb-3">
+                                <label class="form-label">Pressão Arterial</label>
+                                <input type="text" name="pressao_arterial" id="pressao_arterial" class="form-control" placeholder="Ex: 120/80" pattern="\d{2,3}/\d{2,3}" required>
+                            </div>
+                        </div>
 
-                    <!-- Profissional Responsável (Input) -->
-                    <div class="mb-3">
-                        <label>Profissional Responsável</label>
-                        <input type="text" name="nome_profissional" id="nome_profissional" class="form-control" placeholder="Nome do Profissional" required>
-                    </div>
-                    
-                    <!-- Status da Doação -->
-                    <div class="mb-3">
-                        <label>Status da Doação</label>
-                        <select name="status" class="form-select" required>
-                            <option value="Aprovado">Aprovado</option>
-                            <option value="Reprovado">Reprovado</option>
-                        </select>
-                    </div>
-                    
-                    <!-- Observações -->
-                    <div class="mb-3">
-                        <label>Observações</label>
-                        <textarea name="observacoes" class="form-control" rows="2"></textarea>
+                        <!-- Coluna Direita -->
+                        <div class="col-md-6">
+                            <!-- Volume Coletado -->
+                            <div class="mb-3">
+                                <label class="form-label">Volume Coletado (ml)</label>
+                                <input type="number" name="volume_coletado" id="volume_coletado" class="form-control" min="300" max="500" value="450" required>
+                            </div>
+
+                            <!-- Profissional Responsável -->
+                            <div class="mb-3">
+                                <label class="form-label">Profissional Responsável</label>
+                                <input type="text" name="nome_profissional" id="nome_profissional" class="form-control" placeholder="Nome do Profissional" required>
+                            </div>
+                            
+                            <!-- Status da Doação -->
+                            <div class="mb-3">
+                                <label class="form-label">Status da Doação</label>
+                                <select name="status" class="form-select" required>
+                                    <option value="Aprovado">Aprovado</option>
+                                    <option value="Reprovado">Reprovado</option>
+                                </select>
+                            </div>
+                            
+                            <!-- Observações -->
+                            <div class="mb-3">
+                                <label class="form-label">Observações</label>
+                                <textarea name="observacoes" class="form-control" rows="2"></textarea>
+                            </div>
+                        </div>
                     </div>
                 </div>
                 
-                <div class="modal-footer">
+                <div class="modal-footer bg-light">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                    <button type="submit" class="btn btn-primary">Salvar Doação</button>
+                    <button type="submit" class="btn btn-danger">Salvar Doação</button>
                 </div>
             </form>
         </div>
@@ -267,7 +356,6 @@
                                                 </button>
                                             </li>
                                             @endif
-
                                             @if($agendamento->status === 'Comparecido')
                                             <li>
                                                 <button class="dropdown-item text-primary" 
@@ -360,6 +448,45 @@
         </div>
     </div>
 </div>
+
+<!-- Modal do Questionário -->
+<div class="modal fade" id="questionarioModal" tabindex="-1">
+    <div class="modal-dialog modal-xl"> <!-- Alterado para modal-xl -->
+        <div class="modal-content">
+            <div class="modal-header bg-danger text-white">
+                 <h5 class="modal-title">Questionário Pré-Doação</h5>
+                   <div class="d-flex align-items-center gap-2 ms-auto"> 
+                        <button type="button" 
+                                class="btn text-white " 
+                                id="btnExportPDF"
+                                data-bs-toggle="tooltip" 
+                                data-bs-placement="left" 
+                                title="Exportar para PDF">
+                            <i class="fas fa-file-pdf"></i>
+                        </button>
+                        <button type="button" 
+                                class="btn-close btn-close-white" 
+                                data-bs-dismiss="modal"></button>
+                   </div>
+            </div>
+            <div class="modal-body">
+                <div id="questionarioContent" class="container-fluid">
+                    <div class="row g-4">
+                        <!-- Coluna Esquerda -->
+                        <div class="col-md-6 border-end">
+                            <!-- Conteúdo será preenchido via JS -->
+                        </div>
+                        
+                        <!-- Coluna Direita -->
+                        <div class="col-md-6">
+                            <!-- Conteúdo será preenchido via JS -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
 @endsection
 
 @section('scripts')
@@ -411,53 +538,117 @@ $(document).ready(function () {
         const errorMessages = [];
         const $form = $(this);
 
-        // Reset errors
+        // Resetar erros
         $('.is-invalid').removeClass('is-invalid');
         $('.invalid-feedback').remove();
 
-
-        // Validação dos Campos
+        // Novas validações
         const validations = [
-            {id: '#peso', test: (v) => v >= 45, msg: 'Peso mínimo: 45 kg'},
-            {id: '#hemoglobina', test: (v) => v >= 12.5, msg: 'Hemoglobina mínima: 12.5 g/dL'},
-            {id: '#pressao_arterial', test: (v) => /^\d{2,3}\/\d{2,3}$/.test(v), msg: 'Formato inválido (ex: 120/80)'},
-            {id: '#volume_coletado', test: (v) => v >= 300 && v <= 500, msg: 'Volume deve ser entre 300-500 ml'},
-            {id: '#nome_profissional', test: (v) => v.trim().length >= 3, msg: 'Nome profissional incompleto'},
+            // Validação Tipo Sanguíneo (condicional)
+            {
+                id: '#tipo_sanguineo',
+                test: (v) => $('#bloodTypeField').is(':visible') ? v !== '' : true,
+                msg: 'Selecione o tipo sanguíneo'
+            },
+            // Validação Peso
+            {
+                id: '#peso',
+                test: (v) => v >= 45 && v <= 200, // Intervalo realista
+                msg: 'Peso deve ser entre 45-200 kg'
+            },
+            // Validação Hemoglobina
+            {
+                id: '#hemoglobina',
+                test: (v) => v >= 12.5 && v <= 18.0, // Intervalo médico
+                msg: 'Hemoglobina deve ser 12.5-18.0 g/dL'
+            },
+            // Validação Pressão Arterial
+            {
+                id: '#pressao_arterial',
+                test: (v) => {
+                    const partes = v.split('/');
+                    if (partes.length !== 2) return false;
+                    const sistolica = parseInt(partes[0]);
+                    const diastolica = parseInt(partes[1]);
+                    return (sistolica >= 90 && sistolica <= 200) && 
+                           (diastolica >= 60 && diastolica <= 120);
+                },
+                msg: 'Valores inválidos (ex: 120/80)'
+            },
+            // Validação Volume
+            {
+                id: '#volume_coletado',
+                test: (v) => v >= 300 && v <= 500,
+                msg: 'Volume deve ser 300-500 ml'
+            },
+            // Validação Profissional
+            {
+                id: '#nome_profissional',
+                test: (v) => v.trim().length >= 5 && /^[a-zA-Z\u00C0-\u017F\s]+$/.test(v),
+                msg: 'Nome completo válido (mín. 5 letras)'
+            },
+            // Validação Status
+            {
+                id: 'select[name="status"]',
+                test: (v) => ['Aprovado', 'Reprovado'].includes(v),
+                msg: 'Selecione um status válido'
+            }
         ];
 
+        // Executar validações
         validations.forEach(({id, test, msg}) => {
-            const value = $(id).val();
+            const $element = $(id);
+            const value = $element.val();
+            
             if (!test(value)) {
                 isValid = false;
                 errorMessages.push(msg);
-                $(id).addClass('is-invalid')
-                    .after(`<div class="invalid-feedback">${msg}</div>`);
+                $element.addClass('is-invalid')
+                       .parent().append(`<div class="invalid-feedback">${msg}</div>`);
             }
         });
 
-        // Tratar Resultado
+        // Validação de campos ocultos
+        if (!$('#id_agendamento').val() || !$('#doador_id').val()) {
+            isValid = false;
+            errorMessages.push('Dados do agendamento inválidos');
+            Swal.fire('Erro!', 'Recarregue a página e tente novamente', 'error');
+        }
+
+        // Tratar resultado
         if (!isValid) {
             Swal.fire({
                 icon: 'error',
-                title: 'Erros encontrados',
-                html: `<ul>${errorMessages.map(m => `<li>${m}</li>`).join('')}</ul>`
+                title: 'Corrija os seguintes erros:',
+                html: `<ul class="text-start">${errorMessages.map(m => `<li>${m}</li>`).join('')}</ul>`
             });
         } else {
+            // Enviar dados
             fetch($form.attr('action'), {
                 method: 'POST',
                 body: new FormData($form[0]),
-                headers: {'X-CSRF-TOKEN': '{{ csrf_token() }}', 'Accept': 'application/json'}
+                headers: {
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                    'Accept': 'application/json'
+                }
             })
             .then(async response => {
                 const data = await response.json();
-                if (!response.ok) throw data;
+                if (!response.ok) throw { ...data, status: response.status };
                 
-                Swal.fire('Sucesso!', data.message, 'success').then(() => {
-                    window.location.reload();
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Sucesso!',
+                    text: data.message,
+                    willClose: () => window.location.reload()
                 });
             })
             .catch(error => {
-                Swal.fire('Erro!', error.message || 'Falha no servidor', 'error');
+                const msg = error.status === 422 
+                    ? Object.values(error.errors).join('\n')
+                    : error.message || 'Erro no servidor';
+                
+                Swal.fire('Erro!', msg, 'error');
             });
         }
     });
@@ -621,5 +812,118 @@ function isValidDate(d) {
             console.error('Erro detalhado:', error);
         });
     }
+
+let currentQuestionarioData = null;
+    // Função para carregar o questionário
+function carregarQuestionario(agendamentoId) {
+    const modal = new bootstrap.Modal(document.getElementById('questionarioModal'));
+    const [leftCol, rightCol] = document.querySelectorAll('#questionarioContent .col-md-6');
+     currentQuestionarioData = null;
+    // Loading state
+    leftCol.innerHTML = rightCol.innerHTML = `
+        <div class="text-center my-5">
+            <div class="spinner-border text-danger" role="status">
+                <span class="visually-hidden">Carregando...</span>
+            </div>
+        </div>
+    `;
+    
+    modal.show();
+    
+    fetch(`/centro/agendamentos/${agendamentoId}/questionario`)
+        .then(response => {
+            if (!response.ok) throw new Error('Questionário não encontrado');
+            return response.json();
+        })
+        .then(data => {
+            const questions = {
+    // Primeira coluna
+    'ja_doou_sangue': 'Doou sangue nos últimos 4 meses?',
+    'problema_doacao_anterior': 'Teve problemas em doações anteriores?',
+    'fez_tatuagem_ultimos_12_meses': 'Fez tatuagem ou piercing nos últimos 12 meses?',
+    'fez_cirurgia_recente': 'Realizou cirurgia nos últimos 6 meses?',
+    'recebeu_transfusao_sanguinea': 'Recebeu transfusão sanguínea nos últimos 12 meses?',
+    'tem_doenca_infecciosa': 'Possui doença infecciosa?',
+    'teve_febre_ultimos_30_dias': 'Teve febre nos últimos 30 dias?',
+    
+    // Segunda coluna
+    'tem_doenca_cronica': 'Possui doença crônica?',
+    'esta_gravida': 'Está grávida ou amamentando?',
+    'usa_medicacao_continua': 'Faz uso contínuo de medicamentos?',
+    'tem_comportamento_de_risco': 'Nos últimos 6 meses, você teve práticas de risco de infecções sexualmente transmissíveis?',
+    'consumiu_alcool_ultimas_24_horas': 'Consumiu álcool nas últimas 24 horas?',
+    'teve_malaria_ultimos_3meses': 'Teve malária nos últimos 3 meses?',
+    'nasceu_ou_viveu_angola': 'Nasceu e sempre viveu em Angola?',
+    'esteve_internado': 'Esteve internado nos últimos 12 meses?'
+};
+    
+    currentQuestionarioData = data;
+     document.getElementById('btnExportPDF').addEventListener('click', () => {
+                if(currentQuestionarioData && currentQuestionarioData.id_questionario) {
+                    window.open(
+                        `/centro/questionario/${currentQuestionarioData.id_questionario}/pdf`, 
+                        '_blank'
+                    );
+                }
+            });
+
+            // Inicializar tooltip
+            new bootstrap.Tooltip(document.getElementById('btnExportPDF'), {
+                boundary: 'window',
+                trigger: 'hover'
+            });
+            // Dividir questões
+            const primeiraParte = Object.entries(questions).slice(0,7);
+            const segundaParte = Object.entries(questions).slice(7);
+
+            const createQuestionHTML = (items) => items.map(([key, text]) => `
+                <div class="d-flex justify-content-between align-items-center py-2 px-3 mb-2 bg-light rounded">
+                    <span class="text-muted">${text}</span>
+                    <span class="badge ${data[key] ? 'bg-danger' : 'bg-success'}">
+                        ${data[key] ? 'Sim' : 'Não'}
+                    </span>
+                </div>
+            `).join('');
+
+            leftCol.innerHTML = `
+                <div class="sticky-top pt-3" style="top: -1rem">
+                    <h5 class="text-danger mb-4">
+                        <i class="fas fa-clipboard-list me-2"></i>
+                        Triagem Clínica
+                    </h5>
+                    ${createQuestionHTML(primeiraParte)}
+                </div>
+            `;
+
+            rightCol.innerHTML = `
+                <div class="sticky-top pt-3" style="top: -1rem">
+                    <div class="d-flex justify-content-between align-items-center mb-4">
+                        <h5 class="text-danger mb-0">
+                            <i class="fas fa-user-shield me-2"></i>
+                            Saúde do Doador
+                        </h5>
+                        <div class="text-end">
+                            <small class="text-muted">
+                                ${new Date(data.data_resposta).toLocaleDateString('pt-BR')}
+                            </small>
+                            <div class="badge bg-danger">
+                                ${data.doador.tipo_sanguineo}
+                            </div>
+                        </div>
+                    </div>
+                    ${createQuestionHTML(segundaParte)}
+                </div>
+            `;
+        })
+        .catch(error => {
+            leftCol.innerHTML = rightCol.innerHTML = `
+                <div class="alert alert-danger mb-0">
+                    <i class="fas fa-exclamation-triangle me-2"></i>
+                    ${error.message}
+                </div>
+            `;
+        });
+}
+
 </script>
 @endsection
