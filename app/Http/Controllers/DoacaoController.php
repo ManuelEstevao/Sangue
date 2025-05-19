@@ -268,37 +268,40 @@ public function edit($id)
         }
     }
 
-    public function relatorio(Doador $doador)
+   public function relatorio(Doador $doador)
 {
     dd($doador);
     try {
-        // Carregar relacionamentos com ordenação
-        $doador->load(['agendamentos' => function($query) {
-            $query->with(['doacao', 'questionario', 'centro'])
-                  ->orderBy('data_agendada', 'desc')
-                  ->withTrashed(); // Caso use soft delete
+        // 1) Carrega agendamentos com doação, questionário e centro, ordenados por data
+        $doador->load(['agendamentos' => function($q) {
+            $q->with(['doacao', 'questionario', 'centro'])
+              ->orderBy('data_agendada', 'desc');
         }]);
         
-        // Dados adicionais
+        // 2) Total de doações e soma de volume
+        $totalDoacoes = $doador->agendamentos->count();
+        $volumeTotal  = $doador->agendamentos
+                         ->sum(fn($ag) => $ag->doacao?->volume_coletado ?? 0);
+        
+        // 3) Dados para a view
         $data = [
-            'doador' => $doador,
-            'total_doacoes' => $doador->agendamentos->count(),
-            'volume_total' => $doador->agendamentos->sum('doacao.volume_coletado'),
-            'data_emissao' => now()->format('d/m/Y H:i'),
+            'doador'         => $doador,
+            'total_doacoes'  => $totalDoacoes,
+            'volume_total'   => $volumeTotal,
+            'data_emissao'   => now()->format('d/m/Y H:i'),
         ];
-
-        $pdf = PDF::loadView('centro.pdf.relatorioDador', $data)
-                  ->setPaper('a4', 'portrait')
-                  ->setOption('isPhpEnabled', true)
+        
+        // 4) Gera o PDF
+        $pdf = PDF::loadView('centro.pdf.relatorioDoador', $data)
+                  ->setPaper('a4')
                   ->setOption('defaultFont', 'Helvetica');
-
+        
         return $pdf->download("relatorio-doador-{$doador->id_doador}.pdf");
-
     } catch (\Exception $e) {
-        return redirect()->back()
-            ->with('error', 'Erro ao gerar relatório: '.$e->getMessage());
+        return back()->with('error', 'Erro ao gerar relatório: ' . $e->getMessage());
     }
 }
+
 
 
 }

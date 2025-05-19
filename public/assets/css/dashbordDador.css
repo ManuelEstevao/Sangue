@@ -24,6 +24,7 @@ body {
     font-family: 'Poppins', sans-serif;
     background: #f1f1f1;
     color: var(--text-color);
+    overflow: hidden;
 }
 
 /* Wrapper do layout */

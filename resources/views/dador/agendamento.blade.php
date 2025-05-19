@@ -58,6 +58,7 @@
     background-position: right calc(0.375em + 0.1875rem) center;
     background-size: calc(0.75em + 0.375rem) calc(0.75em + 0.375rem);
 }
+
 </style>
 @endsection
 
@@ -213,15 +214,22 @@
                 {
                     hintContent: '{{ $centro->nome }}',
                     balloonContent: `
-                        <div class="map-popup">
-                            <h6>{{ $centro->nome }}</h6>
-                            <p class="small">{{ $centro->endereco }}</p>
-                            <p class="small">{{ $centro->telefone }}</p>
-                            <button onclick="selectCenter({{ $centro->id_centro }})" 
-                                    class="btn btn-sm btn-danger mt-2">
-                                Selecionar Centro
-                            </button>
-                        </div>
+                       <div class="map-popup">
+                    <h6 class="mb-2">{{ $centro->nome }}</h6>
+                    <div class="info-item">
+                        <i class="fas fa-map-marker-alt text-danger "></i>
+                        <span class="small ">{{ $centro->endereco }}</span>
+                    </div>
+                    <div class="info-item">
+                        <i class="fas fa-phone text-danger "></i>
+                        <span class="small">{{ $centro->telefone }}</span>
+                    </div>
+                    <button onclick="selectCenter({{ $centro->id_centro }})" 
+                            class="btn btn-sm btn-danger mt-3 w-100">
+                        <i class="fas fa-check me-2"></i>
+                        Selecionar
+                    </button>
+                </div>
                     `
                 },
                 {
@@ -248,6 +256,7 @@
     
     // Atualiza as informações do centro
     updateCenterInfo(centroId);
+    map.balloon.close();
 }
 
     const horariosCentros = @json($horariosCentros);

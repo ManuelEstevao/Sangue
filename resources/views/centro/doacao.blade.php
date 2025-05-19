@@ -416,7 +416,7 @@ function abrirModalEdicao(element) {
             {
                 id: '#editProfissional',
                 test: (v) => v.trim().length >= 5 && /^[a-zA-Z\u00C0-\u017F\s]+$/.test(v),
-                msg: 'Nome profissional inválido (mín. 5 letras)'
+                msg: 'Nome profissional inválido'
             },
             {
                 id: '#editStatus',

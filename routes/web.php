@@ -60,7 +60,8 @@ Route::middleware('guest')->group(function () {
 |--------------------------------------------------------------------------
 */
 Route::get('/campanhas/{campanha}', [CampanhaController::class, 'show'])->name('campanha.detalhe');
-
+Route::post('/check-bilhete-unique', [DoadoresController::class, 'checkBilheteUnique'])->name('check.bilhete.unique');
+Route::post('/check-email-unique', [DoadoresController::class, 'checkEmailUnique'])->name('check.email.unique');
 /*
 |--------------------------------------------------------------------------
 | Rotas Protegidas (Usuários Autenticados)
@@ -72,6 +73,11 @@ Route::middleware('auth')->group(function () {
     // Rotas para doadores
     Route::get('/doador', [dadorController::class, 'index'])->name('dador');
     Route::get('/doador/dashboard', [DashDadorController::class, 'index'])->name('doador.Dashbord');
+    //QR
+    Route::get('/doador/{doador}/verificar', [DashDadorController::class,'verificarQr'])
+     ->name('doador.qr.verificar');
+    Route::get('/verificar-doacao/{codigo}', [DashDadorController::class, 'verificarDoacao'])
+     ->name('doador.verificar');
 
     // Agendamentos
     Route::controller(AgendamentoController::class)->group(function () {
@@ -80,12 +86,14 @@ Route::middleware('auth')->group(function () {
         Route::get('/doador/agendamento/{id}/edit', 'edit')->name('agendamento.edit');
         Route::patch('/doador/agendamento/{id}', 'update')->name('agendamento.update');
         Route::patch('/doador/agendamento/{id}/cancelar', 'cancelar')->name('agendamento.cancelar');
+      
+
     });
 
     Route::post('/doador/agendamento/{agendamento}/questionario',[QuestionarioController::class, 'store'])->name('doador.questionario.store');
     Route::get('/doador/agendamento/{agendamento}/questionario/comprovativo', [QuestionarioController::class, 'comprovativo'])->name('doador.questionario.comprovativo');
-
-
+    Route::get('/direcoes/{agendamento}', [AgendamentoController::class, 'showDirections'])
+    ->name('direcoes');
     // Histórico de Doações
     Route::get('/doacoes/historico', [HistoricoDoacaoController::class, 'index'])->name('historico');
     Route::get('/doador/historico/{doador}', [HistoricoDoacaoController::class, 'show'])->name('doador.historico');
@@ -242,8 +250,7 @@ Route::middleware('auth')->group(function () {
     Route::get('admin/doadores', [DoadoresController::class, 'index'])->name('listaD');
     Route::get('admin/doadores/exportar-pdf', [DoadoresController::class, 'exportarPdf'])
          ->name('doador.Pdf');
-    Route::post('/check-bilhete-unique', [DoadoresController::class, 'checkBilheteUnique'])->name('check.bilhete.unique');
-    Route::post('/check-email-unique', [DoadoresController::class, 'checkEmailUnique'])->name('check.email.unique');
+   
 
 
     Route::get('/admin/centros/{centro}', [CentrosController::class, 'show'])

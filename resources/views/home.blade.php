@@ -36,8 +36,7 @@
         <div class="carousel">
           <div class="carousel-images">
             <div class="carousel-image img-fluid" style="background-image: url('/assets/img/hero3.png');"></div>
-            <div class="carousel-image img-fluid" style="background-image: url('/assets/img/hero2.jpg');"></div>
-            <div class="carousel-image img-fluid" style="background-image: url('/assets/img/hero3.png');"></div>
+            <div class="carousel-image img-fluid" style="background-image: url('/assets/img/10.png');"></div>
             <div class="carousel-image img-fluid" style="background-image: url('/assets/img/hero1.png');"></div>
             <div class="carousel-image img-fluid" style="background-image: url('/assets/img/hero3.png');"></div>
           </div>

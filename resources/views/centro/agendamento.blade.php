@@ -185,6 +185,49 @@
 .bs-tooltip-end .tooltip-arrow::before {
     border-right-color: #c64242 !important;
 }
+
+@media (min-width: 768px) {
+    #questionarioModal .modal-dialog {
+        max-width: 800px;
+    }
+    
+    .question-item {
+        flex-direction: row;
+        align-items: center;
+        padding: 1rem;
+    }
+    
+    .question-text {
+        margin-right: 1rem;
+        margin-bottom: 0;
+        font-size: 0.95rem;
+    }
+    
+    .answer-badge {
+        width: auto;
+        min-width: 70px;
+    }
+    
+    #btnExportPDF {
+        width: 36px;
+        height: 36px;
+    }
+}
+
+@media (max-width: 576px) {
+    #questionarioModal .modal-header {
+        flex-wrap: wrap;
+        gap: 0.5rem;
+    }
+    
+    #questionarioModal .modal-title {
+        font-size: 1.1rem;
+    }
+    
+    .border-end-md {
+        border-right: none !important;
+    }
+}
 </style>
 @endsection
 
@@ -585,7 +628,7 @@ $(document).ready(function () {
             {
                 id: '#nome_profissional',
                 test: (v) => v.trim().length >= 5 && /^[a-zA-Z\u00C0-\u017F\s]+$/.test(v),
-                msg: 'Nome completo válido (mín. 5 letras)'
+                msg: 'Nome completo inválido'
             },
             // Validação Status
             {
@@ -906,9 +949,6 @@ function carregarQuestionario(agendamentoId) {
                             <small class="text-muted">
                                 ${new Date(data.data_resposta).toLocaleDateString('pt-BR')}
                             </small>
-                            <div class="badge bg-danger">
-                                ${data.doador.tipo_sanguineo}
-                            </div>
                         </div>
                     </div>
                     ${createQuestionHTML(segundaParte)}

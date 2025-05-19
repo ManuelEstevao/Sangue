@@ -1,177 +1,244 @@
-const form = document.getElementById("form");
-const bi = document.getElementById("bi");
-const nome = document.getElementById("nome");
-const genero = document.getElementById("genero");
-const data = document.getElementById("data");
-const tisangue = document.getElementById("tisangue");
-const email = document.getElementById("email");
-const contacto = document.getElementById("contacto");
-const senha = document.getElementById("senha");
-const confSenha = document.getElementById("confSenha");
+// form.js
 
-form.addEventListener("submit", (e) => {
-  e.preventDefault();
-  checkInputs();
-});
+document.addEventListener('DOMContentLoaded', () => {
+  const form       = document.getElementById('form');
+  const bi         = document.getElementById('bi');
+  const nome       = document.getElementById('nome');
+  const genero     = document.getElementById('genero');
+  const dataField  = document.getElementById('data');
+  const getHidden  = () => document.getElementById('dataHidden');
+  const tisangue   = document.getElementById('tisangue');
+  const email      = document.getElementById('email');
+  const contacto   = document.getElementById('contacto');
+  const senha      = document.getElementById('senha');
+  const confSenha  = document.getElementById('confSenha');
 
-function checkInputs() {
-  const biValue = bi.value.trim();
-  const nomeValue = nome.value.trim();
-  const generoValue = genero.value.trim();
-  const dataValue = data.value.trim();
-  const tisangueValue = tisangue.value;
-  const emailValue = email.value.trim();
-  const contactoValue = contacto.value.trim();
-  const senhaValue = senha.value.trim();
-  const confSenhaValue = confSenha.value.trim();
+  // URLs injetadas no Blade
+  const urlCheckBI    = form.dataset.checkBiUrl;
+  const urlCheckEmail = form.dataset.checkEmailUrl;
+  const csrfToken     = document.querySelector('meta[name="csrf-token"]').content;
 
-  // Validação do BI
-  if (biValue === "") {
-    setErrorFor(bi, "O Bilhete de Identidade é obrigatório.");
-  } else if (!/^[A-Z0-9]{14}$/.test(biValue)) {
-    setErrorFor(bi, "BI inválido (14 caracteres alfanuméricos)");
-  } else {
-    setSuccessFor(bi);
+  // Regex de formato
+  const regexBI    = /^[A-Za-z0-9]{14}$/;
+  const regexEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  const regexTel   = /^\+244\s?9\d{2}\s?\d{3}\s?\d{3}$/;
+
+  // Helpers
+  function setError(el, msg) {
+    const ctrl = el.closest('.form-control, .data');
+    ctrl.classList.add('error');
+    ctrl.classList.remove('success');
+    ctrl.querySelector('.error-message').innerText = msg;
+  }
+  function setSuccess(el) {
+    const ctrl = el.closest('.form-control, .data');
+    ctrl.classList.remove('error');
+    ctrl.classList.add('success');
+    ctrl.querySelector('.error-message').innerText = '';
   }
 
-  // Validação do Nome
-  if (nomeValue === "") {
-    setErrorFor(nome, "O nome completo é obrigatório.");
-  } else {
-    setSuccessFor(nome);
-  }
+  // Síncrono
+  function validateSync() {
+    let ok = true;
 
-  //Validação do Gênero
-  if (generoValue === "") {
-    setErrorFor(genero, "O gênero é obrigatório.");
-    
-  } else {
-    setSuccessFor(genero);
-  }
-
-
-  const updateDataField = document.getElementById("updateData");
-  if (updateDataField) {
-    const updateDataValue = updateDataField.value.trim();
-    if (updateDataValue === "") {
-      setErrorFor(updateDataField, "Atualize a data de nascimento.");
+    // BI
+    const biVal = bi.value.trim();
+    if (!biVal) {
+      setError(bi, 'BI é obrigatório'); ok = false;
+    } else if (!regexBI.test(biVal)) {
+      setError(bi, 'BI deve ter 14 caracteres alfanuméricos'); ok = false;
     } else {
-      setSuccessFor(updateDataField);
+      setSuccess(bi);
     }
-  }
-  
-  
-  //Validação da Data de Nascimento
-    if (dataValue === "") {
-      setErrorFor(data, "A data de nascimento é obrigatória.");
-    } /*else {
-      const hoje = new Date();
-      const nascimento = new Date(dataValue);
-      const idade = Math.floor((hoje - nascimento) / (365.25 * 24 * 60 * 60 * 1000));
-      
-      if (idade < 18) {
-        setErrorFor(data, "Deve ter pelo menos 18 anos");
-      } else if (idade > 65) {
-        setErrorFor(data, "Idade máxima permitida é 65 anos");
+
+    // Nome
+    const nomeVal = nome.value.trim();
+    if (!nomeVal) {
+      setError(nome, 'Nome é obrigatório'); ok = false;
+    } else if (nomeVal.length < 5) {
+      setError(nome, 'Nome deve ter ≥5 caracteres'); ok = false;
+    } else {
+      setSuccess(nome);
+    }
+
+    // Gênero
+    if (!genero.value) {
+      setError(genero, 'Selecione o gênero'); ok = false;
+    } else {
+      setSuccess(genero);
+    }
+
+    // Data / Idade
+    const upd   = document.getElementById('updateData');
+    let dateStr = '';
+    if (upd) {
+      // Campo de atualização injetado
+      // Exibe instrução no campo original
+      setError(dataField, 'Por favor, atualize a data abaixo');
+      if (!upd.value) {
+        setError(upd, 'Informe sua data de nascimento'); ok = false;
       } else {
-        setSuccessFor(data);
+        dateStr = upd.value;
       }
-    }*/
+    } else {
+      // Data original
+      const dh = getHidden();
+      if (!dh || !dh.value) {
+        setError(dataField, 'Data é obrigatória'); ok = false;
+      } else {
+        dateStr = dh.value;
+      }
+    }
+    // Se dateStr presente, calcula idade
+    if (dateStr) {
+      const [y,m,d] = dateStr.split('-').map(Number);
+      const birth   = new Date(y, m-1, d);
+      const today   = new Date();
+      let age       = today.getFullYear() - birth.getFullYear();
+      const md      = today.getMonth() - birth.getMonth();
+      if (md < 0 || (md === 0 && today.getDate() < birth.getDate())) age--;
+      if (age < 18 || age > 65) {
+        const target = upd ? upd : dataField;
+        setError(target, 'Idade deve estar entre 18 e 65 anos'); ok = false;
+      } else {
+        if (upd) setSuccess(upd);
+        else    setSuccess(dataField);
+      }
+    }
 
+    // Tipo sanguíneo
+    if (!tisangue.value) {
+      setError(tisangue, 'Selecione o tipo sanguíneo'); ok = false;
+    } else {
+      setSuccess(tisangue);
+    }
 
-  // Validação do Tipo Sanguíneo
-  if (tisangueValue === "") {
-    setErrorFor(tisangue, "Selecione o tipo sanguíneo");
-  } else {
-    setSuccessFor(tisangue);
+    // E‑mail
+    const emailVal = email.value.trim();
+    if (!emailVal) {
+      setError(email, 'E‑mail é obrigatório'); ok = false;
+    } else if (!regexEmail.test(emailVal)) {
+      setError(email, 'Formato de e‑mail inválido'); ok = false;
+    } else {
+      setSuccess(email);
+    }
+
+    // Contacto
+    const contVal = contacto.value.trim();
+    if (!contVal) {
+      setError(contacto, 'Contacto é obrigatório'); ok = false;
+    } else if (!regexTel.test(contVal)) {
+      setError(contacto, 'Formato: +244 9XX XXX XXX'); ok = false;
+    } else {
+      setSuccess(contacto);
+    }
+
+    // Senha
+    const senVal = senha.value;
+    if (!senVal) {
+      setError(senha, 'Senha é obrigatória'); ok = false;
+    } else if (senVal.length < 8) {
+      setError(senha, 'Senha deve ter ≥8 caracteres'); ok = false;
+    } else {
+      setSuccess(senha);
+    }
+
+    // Confirmação
+    const confVal = confSenha.value;
+    if (!confVal) {
+      setError(confSenha, 'Confirme a senha'); ok = false;
+    } else if (confVal !== senVal) {
+      setError(confSenha, 'Senhas não coincidem'); ok = false;
+    } else {
+      setSuccess(confSenha);
+    }
+
+    return ok;
   }
 
-  // Validação do Email
-  if (emailValue === "") {
-    setErrorFor(email, "O email é obrigatório.");
-  } else if (!isValidEmail(emailValue)) {
-    setErrorFor(email, "Email inválido");
-  } else {
-    setSuccessFor(email);
+  // Assíncrono
+  async function validateAsync() {
+    let ok = true;
+
+    // BI único
+    const biVal = bi.value.trim();
+    if (regexBI.test(biVal)) {
+      try {
+        const res = await fetch(urlCheckBI, {
+          method: 'POST',
+          credentials: 'same-origin',
+          headers: {
+            'Accept':'application/json',
+            'Content-Type':'application/json',
+            'X-CSRF-TOKEN':csrfToken
+          },
+          body: JSON.stringify({ numero_bilhete: biVal })
+        });
+        if (!res.ok) {
+          setError(bi, 'Erro ao verificar BI'); ok = false;
+        } else {
+          const json = await res.json();
+          if (json.exists) {
+            setError(bi, 'Este BI já está cadastrado'); ok = false;
+          } else {
+            setSuccess(bi);
+          }
+        }
+      } catch {
+        setError(bi, 'Falha de conexão ao verificar BI'); ok = false;
+      }
+    }
+
+    // E‑mail único
+    const emailVal = email.value.trim();
+    if (regexEmail.test(emailVal)) {
+      try {
+        const res = await fetch(urlCheckEmail, {
+          method: 'POST',
+          credentials: 'same-origin',
+          headers: {
+            'Accept':'application/json',
+            'Content-Type':'application/json',
+            'X-CSRF-TOKEN':csrfToken
+          },
+          body: JSON.stringify({ email: emailVal })
+        });
+        if (!res.ok) {
+          setError(email, 'Erro ao verificar e‑mail'); ok = false;
+        } else {
+          const json = await res.json();
+          if (json.exists) {
+            setError(email, 'Este e‑mail já está registrado'); ok = false;
+          } else {
+            setSuccess(email);
+          }
+        }
+      } catch {
+        setError(email, 'Falha de conexão ao verificar e‑mail'); ok = false;
+      }
+    }
+
+    return ok;
   }
 
-  // Validação do Contacto
-  if (contactoValue === "") {
-    setErrorFor(contacto, "O contacto é obrigatório.");
-  } else if (!/^\+244\s?\d{3}\s?\d{3}\s?\d{3}$/.test(contactoValue)) {
-    setErrorFor(contacto, "Formato: +244 XXX XXX XXX");
-  } else {
-    setSuccessFor(contacto);
-  }
-
-  // Validação da Senha
-  if (senhaValue === "") {
-    setErrorFor(senha, "A senha é obrigatória.");
-  } else if (senhaValue.length < 8) {
-    setErrorFor(senha, "Mínimo 8 caracteres");
-  } else {
-    setSuccessFor(senha);
-  }
-
-  // Confirmação de Senha
-  if (confSenhaValue === "") {
-    setErrorFor(confSenha, "Confirme a senha");
-  } else if (confSenhaValue !== senhaValue) {
-    setErrorFor(confSenha, "As senhas não coincidem");
-  } else {
-    setSuccessFor(confSenha);
-  }
-
-  // Verificar validade final
-  const formControls = form.querySelectorAll('.form-control');
-  const formIsValid = [...formControls].every((control) => {
-    return control.classList.contains('success');
+  // Submissão
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    document.querySelectorAll('.form-control, .data').forEach(ctrl => {
+      ctrl.classList.remove('error','success');
+      ctrl.querySelector('.error-message').innerText = '';
+    });
+    const okSync  = validateSync();
+    const okAsync = await validateAsync();
+    if (okSync && okAsync) form.submit();
   });
 
-  if (formIsValid) {
-    form.submit();
-  }
-}
-
-function setErrorFor(input, message) {
-  const formControl = input.parentElement;
-  const small = formControl.querySelector('small');
-  const errorIcon = formControl.querySelector('.fa-exclamation-circle');
-  const successIcon = formControl.querySelector('.fa-check-circle');
-
-  small.innerText = message;
-  formControl.className = "form-control error";
-
-}
-
-function setSuccessFor(input) {
-  const formControl = input.parentElement;
-  const small = formControl.querySelector('small');
-  const errorIcon = formControl.querySelector('.fa-exclamation-circle');
-  const successIcon = formControl.querySelector('.fa-check-circle');
-
-  formControl.className = "form-control success";
-
-}
-
-function isValidEmail(email) {
-  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
-}
-
-// Máscara para contacto
-contacto.addEventListener('input', function(e) {
-  let x = e.target.value.replace(/\D/g, '').substring(0, 12);
-  let formatted = '+244';
-  
-  if (x.length > 3) {
-    formatted += ' ' + x.substring(3, 6);
-  }
-  if (x.length > 6) {
-    formatted += ' ' + x.substring(6, 9);
-  }
-  if (x.length > 9) {
-    formatted += ' ' + x.substring(9, 12);
-  }
-  
-  e.target.value = formatted;
+  // Sincroniza updateData → hidden e limpa erro
+  document.addEventListener('change', e => {
+    if (e.target.id === 'updateData') {
+      const dh = getHidden();
+      if (dh) dh.value = e.target.value;
+      setSuccess(dataField);
+    }
+  });
 });

@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Campanha;
+use App\Models\Centro;
 use Carbon\Carbon; 
 
 class dadorController extends Controller
@@ -20,6 +21,20 @@ class dadorController extends Controller
 
          return view('dador.dador', compact('campanhas')); 
     }
+    public function mostrarMapa()
+{
+    
+    
+
+    // Buscar centros que tenham ao menos 1 solicitação pendente ou parcial
+    $centros = Centro::whereHas('solicitacoes', function($query) {
+        $query->whereIn('status', ['pendente', 'parcial']);
+    })
+    ->get(['id_centro', 'nome', 'latitude', 'longitude']);
+
+    // Passar para a view
+    return view('dador.dador', compact('centros'));
+}
 
     /**
      * Show the form for creating a new resource.

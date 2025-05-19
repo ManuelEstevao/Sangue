@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     <link rel="stylesheet" href="{{ asset('assets/css/formulario.css') }}">
     <link href="assets/img/flavicon.png" rel="icon">
     <link rel="stylesheet" href="{{url('assets/vendor/fontawesome/css/all.min.css')}}">
@@ -17,7 +18,8 @@
             <h2>Cadastro de Doador</h2>
         </header>
 
-        <form id="form" class="form" action="{{ route('store-cadastro') }}" method="POST">
+        <form id="form" class="form" action="{{ route('store-cadastro') }}" method="POST" data-check-bi-url="{{ route('check.bilhete.unique') }}"
+               data-check-email-url="{{ route('check.email.unique') }}">
         @csrf
 
             <!-- Bilhete de Identidade -->
@@ -65,7 +67,7 @@
                     placeholder="Data de Nascimento" 
                     readonly
                 >
-               
+                <i class="fas fa-check-circle icon-sucess"></i>
                 <i class="fas fa-exclamation-circle icon-sucess"></i>
                 <small class="error-message"></small>
                 
@@ -127,9 +129,10 @@
                     id="contacto" 
                     name="contacto" 
                     value="{{ old('contacto') }}" 
-                    placeholder="+244 9xx xxx xxx" 
+                    placeholder="+244 9xxxxxxxx" 
                     maxlength="16" 
-                    pattern="\+244\s[0-9]{3}\s[0-9]{3}\s[0-9]{3}"
+                    pattern="^(?:\+244)?9[1-7]\d{7}$"
+                    title="Digite um número válido: 9xxxxxxxx ou +2449xxxxxxxxx"
                     
                 >
                 <i class="fas fa-exclamation-circle icon-sucess"></i>
@@ -213,7 +216,7 @@ $(document).ready(function () {
                             if ($('#updateData').length === 0) {
                                 var updateField = `
                                     <div class="form-control" id="updateDateContainer">
-                                        <label for="updateData">Atualize sua data de nascimento</label>
+                                        <i class="fas fa-calendar-check"></i>
                                         
                                         <input type="date" id="updateData" name="data_atualizada">
                                         <small class="error-message"></small>
@@ -247,9 +250,6 @@ $(document).ready(function () {
 
     </script>
     <script src="assets/js/form.js"></script>
-    <script
-      src="https://kit.fontawesome.com/f9e19193d6.js"
-      crossorigin="anonymous"
-    ></script>
+    
 </body>
 </html>

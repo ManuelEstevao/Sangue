@@ -65,7 +65,7 @@ class QuestionarioController extends Controller
             );
         
             $pdfUrl      = route('doador.questionario.comprovativo', $id_agendamento);
-            $redirectUrl = route('doador.Dashbord');
+            $redirectUrl = route('direcoes', $id_agendamento);
     
             // 3) Retornar JSON com ambas as URLs
             return response()->json([

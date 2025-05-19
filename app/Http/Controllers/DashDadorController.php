@@ -10,6 +10,13 @@ use App\Models\Centro;
 use App\Models\Doador;
 use App\Models\Notificacao;
 use Carbon\Carbon; 
+use SimpleSoftwareIO\QrCode\Facades\QrCode;
+use BaconQrCode\Encoder\Encoder;
+use BaconQrCode\Renderer\ImageRenderer;
+use BaconQrCode\Renderer\Image\SvgImageBackEnd;
+use BaconQrCode\Renderer\RendererStyle\RendererStyle;
+use BaconQrCode\Common\ErrorCorrectionLevel;
+use BaconQrCode\Writer;
 
 class DashDadorController extends Controller
 {
@@ -71,6 +78,34 @@ class DashDadorController extends Controller
         ->with(['agendamento.centro'])
         ->orderBy('data_envio', 'desc')
         ->get();
+
+       $qrData = [
+    'doador' => [
+        'nome_completo' => $doador->nome,
+        'tipo_sanguineo' => $doador->tipo_sanguineo,
+        'total_doacoes' => $doador->doacoes->where('status', 'Aprovado')->count()
+    ],
+    'historico_doacoes' => $doador->doacoes->sortByDesc('data_doacao')
+        ->take(10)
+        ->map(function($doacao) {
+            return [
+                'data_doacao' => $doacao->data_doacao->isoFormat('DD [de] MMMM [de] YYYY'), // Ex: 15 de março de 2024
+                'local' => $doacao->agendamento->centro->nome,
+                'volume' => $doacao->volume_coletado . 'ml'
+            ];
+        })->values()->toArray()
+];
+
+// Configuração para codificação correta
+$qrContent = json_encode($qrData, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
+   $rendererStyle = new RendererStyle(450, 5); // Tamanho e margem
+$renderer = new ImageRenderer($rendererStyle, new SvgImageBackEnd());
+$writer = new Writer($renderer);
+
+// Gerar QR Code com dados compactados
+
+$qrCode = base64_encode($writer->writeString($qrContent));
+
         // Retorna a view com os dados
         return view('dador.dashbord', [
             'proximaDoacao' => $proximaDoacao,
@@ -79,7 +114,49 @@ class DashDadorController extends Controller
             'proximaDataPermitida' => $proximaDataPermitida,
             'agendamentos' => $agendamentos,
             'centros' => $centros,
-            'notificacoes'=> $notificacoes
+            'notificacoes'=> $notificacoes,
+            'qrCode' => $qrCode,
+            'doador' => $doador
+
         ]);
     }
+
+    public function verificarDoacao($codigo)
+{
+    try {
+        $id_doador = $this->validarCodigo($codigo);
+        $doador = Doador::with(['doacoes' => function($query) {
+            $query->orderByDesc('data_doacao')
+                  ->with('agendamento.centro');
+        }])->findOrFail($id_doador);
+
+        return response()->json([
+            'nome' => $doador->nome,
+            'tipo_sanguineo' => $doador->tipo_sanguineo,
+            'historico' => $doador->doacoes->map(function($doacao) {
+                return [
+                    'data' => $doacao->data_doacao->format('d/m/Y'),
+                    'local' => $doacao->agendamento->centro->nome,
+                    'volume' => $doacao->volume_coletado . 'ml'
+                ];
+            })
+        ]);
+    } catch (\Exception $e) {
+        return response()->json(['erro' => $e->getMessage()], 404);
+    }
+}
+
+private function validarCodigo($codigo)
+{
+    $doadores = Doador::all();
+    
+    foreach ($doadores as $doador) {
+        $hash = hash_hmac('sha256', $doador->id_doador, config('app.key'));
+        if (hash_equals($hash, $codigo)) {
+            return $doador->id_doador;
+        }
+    }
+    
+    throw new \Exception('Código inválido');
+}
 }

@@ -48,7 +48,7 @@
         .question-row {
             display: grid;
             grid-template-columns: 3fr 1fr;
-            margin-bottom: 8pt;
+            margin-bottom: 7pt;
             padding: 4pt 0;
             border-bottom: 1pt solid #eee;
         }
@@ -60,6 +60,7 @@
             border-top: 1pt solid #ccc;
             font-size: 8pt;
             color: #666;
+            
         }
     </style>
 </head>
@@ -82,7 +83,7 @@
     <div class="columns">
         <!-- Coluna 1 -->
         <div class="question-group">
-            <h3 style="margin-bottom: 8pt;">Triagem Clínica</h3>
+            <h3 style="margin-bottom: 7pt; color: #c64242; text-align: center;">Triagem Clínica</h3>
             @foreach([
                 'Doação nos últimos 4 meses?' => $questionario->ja_doou_sangue,
                 'Problemas em doações anteriores?' => $questionario->problema_doacao_anterior,
@@ -101,7 +102,7 @@
 
         <!-- Coluna 2 -->
         <div class="question-group">
-            <h3 style="margin-bottom: 8pt;">Histórico de Saúde</h3>
+            <h3 style="margin-bottom: 7pt; text-align: center; color: #c64242;">Histórico de Saúde</h3>
             @foreach([
                 'Doença crônica?' => $questionario->tem_doenca_cronica,
                 'Grávida/Amamentando?' => $questionario->esta_gravida,

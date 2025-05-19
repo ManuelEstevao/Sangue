@@ -154,19 +154,6 @@ class AgendamentoController extends Controller
         ->latest('data_agendada')
         ->first();
 
-    /*🔹 Definir intervalo mínimo baseado no gênero
-    $intervaloMinimo = ($doador->genero == 'Masculino') ? 90 : 120;
-
-    if ($ultimoAgendamento) {
-        $dataPermitida = \Carbon\Carbon::parse($ultimoAgendamento->data_agendada)->addDays($intervaloMinimo);
-        
-        if (now()->lt($dataPermitida)) {
-            return redirect()->back()->withErrors([
-                'agendamento' => "Você só pode doar novamente após {$dataPermitida->format('d/m/Y')}."
-            ]);
-        }
-    }*/
-
     
     // Criar o agendamento se tudo estiver OK
     $agendamento = Agendamento::create([
@@ -178,7 +165,6 @@ class AgendamentoController extends Controller
     ]);
 
     
-        \Log::info("Chamando AgendamentoNotification para centro {$centro->id_user}");
 
             
         $centroUser = User::find($agendamento->centro->id_user); 
@@ -248,12 +234,16 @@ public function cancelar($id)
 
 
 
+public function showDirections(Agendamento $agendamento)
+{
+    $googleMapsUrl = "https://www.google.com/maps/dir/?api=1&destination=" 
+                   . $agendamento->centro->latitude 
+                   . "," 
+                   . $agendamento->centro->longitude;
 
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(string $id)
-    {
-        //
-    }
+    return view('dador.direccoes', [
+        'agendamento' => $agendamento->load('centro'),
+        'googleMapsUrl' => $googleMapsUrl
+    ]);
+}
 }

@@ -64,14 +64,9 @@
 
     {{-- Cabeçalho com logo --}}
     <div class="header">
-        <img src="{{ public_path('assets/img/logo.png') }}" class="logo" width="120" alt="Logo">
         <h2 style="color: #c00; margin: 0;">Comprovativo de Agendamento</h2>
     </div>
 
-    {{-- Código de confirmação --}}
-    <div class="codigo">
-        <strong>Código:</strong> {{ $codigo_confirmacao }}
-    </div>
 
     {{-- Dados do Doador --}}
     <div class="section">
@@ -110,7 +105,7 @@
         <li>Hidrate-se: beba pelo menos 500 ml de água nas 2 horas que antecedem a doação.</li>
         <li>Evite bebidas alcoólicas nas últimas 24 horas.</li>
         <li>Descanse bem na noite anterior (mínimo 6–8 h de sono).</li>
-        <li>Leve um documento de identificação com foto.</li>
+        <li>Leve o bilhete de identidade.</li>
     </ul>
 </div>
 
