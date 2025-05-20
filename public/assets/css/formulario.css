@@ -60,7 +60,7 @@ input,select{
     border: 2px solid #f0f0f0;
     width: 100%;
     transition: all 0.3s ease;
-    padding: 10px 10px 10px 40px;
+    padding: 10px 15px 10px 40px;
     border-radius: 8px;
     font-size: 14px;
     position: relative;
@@ -110,13 +110,13 @@ select{
     right: 10px;
     visibility: hidden;
 }
-.data i:not(.input-icon), .form-control i:not(.input-icon) {
+.data i:not(.input-icon), .form-control i:not(.input-icon), .date-warning-message i:not(.input-icon) {
     right: 12px;
     font-size: 18px;
 }
 
 /* Mensagens de erro */
-.form-control small, .data small {
+.form-control small, .data small, .date-warning-message {
     position: absolute;
     bottom: 1px;
     left: 40px;
@@ -129,12 +129,12 @@ select{
     visibility: visible;
 }
   
-  .form-control.error i.fa-exclamation-circle, .data.error {
+  .form-control.error i.fa-exclamation-circle, .data.error, .date-warning-message i.fa-exclamation-circle{
     color: #e74c3c;
     visibility: visible;
   }
   
-  .form-control.error small, .data.error small {
+  .form-control.error small, .data.error small, .date-warning-message {
     visibility: visible;
     color: #e74c3c;
   }

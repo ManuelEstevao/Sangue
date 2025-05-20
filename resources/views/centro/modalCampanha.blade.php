@@ -88,6 +88,11 @@
 </style>
 
 <script>
+    function formatarDataParaComparacao(dataStr) {
+    const partes = dataStr.split('/');
+    return new Date(`${partes[2]}-${partes[1]}-${partes[0]}T00:00:00`);
+}
+
     document.addEventListener('DOMContentLoaded', function() {
     // Função de validação reutilizável
     function validarCampanha(form) {
@@ -109,17 +114,12 @@
             isValid = false;
         }
 
-        // Validação Descrição (opcional)
-        if (campos.descricao.value.trim() && campos.descricao.value.trim().length < 20) {
-            errors.descricao = 'Descrição deve ter pelo menos 20 caracteres';
-            isValid = false;
-        }
-
         // Validação Datas
         const hoje = new Date();
         hoje.setHours(0, 0, 0, 0);
-        const dataInicio = campos.data_inicio.value ? new Date(campos.data_inicio.value + 'T00:00') : null;
-        const dataFim = campos.data_fim.value ? new Date(campos.data_fim.value + 'T00:00') : null;
+       const dataInicio = campos.data_inicio.value ? formatarDataParaComparacao(campos.data_inicio.value) : null;
+        const dataFim = campos.data_fim.value ? formatarDataParaComparacao(campos.data_fim.value) : null;
+
 
         // Valida data início
         if (!campos.data_inicio.value || dataInicio < hoje) {

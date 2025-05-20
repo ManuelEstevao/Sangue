@@ -41,6 +41,7 @@ class CampanhaController extends Controller
             'foto' => 'nullable|image|mimes:jpeg,png,jpg|max:2048'
         ]);
 
+        
         // Converter datas para formato MySQL
         $dataInicio = Carbon::createFromFormat('d/m/Y', $request->data_inicio)->format('Y-m-d');
         $dataFim = Carbon::createFromFormat('d/m/Y', $request->data_fim)->format('Y-m-d');
@@ -79,8 +80,8 @@ class CampanhaController extends Controller
         $validated = $request->validate([
             'titulo' => 'required|string|max:100',
             'descricao' => 'nullable|string',
-            'data_inicio' => 'required|date_format:d/m/Y',
-            'data_fim' => 'required|date_format:d/m/Y|after_or_equal:data_inicio',
+            'data_inicio' => 'required',
+            'data_fim' => 'required',
             'hora_inicio' => 'required|date_format:H:i',
             'hora_fim' => 'required|date_format:H:i|after:hora_inicio',
             'foto' => 'nullable|image|mimes:jpeg,png,jpg|max:2048'

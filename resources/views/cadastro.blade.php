@@ -129,10 +129,9 @@
                     id="contacto" 
                     name="contacto" 
                     value="{{ old('contacto') }}" 
-                    placeholder="+244 9xxxxxxxx" 
+                    placeholder="+244 9xx xxx xxx" 
                     maxlength="16" 
-                    pattern="^(?:\+244)?9[1-7]\d{7}$"
-                    title="Digite um número válido: 9xxxxxxxx ou +2449xxxxxxxxx"
+                    pattern="\+244\s[0-9]{3}\s[0-9]{3}\s[0-9]{3}"
                     
                 >
                 <i class="fas fa-exclamation-circle icon-sucess"></i>
@@ -180,7 +179,7 @@
 
     <!-- Script para busca de dados por BI -->
     <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
-    <script>
+<script>
 $(document).ready(function () {
     // Busca dados por BI
     $('#bi').on('blur', function () {
@@ -216,21 +215,49 @@ $(document).ready(function () {
                             if ($('#updateData').length === 0) {
                                 var updateField = `
                                     <div class="form-control" id="updateDateContainer">
-                                        <i class="fas fa-calendar-check"></i>
-                                        
-                                        <input type="date" id="updateData" name="data_atualizada">
+                                        <i class="fas fa-calendar-day"></i>
+                                        <input type="date" 
+                                            id="updateData" 
+                                            name="data_atualizada"
+                                            class="highlight-required"
+                                            min="{{ now()->subYears(65)->format('Y-m-d') }}"
+                                            max="{{ now()->subYears(18)->format('Y-m-d') }}"
+                                            aria-label="Data de nascimento real">
+                                        <small class="instruction-text text-warning">
+                                            <i class="fas fa-exclamation-triangle me-2"></i>
+                                            Por favor insira sua data real de nascimento
+                                        </small>
                                         <small class="error-message"></small>
                                     </div>
                                 `;
+                                
+                                // Adiciona mensagem e estilos no campo original
+                                const originalDateContainer = $('#data').closest('.data');
+                                originalDateContainer
+                                    .addClass('requires-update')
+                                    .append(`
+                                        <div class="date-warning-message">
+                                            <i class="fas fa-info-circle icon-sucess"></i>
+                                            Data do documento inválida - atualize abaixo
+                                        </div>
+                                    `);
+                                
                                 $('.data').after(updateField);
                             }
                         } else {
-                            // Se não for "1900-01-01", remove o campo de atualização, se existir
+                            // Remove tudo se não precisa atualizar
+                            const originalDateContainer = $('#data').closest('.data');
+                            originalDateContainer
+                                .removeClass('requires-update')
+                                .find('.date-warning-message').remove();
+                                
                             $('#updateDateContainer').remove();
                         }
                     } else {
+                        // Fecha if(rawDate) e trata quando não vem data
                         $('#data').val('');
                     }
+
                 } else {
                     alert("Dados não encontrados. Por favor acesse o site da AGT para actualizar seu bilhete.");
                 }
@@ -247,9 +274,8 @@ $(document).ready(function () {
         $("#dataHidden").val(newDate);
     });
 });
+</script>
 
-    </script>
-    <script src="assets/js/form.js"></script>
-    
+<script src="assets/js/form.js"></script>
 </body>
 </html>

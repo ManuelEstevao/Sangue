@@ -10,6 +10,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Barryvdh\DomPDF\Facade\Pdf;
+use Carbon\Carbon;
 
 class DoadoresController extends Controller
 {
@@ -152,6 +153,22 @@ public function checkEmailUnique(Request $request)
             ->with('success', 'Doador criado com sucesso!');
     }
 
+
+   public function perfil($id)
+{
+    $d = Doador::findOrFail($id);
+    $nasc = Carbon::parse($d->data_nascimento);
+    return response()->json([
+        'nome'            => $d->nome,
+        'tipo_sanguineo'  => $d->tipo_sanguineo,
+        'telefone'        => $d->telefone,
+        'data_nascimento' => $nasc->format('d/m/Y'),
+        'endereco'        => $d->endereco,
+        'foto'            => $d->foto, 
+    ]);
+}
+
+
     /**
      * Display the specified resource.
      */
@@ -165,7 +182,8 @@ public function checkEmailUnique(Request $request)
      */
     public function edit(string $id)
     {
-        //
+         $doadores = Doador::with('user')->findOrFail($id);
+        return view('ADM.listaD', compact('doadores'));
     }
 
     /**

@@ -667,13 +667,21 @@
                                                             <i class="fas fa-ellipsis-v"></i>
                                                         </button>
                                                         <ul class="dropdown-menu dropdown-menu-end shadow">
+                                                             <li>
+                                                                <a class="dropdown-item" 
+                                                                href="{{ route('doador.questionario.comprovativo', $agendamento->id_agendamento) }}">
+                                                                    <i class="fas fa-file-pdf me-2"></i>Comprovativo
+                                                                </a>
+                                                            </li>
                                                             @if ($agendamento->status === 'Agendado')
                                                                 <li>
-                                                                    <a class="dropdown-item" 
-                                                                    data-bs-toggle="modal" 
-                                                                    data-bs-target="#editModal{{ $agendamento->id_agendamento }}">
-                                                                        <i class="fas fa-edit me-2"></i>Editar
-                                                                    </a>
+                                                                    <button type="button"
+                                                                            class="dropdown-item"
+                                                                            data-bs-toggle="modal"
+                                                                            data-bs-target="#editModal{{ $agendamento->id_agendamento }}">
+                                                                    <i class="fas fa-edit me-2"></i>Editar
+                                                                    </button>
+
                                                                 </li>
                                                                 <li>
                                                                     <form action="{{ route('agendamento.cancelar', $agendamento->id_agendamento) }}" 
@@ -682,18 +690,12 @@
                                                                         @method('PATCH')
                                                                         <button type="submit" 
                                                                                 class="dropdown-item text-danger" 
-                                                                                onclick="return confirm('Confirmar cancelamento?')">
+                                                                                onclick="event.preventDefault(); showCancelAlert(this)">
                                                                             <i class="fas fa-ban me-2"></i>Cancelar
                                                                         </button>
                                                                     </form>
                                                                 </li>
                                                             @endif
-                                                            <li>
-                                                                <a class="dropdown-item" 
-                                                                href="{{ route('doador.questionario.comprovativo', $agendamento->id_agendamento) }}">
-                                                                    <i class="fas fa-file-pdf me-2"></i>Comprovativo
-                                                                </a>
-                                                            </li>
                                                         </ul>
                                                     </div>
                                                 </div>
@@ -726,9 +728,95 @@
             </div>
         </div>
     </div>
-    @php
-    $doador = Auth::user()->doador; // Obtendo dados do doador
-@endphp
+<!-- modal de editar -->
+@foreach ($agendamentos as $agendamento)
+<div class="modal fade" id="editModal{{ $agendamento->id_agendamento }}" tabindex="-1" aria-labelledby="editModalLabel{{ $agendamento->id_agendamento }}">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow-lg">
+            <div class="modal-header bg-gradient-danger text-white py-3">
+                <div class="d-flex align-items-center">
+                    <i class="fas fa-calendar-edit fa-lg me-3"></i>
+                    <h5 class="modal-title mb-0" id="editModalLabel{{ $agendamento->id_agendamento }}">
+                        Editar Agendamento
+                    </h5>
+                </div>
+            </div>
+            
+            <form action="{{ route('agendamento.update', ['id' => $agendamento->id_agendamento]) }}" method="POST">
+                @csrf
+                @method('PATCH')
+                
+                <div class="modal-body pt-4">
+                    <div class="mb-4">
+                        <label class="form-label fw-bold text-danger mb-3">
+                            <i class="fas fa-clock me-2"></i>Data e Hora
+                        </label>
+                        <div class="input-group">
+                            <input 
+                                type="datetime-local" 
+                                class="form-control form-control-lg border-2  rounded-3"
+                                name="data_agendada"
+                                 value="{{ \Carbon\Carbon::parse(
+                                            \Carbon\Carbon::parse($agendamento->data_agendada)->format('Y-m-d')
+                                            . ' ' .
+                                            \Carbon\Carbon::parse($agendamento->horario)->format('H:i:s')
+                                        )->format('Y-m-d\TH:i') }}">
+                                
+                            <span class="input-group-text bg-white ">
+                                <i class="fas fa-calendar-alt text-danger"></i>
+                            </span>
+                        </div>
+                    </div>
+
+                    <div class="mb-4">
+                        <label class="form-label fw-bold text-danger mb-3">
+                            <i class="fas fa-hospital me-2"></i>Centro de Doação
+                        </label>
+                        <div class="input-group">
+                            <select 
+                                name="id_centro" 
+                                class="form-select form-select-lg border-2  rounded-3"
+                                aria-label="Selecione o centro de doação"
+                            >
+                                @foreach($centros as $centro)
+                                    <option 
+                                        value="{{ $centro->id }}" 
+                                        @selected($agendamento->id_centro == $centro->id)
+                                        data-lat="{{ $centro->latitude }}"
+                                        data-lng="{{ $centro->longitude }}"
+                                    >
+                                        {{ $centro->nome }}
+                                    </option>
+                                @endforeach
+                            </select>
+                            <span class="input-group-text bg-white ">
+                                <i class="fas fa-map-marker-alt text-danger"></i>
+                            </span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="modal-footer border-0 pt-0">
+                    <button 
+                        type="button" 
+                        class="btn btn-lg btn-outline-danger rounded-pill px-4"
+                        data-bs-dismiss="modal"
+                    >
+                        Cancelar
+                    </button>
+                    <button 
+                        type="submit" 
+                        class="btn btn-lg btn-danger rounded-pill px-4"
+                    >
+                        <i class="fas fa-save me-2"></i>Salvar
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+@endforeach
+    <!-- Modal do cartão-->
 <div class="modal fade" id="cartaoModal" tabindex="-1">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content border-0 bg-transparent">
@@ -829,49 +917,13 @@
         </div>
     </div>
 </div>
-<!-- modal de editar -->
-@foreach ($agendamentos as $agendamento)
-<div class="modal fade" id="editModal{{ $agendamento->id_agendamento }}" tabindex="-1" aria-labelledby="editModalLabel{{ $agendamento->id_agendamento }}" aria-hidden="true">
-     <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="editModalLabel{{ $agendamento->id_agendamento }}">Editar Agendamento</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
-            </div>
-            <div class="modal-body">
-            <form action="{{ route('agendamento.update', ['id' => $agendamento->id_agendamento]) }}" method="POST">
-                                @csrf
-                                @method('PATCH')
-                                <div class="modal-body">
-                                    <label class="form-label">Data da Doação</label>
-                                    <input type="datetime-local" class="form-control" name="data_agendada" 
-                                        value="{{ \Carbon\Carbon::parse(
-                                            \Carbon\Carbon::parse($agendamento->data_agendada)->format('Y-m-d')
-                                            . ' ' .
-                                            \Carbon\Carbon::parse($agendamento->horario)->format('H:i:s')
-                                        )->format('Y-m-d\TH:i') }}">
 
-
-                                    <label class="form-label mt-2">Centro de Doação</label>
-                                    <select name="id_centro" class="form-control">
-                                        @foreach($centros as $centro)
-                                            <option value="{{ $centro->id }}" @if($agendamento->id_centro == $centro->id) selected @endif>
-                                                {{ $centro->nome }}
-                                            </option>
-                                        @endforeach
-                                    </select>
-                                    <div class="modal-footer">
-                                        <button type="submit" class="btn btn-primary">Salvar Alterações</button>
-                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                                    </div>
-                                </form>
-                </div>
-    </div>
-</div>
-@endforeach
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+@endsection
+@section('scripts')
+
 <script>
 //Cartão
  async function downloadPNG() {
@@ -933,6 +985,72 @@ function flipCard() {
         confirmButtonText: 'OK'
       });
     @endif
-  
+  document.addEventListener('DOMContentLoaded', function() {
+    // Inicializar o polyfill inert
+    if (window.Inert) {
+        window.inertPolyfill = new window.Inert();
+    }
+
+    // Configurar modais
+    const modals = document.querySelectorAll('.modal');
+    
+    modals.forEach(modal => {
+        // Inicialmente desativar interação
+        modal.setAttribute('inert', '');
+
+        modal.addEventListener('show.bs.modal', function(e) {
+            // Esconder outros modais abertos
+            document.querySelectorAll('.modal.show').forEach(m => {
+                if (m !== modal) bootstrap.Modal.getInstance(m)?.hide();
+            });
+        });
+
+        modal.addEventListener('shown.bs.modal', function() {
+            modal.removeAttribute('inert');
+            
+        });
+
+        modal.addEventListener('hidden.bs.modal', function() {
+            modal.setAttribute('inert', '');
+        });
+    });
+
+    // Verificar IDs duplicados
+    const modalIds = new Set();
+    document.querySelectorAll('.modal').forEach(modal => {
+        const id = modal.id;
+        if (modalIds.has(id)) {
+            console.error('ID duplicado:', id);
+            modal.remove();
+        }
+        modalIds.add(id);
+    });
+});
+//botão cancelar
+function showCancelAlert(button) {
+    Swal.fire({
+        title: '<span style="color: #dc3545">Confirmar cancelamento?</span>',
+        html: `<div class="alert-content">
+                  <i class="fas fa-exclamation-triangle fa-2x text-danger mb-3"></i>
+                  <p class="text-muted">Esta ação não poderá ser desfeita</p>
+               </div>`,
+        showCancelButton: true,
+        focusConfirm: false,
+        confirmButtonText: '<i class="fas fa-check me-2"></i>Confirmar',
+        cancelButtonText: '<i class="fas fa-times me-2"></i>Voltar',
+        customClass: {
+            popup: 'animated pulse faster',
+            confirmButton: 'btn btn-danger px-4 rounded-pill',
+            cancelButton: 'btn btn-outline-secondary px-4 rounded-pill'
+        },
+        buttonsStyling: false,
+        reverseButtons: true,
+        backdrop: 'rgba(0,0,0,0.4)'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            button.closest('form').submit();
+        }
+    });
+}
 </script>
 @endsection

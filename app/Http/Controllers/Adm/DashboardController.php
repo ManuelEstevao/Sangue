@@ -87,8 +87,7 @@ class DashboardController extends Controller
      */
     public function edit(string $id)
     {
-        $doador = Doador::with('user')->findOrFail($id);
-        return view('ADM.listaD', compact('doador'));
+       
     }
 
     /**

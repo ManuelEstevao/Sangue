@@ -25,7 +25,8 @@ class DashDadorController extends Controller
         // Obtém o usuário autenticado
         $user = Auth::user();
         $doador = Doador::where('id_user', $user->id_user)->first();
-        $doadorId = Auth::id(); // ou Auth::guard('doador')->id() se usas um guard próprio
+        $doadorId = Auth::id();
+        $doador = Auth::user()->doador;
 
     
         // Se o usuário ainda não é um doador, evita erro

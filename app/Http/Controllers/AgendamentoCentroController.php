@@ -32,9 +32,18 @@ class AgendamentoCentroController extends Controller
     });
 
     
-    $agendamentos = $query->latest('data_agendada')
-                      ->paginate(8)
-                      ->appends($request->query());
+     // Ordenação por status e depois por data
+    $agendamentos = $query
+        ->orderByRaw("
+            CASE 
+                WHEN status = 'Agendado' THEN 0 
+                WHEN status = 'Comparecido' THEN 1 
+                ELSE 2 
+            END
+        ")  
+        ->orderBy('data_agendada', 'desc')  
+        ->paginate(8)
+        ->appends($request->query());
 
     return view('centro.agendamento', compact('agendamentos',));
 }

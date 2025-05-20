@@ -69,25 +69,31 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // Data / Idade
-    const upd   = document.getElementById('updateData');
+    const upd = document.getElementById('updateData');
+    const dataContainer = dataField.closest('.data');
     let dateStr = '';
+
     if (upd) {
-      // Campo de atualização injetado
-      // Exibe instrução no campo original
-      setError(dataField, 'Por favor, atualize a data abaixo');
-      if (!upd.value) {
-        setError(upd, 'Informe sua data de nascimento'); ok = false;
-      } else {
-        dateStr = upd.value;
-      }
+        // Se existe campo de atualização
+        if (!upd.value) {
+            dataContainer.classList.add('error');
+            dataContainer.querySelector('.error-message').textContent = 'Atualize sua data abaixo';
+            ok = false;
+        } else {
+            dateStr = upd.value;
+            dataContainer.classList.remove('error');
+            dataContainer.querySelector('.error-message').textContent = '';
+        }
     } else {
-      // Data original
-      const dh = getHidden();
-      if (!dh || !dh.value) {
-        setError(dataField, 'Data é obrigatória'); ok = false;
-      } else {
-        dateStr = dh.value;
-      }
+        // Validação normal
+        const dh = getHidden();
+        if (!dh || !dh.value) {
+            setError(dataField, 'Data é obrigatória'); 
+            ok = false;
+        } else {
+            dateStr = dh.value;
+            setSuccess(dataField);
+        }
     }
     // Se dateStr presente, calcula idade
     if (dateStr) {
@@ -241,4 +247,23 @@ document.addEventListener('DOMContentLoaded', () => {
       setSuccess(dataField);
     }
   });
+});
+
+
+// Máscara para contacto
+contacto.addEventListener('input', function(e) {
+  let x = e.target.value.replace(/\D/g, '').substring(0, 12);
+  let formatted = '+244';
+  
+  if (x.length > 3) {
+    formatted += ' ' + x.substring(3, 6);
+  }
+  if (x.length > 6) {
+    formatted += ' ' + x.substring(6, 9);
+  }
+  if (x.length > 9) {
+    formatted += ' ' + x.substring(9, 12);
+  }
+  
+  e.target.value = formatted;
 });

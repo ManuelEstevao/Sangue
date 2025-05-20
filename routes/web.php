@@ -226,7 +226,6 @@ Route::middleware('auth')->group(function () {
     Route::prefix('admin/')->group(function() {
     Route::get('dashboard', [DashboardController::class, 'index'])->name('admin.dashboard');
     Route::post('doador', [DoadoresController::class, 'store'])->name('doadores.store');
-    Route::get('doadores/{id}/edit', [DashboardController::class, 'edit'])->name('doadores.edit');
     Route::put('doadores/{id}', [DashboardController::class, 'update'])->name('doadores.update');
     Route::get('agendamentos', [AgendamentosController::class, 'index'])
     ->name('agendamentos.todos');
@@ -250,6 +249,9 @@ Route::middleware('auth')->group(function () {
     Route::get('admin/doadores', [DoadoresController::class, 'index'])->name('listaD');
     Route::get('admin/doadores/exportar-pdf', [DoadoresController::class, 'exportarPdf'])
          ->name('doador.Pdf');
+    Route::get('doadores/{id}/perfil', [DoadoresController::class, 'perfil'])->name('doadores.perfil');
+      Route::get('doadores/{id}/edit', [DoadoresController::class, 'edit'])->name('doadores.edit');
+
    
 
 

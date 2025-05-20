@@ -137,16 +137,18 @@
                                         </button>
                                         <ul class="dropdown-menu dropdown-menu-end">
                                             <li>
-                                                <a class="dropdown-item text-info"
-                                                   href="">
+                                                <button 
+                                                    class="dropdown-item text-info btn-visualizar" 
+                                                    data-id="{{ $doador->id_doador }}">
                                                     <i class="fas fa-eye me-2"></i>Visualizar
-                                                </a>
+                                                </button>
                                             </li>
                                             <li>
-                                                <a class="dropdown-item text-primary"
-                                                    href="{{ route('doadores.edit', $doador->id_doador) }}">
-                                                    <i class="fas fa-pen me-2"></i>Editar
-                                                </a>
+                                                <button 
+                                                  class="dropdown-item text-primary btn-editar" 
+                                                  data-id="{{ $doador->id_doador }}">
+                                                  <i class="fas fa-pen me-2"></i>Editar
+                                                </button>
                                             </li>
                                             <li>
                                                 <form id="delete-form-{{ $doador->id_doador }}"
@@ -313,6 +315,49 @@
         </div>
     </div>
 </div>
+
+
+{{-- Modal de Visualização de Perfil --}}
+<div class="modal fade" id="modalVisualizarDoador" tabindex="-1" aria-labelledby="modalVisualizarDoadorLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header bg-info text-white">
+        <h5 class="modal-title" id="modalVisualizarDoadorLabel">Perfil do Doador</h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <div id="conteudoPerfil">
+          {{-- Aqui virão os campos preenchidos dinamicamente --}}
+          <div class="text-center py-5">
+            <i class="fas fa-spinner fa-spin fa-2x"></i>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+{{-- Modal de Edição --}}
+<div class="modal fade" id="modalEditarDoador" tabindex="-1" aria-labelledby="modalEditarDoadorLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header bg-primary text-white">
+        <h5 class="modal-title" id="modalEditarDoadorLabel">Editar Doador</h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <div id="conteudoEditar">
+          <div class="text-center py-5">
+            <i class="fas fa-spinner fa-spin fa-2x"></i>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+
 @endsection
 
 @section('scripts')
@@ -577,6 +622,93 @@ document.addEventListener('DOMContentLoaded', () => {
     form.submit();
   });
 });
+
+ document.querySelectorAll('.btn-visualizar').forEach(btn => {
+    btn.addEventListener('click', async () => {
+      const id = btn.dataset.id;
+      const modalEl = document.getElementById('modalVisualizarDoador');
+      const bsModal = new bootstrap.Modal(modalEl);
+
+      // Mostra loading
+      document.getElementById('conteudoPerfil').innerHTML = `
+        <div class="text-center py-5">
+          <i class="fas fa-spinner fa-spin fa-2x"></i>
+        </div>`;
+
+      bsModal.show();
+
+      try {
+        const res = await fetch(`/doadores/${id}/perfil`);
+        if (!res.ok) throw new Error('Falha ao carregar perfil');
+        const d = await res.json();
+
+        // Preeche o HTML do modal
+        document.getElementById('conteudoPerfil').innerHTML = `
+          <div class="row g-3">
+            <div class="col-md-4 text-center">
+              <img src="/storage/fotos/${d.foto||'profile.png'}"
+                   class="img-fluid rounded-circle mb-3" alt="Foto do Doador">
+              <h5>${d.nome}</h5>
+              <span class="badge bg-secondary">${d.tipo_sanguineo}</span>
+            </div>
+            <div class="col-md-8">
+              <dl class="row">
+                
+
+                <dt class="col-sm-4">Telefone</dt>
+                <dd class="col-sm-8">${d.telefone}</dd>
+
+                <dt class="col-sm-4">Nascimento</dt>
+                <dd class="col-sm-8">${d.data_nascimento}</dd>
+
+                <dt class="col-sm-4">Endereço</dt>
+                <dd class="col-sm-8">${d.endereco||'-'}</dd>
+              </dl>
+            </div>
+          </div>`;
+      } catch (err) {
+        document.getElementById('conteudoPerfil').innerHTML = `
+          <div class="alert alert-danger">
+            Não foi possível carregar o perfil.
+          </div>`;
+      }
+    });
+  });
+
+  // Ao carregar a página
+// Ao carregar a página
+document.querySelectorAll('.btn-editar').forEach(btn => {
+  btn.addEventListener('click', async () => {
+    const id = btn.dataset.id;
+    const modalEl = document.getElementById('modalEditarDoador');
+    const bsModal = new bootstrap.Modal(modalEl);
+
+    // Loading
+    document.getElementById('conteudoEditar').innerHTML = `
+      <div class="text-center py-5">
+        <i class="fas fa-spinner fa-spin fa-2x"></i>
+      </div>`;
+
+    bsModal.show();
+
+    try {
+      // Busca o formulário de edição via rota que retorna só o fragmento HTML
+      const res = await fetch(`/doadores/${id}/edit`);
+      if (!res.ok) throw new Error('Falha ao carregar formulário');
+      const html = await res.text();
+
+      // Insere o formulário no modal
+      document.getElementById('conteudoEditar').innerHTML = html;
+    } catch (err) {
+      document.getElementById('conteudoEditar').innerHTML = `
+        <div class="alert alert-danger">
+          Não foi possível carregar o formulário de edição.
+        </div>`;
+    }
+  });
+});
+
+
 
 </script>
 @endsection
